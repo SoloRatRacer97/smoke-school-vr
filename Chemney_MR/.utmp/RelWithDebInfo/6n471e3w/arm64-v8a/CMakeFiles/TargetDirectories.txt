@@ -1,0 +1,5 @@
+/Users/elytramacminim42/Chemney_MR/.utmp/RelWithDebInfo/6n471e3w/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/elytramacminim42/Chemney_MR/.utmp/RelWithDebInfo/6n471e3w/arm64-v8a/CMakeFiles/rebuild_cache.dir
+/Users/elytramacminim42/Chemney_MR/.utmp/RelWithDebInfo/6n471e3w/arm64-v8a/GameActivity/CMakeFiles/game.dir
+/Users/elytramacminim42/Chemney_MR/.utmp/RelWithDebInfo/6n471e3w/arm64-v8a/GameActivity/CMakeFiles/edit_cache.dir
+/Users/elytramacminim42/Chemney_MR/.utmp/RelWithDebInfo/6n471e3w/arm64-v8a/GameActivity/CMakeFiles/rebuild_cache.dir
