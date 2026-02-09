@@ -343,7 +343,25 @@ public class ManagerTesting : MonoBehaviour
         int nextOpacityIndex = IndexOfOpacity(nextOpacityValue);
         if (nextOpacityIndex == -1) return;
 
-        string nextURL = GetVideoURLByIndex(nextOpacityIndex);
+        // Load the NEXT question's video group (not current) to get the correct URL
+        var savedTypeGroup = currentTypeGroup;
+        var savedVideoIndex = currentVideoIndex;
+
+        LoadGroup(nextOpacityValue, currentSmokeType);
+        if (currentTypeGroup == null || currentTypeGroup.videoURLs.Count == 0)
+        {
+            currentTypeGroup = savedTypeGroup;
+            currentVideoIndex = savedVideoIndex;
+            return;
+        }
+
+        int videoIdx = nextOpacityIndex % currentTypeGroup.videoURLs.Count;
+        string nextURL = currentTypeGroup.videoURLs[videoIdx];
+
+        // Restore current question's group
+        currentTypeGroup = savedTypeGroup;
+        currentVideoIndex = savedVideoIndex;
+
         if (string.IsNullOrEmpty(nextURL)) return;
 
         nextVideoURL = nextURL;
@@ -362,11 +380,26 @@ public class ManagerTesting : MonoBehaviour
 
     string GetVideoURLByIndex(int index)
     {
-        LoadGroup(currentQuestionValues[currentQuestionIndex], currentSmokeType);
-        if (currentTypeGroup == null || currentTypeGroup.videoURLs.Count == 0) return "";
+        // Save and restore currentTypeGroup to avoid corrupting the active question's video group
+        var savedTypeGroup = currentTypeGroup;
+        var savedVideoIndex = currentVideoIndex;
 
-        currentVideoIndex = index % currentTypeGroup.videoURLs.Count;
-        return currentTypeGroup.videoURLs[currentVideoIndex];
+        LoadGroup(currentQuestionValues[currentQuestionIndex], currentSmokeType);
+        if (currentTypeGroup == null || currentTypeGroup.videoURLs.Count == 0)
+        {
+            currentTypeGroup = savedTypeGroup;
+            currentVideoIndex = savedVideoIndex;
+            return "";
+        }
+
+        int videoIdx = index % currentTypeGroup.videoURLs.Count;
+        string url = currentTypeGroup.videoURLs[videoIdx];
+
+        // Restore so we don't corrupt the currently playing question's group
+        currentTypeGroup = savedTypeGroup;
+        currentVideoIndex = savedVideoIndex;
+
+        return url;
     }
 
 
@@ -662,7 +695,7 @@ public class ManagerTesting : MonoBehaviour
 
         if (currenttype == TestType.whitePractice)
         {
-            currentSmokeType = "White";
+            currentSmokeType = "white";
             currentQuestionValues = questionvalues_test_white;
             currenttype = TestType.whiteTest;
             btn_Scratch.gameObject.SetActive(true);
@@ -670,7 +703,7 @@ public class ManagerTesting : MonoBehaviour
         }
         else if (currenttype == TestType.whiteTest)
         {
-            currentSmokeType = "White";
+            currentSmokeType = "white";
             currentQuestionValues = questionvalues_practice_black;
             currenttype = TestType.blackPractice;
             btn_Scratch.gameObject.SetActive(false);
@@ -678,7 +711,7 @@ public class ManagerTesting : MonoBehaviour
         }
         else if (currenttype == TestType.blackPractice)
         {
-            currentSmokeType = "Black";
+            currentSmokeType = "black";
             btn_Scratch.gameObject.SetActive(true);
             btn_SkipPracticeTest.gameObject.SetActive(true);
             currentQuestionValues = questionvalues_test_black;
@@ -686,7 +719,7 @@ public class ManagerTesting : MonoBehaviour
         }
         else if (currenttype == TestType.blackTest)
         {
-            currentSmokeType = "Black";
+            currentSmokeType = "black";
             btn_Scratch.gameObject.SetActive(false);
             btn_SkipPracticeTest.gameObject.SetActive(false);
             Debug.Log("OPEN RESULT PANNEL");
@@ -1006,7 +1039,7 @@ public class ManagerTesting : MonoBehaviour
                 WhiteOpacityActualValue[REVIEWQUESTIONINDEX].text = actual.ToString();
                 whiteSmokeScore[REVIEWQUESTIONINDEX].text = score.ToString();
             }
-            else if (currenttype == TestType.TestComplete)
+            else if (currenttype == TestType.blackTest)
             {
                 YourBlackSelectedValue[REVIEWQUESTIONINDEX].text = selected.ToString();
                 BlackOpacityActualValue[REVIEWQUESTIONINDEX].text = actual.ToString();
@@ -1196,7 +1229,14 @@ public class ManagerTesting : MonoBehaviour
             int x = ogvalue - ansvalue;
             remarks = "Your Value was " + x + "% too low";
         }
-        resultSummaryText.text = "" + remarks;
+        // Debug: show the video filename so we can verify it matches the expected opacity
+        string videoInfo = "";
+        if (videoPlayer != null && !string.IsNullOrEmpty(videoPlayer.url))
+        {
+            string[] urlParts = videoPlayer.url.Split('/');
+            videoInfo = urlParts[urlParts.Length - 1]; // Just the filename
+        }
+        resultSummaryText.text = remarks + "\n<size=60%><color=#888>Video: " + videoInfo + "</color></size>";
     }
 
     private void LoadCurrentQuestion()
@@ -1380,13 +1420,10 @@ public class ManagerTesting : MonoBehaviour
 
     public void OnEndTestButtonClicked()
     {
-        // Reset scores for retake
-        whiteTestScore = 0;
-        blackTestScore = 0;
-
+        int totalScore = whiteTestScore + blackTestScore;
         DataInput_Fields.checkSceneReload = 1;
 
-        if (whiteTestScore + blackTestScore >= 37)
+        if (totalScore >= 37)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
@@ -1395,5 +1432,9 @@ public class ManagerTesting : MonoBehaviour
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             Debug.Log("Home Screen Open!");
         }
+
+        // Reset scores for retake
+        whiteTestScore = 0;
+        blackTestScore = 0;
     }
 }
