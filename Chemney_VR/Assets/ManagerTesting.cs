@@ -1158,7 +1158,8 @@ public class ManagerTesting : MonoBehaviour
         {
             Txt_ContinueText.text = "Continue To Black Practice";
             Txt_currentCompleteTest.text = "White Smoke Testing Complete";
-            openresultPannelButton.gameObject.SetActive(true);
+            openresultPannelButton.gameObject.SetActive(false);
+            btn_SkipPracticeTest.gameObject.SetActive(false);
             BlackPracticeButton.SetActive(true);
         }
         else if (currenttype == TestType.blackPractice)
@@ -1175,6 +1176,7 @@ public class ManagerTesting : MonoBehaviour
             SubmissionButton.SetActive(true);
             Btn_Submission.gameObject.SetActive(false);
             openresultPannelButton.gameObject.SetActive(false);
+            btn_SkipPracticeTest.gameObject.SetActive(false);
             //Txt_ContinueText.text = "Continue To Submission";
             Txt_currentCompleteTest.text = "Black Smoke Testing Complete";
             currenttype = TestType.TestComplete;
@@ -1422,8 +1424,9 @@ public class ManagerTesting : MonoBehaviour
     {
         int totalScore = whiteTestScore + blackTestScore;
         DataInput_Fields.checkSceneReload = 1;
+        ScreenshotSender.didPass = (totalScore <= 37);
 
-        if (totalScore >= 37)
+        if (totalScore <= 37)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
