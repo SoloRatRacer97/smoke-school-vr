@@ -133,8 +133,8 @@ public class ManagerTesting : MonoBehaviour
     public string currentSmokeType = "white";
     public int currentSmokePercentage = 0;
     private int currentVideoIndex = 0;
-    private ChimneySmokeVideoData.SmokeTypeGroup currentTypeGroup;
-    public ChimneySmokeVideoData videoData;
+    public SmokeVideoURLData videoURLData;
+    private SmokeVideoURLData.SmokeTypeGroup currentTypeGroup;
 
     // MODIFIED: Separate scores for white and black smoke tests
     int whiteTestScore = 0;
@@ -237,7 +237,7 @@ public class ManagerTesting : MonoBehaviour
         }
         else if (currenttype == TestType.blackTest)
         {
-            
+
             btn_Scratch.gameObject.SetActive(true);
             Txt_currentCompleteTest.text = "Black Smoke Test";
             Txt_ContinueText.text = "Continue To Submission";
@@ -332,59 +332,29 @@ public class ManagerTesting : MonoBehaviour
 
     /// <summary>
     /// Preload the next video in the background for instant playback
-    /// </summary>
     void PreloadNextVideo()
     {
-        if (!enablePreloading || preloadVideoPlayer == null)
-            return;
+        if (!enablePreloading || preloadVideoPlayer == null || reviewphase || scratchMode) return;
 
-        // Don't preload in review or scratch mode
-        if (reviewphase || scratchMode)
-            return;
-
-        // Check if there's a next question
         int nextQuestionIndex = currentQuestionIndex + 1;
-        if (nextQuestionIndex >= btn_questions.Length || nextQuestionIndex >= currentQuestionValues.Length)
-        {
-            Debug.Log("No next question to preload");
-            return;
-        }
+        if (nextQuestionIndex >= currentQuestionValues.Length) return;
 
-        // Get the next question's opacity value
         int nextOpacityValue = currentQuestionValues[nextQuestionIndex];
         int nextOpacityIndex = IndexOfOpacity(nextOpacityValue);
+        if (nextOpacityIndex == -1) return;
 
-        if (nextOpacityIndex == -1)
-        {
-            Debug.LogWarning($"Invalid opacity index for preload: {nextOpacityValue}");
-            return;
-        }
-
-        // Build the URL for the next video
         string nextURL = GetVideoURLByIndex(nextOpacityIndex);
+        if (string.IsNullOrEmpty(nextURL)) return;
 
-        if (string.IsNullOrEmpty(nextURL))
-        {
-            Debug.LogWarning("Failed to get next video URL for preload");
-            return;
-        }
-
-        // Store the next video info
         nextVideoURL = nextURL;
         nextVideoIndex = nextOpacityIndex;
         isNextVideoPrepared = false;
 
-        // Stop any previous preparation
         if (preloadVideoPlayer.isPrepared)
-        {
             preloadVideoPlayer.Stop();
-        }
 
-        // Set the URL and prepare (buffer) the video
         preloadVideoPlayer.url = nextURL;
         preloadVideoPlayer.Prepare();
-
-        Debug.Log($"Preloading next video: Question {nextQuestionIndex + 1}, Opacity {nextOpacityValue}%, Index {nextOpacityIndex}");
     }
 
 
@@ -392,107 +362,77 @@ public class ManagerTesting : MonoBehaviour
 
     string GetVideoURLByIndex(int index)
     {
-        string filename = "";
+        LoadGroup(currentQuestionValues[currentQuestionIndex], currentSmokeType);
+        if (currentTypeGroup == null || currentTypeGroup.videoURLs.Count == 0) return "";
 
-        if (currenttype == TestType.whiteTest || currenttype == TestType.whitePractice)
-        {
-            if (index >= 0 && index < whiteVideoFiles.Length)
-                filename = whiteVideoFiles[index].ToString();
-        }
-        else
-        {
-            if (index >= 0 && index < blackVideoFiles.Length)
-                filename = blackVideoFiles[index].ToString();
-        }
-
-        if (string.IsNullOrEmpty(filename))
-            return "";
-
-        string path = Path.Combine(Application.streamingAssetsPath, filename);
-
-#if UNITY_WEBGL
-        return path;
-#else
-        return "file://" + path;
-#endif
+        currentVideoIndex = index % currentTypeGroup.videoURLs.Count;
+        return currentTypeGroup.videoURLs[currentVideoIndex];
     }
 
 
     // Called when the preload video is ready
- 
+
     void OnPreloadVideoPrepared(VideoPlayer source)
     {
         isNextVideoPrepared = true;
         Debug.Log("Next video preloaded and ready for instant playback!");
     }
 
-   
+
     // Use preloaded video if available, otherwise load normally
-    
     void PlayVideoWithPreload(int index)
     {
-        // Check if the requested video is already preloaded
         if (enablePreloading && isNextVideoPrepared && nextVideoIndex == index && !string.IsNullOrEmpty(nextVideoURL))
         {
-            Debug.Log("Using preloaded video for instant playback!");
-
-            // Stop current video
-            if (videoPlayer.isPlaying)
-                videoPlayer.Stop();
-
-            // Swap: the preloaded video becomes the main video
+            if (videoPlayer.isPlaying) videoPlayer.Stop();
             videoPlayer.url = nextVideoURL;
             videoPlayer.isLooping = true;
             videoPlayer.Play();
-
-
             isNextVideoPrepared = false;
             nextVideoURL = "";
             nextVideoIndex = -1;
-
             PreloadNextVideo();
         }
         else
         {
-            // Normal loading (fallback)
             playVideoByIndex(index);
         }
     }
 
 
     // Skip Practice/Test Button
-public void OnSkipPractice()
-{
-    Debug.Log("Skip button pressed for " + currenttype);
+    public void OnSkipPractice()
+    {
+        Debug.Log("Skip button pressed for " + currenttype);
 
-    if (currenttype == TestType.whitePractice)
-    {
-        Debug.Log("Skipping White Practice to White Test");
+        if (currenttype == TestType.whitePractice)
+        {
+            Debug.Log("Skipping White Practice to White Test");
             manageWhitePracticeTest.GoToWhiteTutorial();
-        //SkipToTest(TestType.whiteTest);
-    }
-    else if (currenttype == TestType.whiteTest)
-    {
-        Debug.Log("Skipping White Test to Black Practice");
-        SkipToTest(TestType.blackPractice);
-    }
-    else if (currenttype == TestType.blackPractice)
-    {
-        Debug.Log("Skipping Black Practice to Black Test");
+            //SkipToTest(TestType.whiteTest);
+        }
+        else if (currenttype == TestType.whiteTest)
+        {
+            Debug.Log("Skipping White Test to Black Practice");
+            SkipToTest(TestType.blackPractice);
+        }
+        else if (currenttype == TestType.blackPractice)
+        {
+            Debug.Log("Skipping Black Practice to Black Test");
             //SkipToTest(TestType.blackTest);
             mangerBlackPractice.GoToblackTutorial();
         }
-    else if (currenttype == TestType.blackTest)
-    {
-        Debug.Log("Skipping Black Test to Signature Panel");
-        
-        
-        currenttype = TestType.TestComplete;
-        ShowingFinalResult();
-        
-        OpenSignaturePanel();
+        else if (currenttype == TestType.blackTest)
+        {
+            Debug.Log("Skipping Black Test to Signature Panel");
+
+
+            currenttype = TestType.TestComplete;
+            ShowingFinalResult();
+
+            OpenSignaturePanel();
+        }
     }
-}
 
     public void WhiteTestStart()
     {
@@ -533,7 +473,7 @@ public void OnSkipPractice()
             Txt_ContinueText.text = "Continue To Black Practice";
             CurrentTest_txt.text = "White Smoke Testing";
             btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Smoke Test";
-            
+
         }
         else if (testType == TestType.blackPractice)
         {
@@ -651,39 +591,45 @@ public void OnSkipPractice()
 
     void LoadGroup(int percentage, string type)
     {
-        var group = videoData.smokeVideos.FirstOrDefault(g => g.percentage == percentage);
-        if (group == null)
-        {
-            Debug.LogWarning("No smoke group found for " + percentage + "%");
-            return;
-        }
+        var group = videoURLData.smokeVideos.FirstOrDefault(g => g.percentage == percentage);
+        if (group == null) return;
 
         currentTypeGroup = group.types.FirstOrDefault(t => t.typeName.ToLower() == type.ToLower());
+        if (currentTypeGroup == null || currentTypeGroup.videoURLs.Count == 0) return;
 
-        if (currentTypeGroup == null || currentTypeGroup.videoFileNames.Count == 0)
-        {
-            Debug.LogWarning("No videos found for type: " + type + " at " + percentage + "%");
-            return;
-        }
-
-        currentVideoIndex = Random.Range(0, currentTypeGroup.videoFileNames.Count);
+        currentVideoIndex = Random.Range(0, currentTypeGroup.videoURLs.Count);
     }
 
     void PlayCurrentVideo()
     {
-        if (currentTypeGroup == null || currentTypeGroup.videoFileNames.Count == 0)
+        if (currentTypeGroup == null || currentTypeGroup.videoURLs.Count == 0)
             return;
 
-        string fileName = currentTypeGroup.videoFileNames[currentVideoIndex];
-        string path = System.IO.Path.Combine(Application.streamingAssetsPath, fileName);
-        videoPlayer.url = path;
-        videoPlayer.Play();
-    }
+        // Get the URL directly from the ScriptableObject
+        string videoURL = currentTypeGroup.videoURLs[currentVideoIndex];
 
+        if (string.IsNullOrEmpty(videoURL))
+        {
+            Debug.LogWarning("Video URL is empty!");
+            return;
+        }
+
+        // Stop current video if playing
+        if (videoPlayer.isPlaying)
+            videoPlayer.Stop();
+
+        // Assign URL and play
+        videoPlayer.url = videoURL;
+        videoPlayer.isLooping = true;
+        videoPlayer.Play();
+
+        // Preload next video in background
+        PreloadNextVideo();
+    }
     public void RefreshVideo()
     {
         chkgrptype();
-        currentVideoIndex = (currentVideoIndex + 1) % currentTypeGroup.videoFileNames.Count;
+        currentVideoIndex = (currentVideoIndex + 1) % currentTypeGroup.videoURLs.Count;
         PlayCurrentVideo();
     }
 
@@ -900,7 +846,7 @@ public void OnSkipPractice()
         {
             Debug.Log(" In Reviewphase");
             TestingCompletePannel.SetActive(false);
-            
+
 
             REVIEWQUESTIONINDEX = i;
             Debug.Log("Question clicked " + i);
@@ -1168,7 +1114,7 @@ public void OnSkipPractice()
 
         if (currenttype == TestType.whitePractice)
         {
-          WhiteTestButton.SetActive(true);
+            WhiteTestButton.SetActive(true);
 
 
             Txt_ContinueText.text = "Continue To White Testing";
@@ -1195,11 +1141,11 @@ public void OnSkipPractice()
         {
             SubmissionButton.SetActive(true);
             Btn_Submission.gameObject.SetActive(false);
-            openresultPannelButton.gameObject.SetActive(false) ;
+            openresultPannelButton.gameObject.SetActive(false);
             //Txt_ContinueText.text = "Continue To Submission";
             Txt_currentCompleteTest.text = "Black Smoke Testing Complete";
             currenttype = TestType.TestComplete;
-           // ShowingFinalResult();
+            // ShowingFinalResult();
         }
 
         reviewphase = true;
@@ -1265,47 +1211,15 @@ public void OnSkipPractice()
     // MODIFIED: playVideoByIndex now triggers preloading after video starts
     void playVideoByIndex(int index)
     {
-        if (currenttype == TestType.whiteTest || currenttype == TestType.whitePractice)
-        {
-            string filename = whiteVideoFiles[index].ToString();
-            string path = Path.Combine(Application.streamingAssetsPath, filename);
-#if UNITY_WEBGL
-            string url = path;
-#else
-            string url = "file://" + path;
-#endif
+        string url = GetVideoURLByIndex(index);
+        if (string.IsNullOrEmpty(url)) return;
 
-            if (videoPlayer.isPlaying)
-                videoPlayer.Stop();
-
-            videoPlayer.url = "";
-            videoPlayer.url = url;
-            videoPlayer.isLooping = true;
-            videoPlayer.Play();
-        }
-        else
-        {
-            string filename = blackVideoFiles[index].ToString();
-            string path = Path.Combine(Application.streamingAssetsPath, filename);
-#if UNITY_WEBGL
-            string url = path;
-#else
-            string url = "file://" + path;
-#endif
-
-            if (videoPlayer.isPlaying)
-                videoPlayer.Stop();
-
-            videoPlayer.url = "";
-            videoPlayer.url = url;
-            videoPlayer.isLooping = true;
-            videoPlayer.Play();
-        }
-
-        // After starting current video, preload the next one in background
+        if (videoPlayer.isPlaying) videoPlayer.Stop();
+        videoPlayer.url = url;
+        videoPlayer.isLooping = true;
+        videoPlayer.Play();
         PreloadNextVideo();
     }
-
     public void DisableAnswers()
     {
         Debug.Log("check enable");
@@ -1393,7 +1307,7 @@ public void OnSkipPractice()
         YourTotalScore.text = totalScore.ToString();
 
         // Simple pass/fail logic
-        bool failed = totalScore >37; // Make sure condition is correct
+        bool failed = totalScore > 37; // Make sure condition is correct
 
         if (failed)
         {

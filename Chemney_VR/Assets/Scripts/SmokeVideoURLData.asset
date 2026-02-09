@@ -1,0 +1,761 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 822da4d67bcc2984a8d12b4f4e52d32e, type: 3}
+  m_Name: SmokeVideoURLData
+  m_EditorClassIdentifier: 
+  smokeVideos:
+  - percentage: 0
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442983/White00_V1-0022_hzk0bi.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442968/White00_V1-0024_srjvid.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442965/White00_V1-0020_var8ic.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442963/White00_V1-0018_mmoniu.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442961/White00_V1-0014_g4sbsc.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442961/White00_V1-0002_mhbq6e.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442953/White00_V1-0004_t5utdv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442953/White00_V1-0008_hdy1u0.mp4
+    - typeName: Black
+      videoURLs:
+      - 'https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441732/Black00_V2-0029_nwzlnu.mp4 '
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441723/Black00_V2-0025_eaybbp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441645/Black00_V2-0030_zxflvd.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441633/Black00_V2-0024_teflnr.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441469/Black00_V2-0026_amucdm.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441460/Black00_V2-0023_da8chx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441377/Black00_V2-0022_g58cai.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441366/Black00_V2-0018_n3b7kl.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441244/Black00_V2-0004_luhwrr.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441198/Black00_V2-0016_dvfwat.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441152/Black00_V2-0015_wwxane.mp4
+  - percentage: 5
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442991/White05_V1-0030_oiwflc.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442988/White05_V1-0028_puqous.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442987/White05_V1-0024_ynxb6w.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442984/White05_V1-0022_iq5pmg.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442983/White05_V1-0026_e3icnh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442982/White05_V1-0021_qxflvj.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442979/White05_V1-0017_dwa6z6.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442978/White05_V1-0013_hdefg6.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442977/White05_V1-0011_p9v32x.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442974/White05_V1-0008_oxazzb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442973/White05_V1-0015_welyca.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442971/White05_V1-0006_jtswko.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442966/White05_V1-0002_uyju0e.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442291/Black05_V2-0030_cxlsvz.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442286/Black05_V2-0027_beppn4.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442284/Black05_V2-0026_syo0ub.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442281/Black05_V2-0028_wfrmxy.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442280/Black05_V2-0029_w6wyjm.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442280/Black05_V2-0025_u0rtur.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442275/Black05_V2-0023_rfsqs9.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442275/Black05_V2-0021_zoovlo.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442271/Black05_V2-0011_y3dtd3.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442265/Black05_V2-0019_wlv3nd.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442262/Black05_V2-0018_oswttq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442258/Black05_V2-0017_mropum.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442253/Black05_V2-0015_k77xvj.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442196/Black05_V2-0013_ze1dnh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442096/Black05_V2-0010_f41fgo.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441955/Black05_V2-0004_aeubt0.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441924/Black05_V2-0005_tekvrv.mp4
+  - percentage: 10
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442997/White10_ksfuck.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442990/White10_1_xn3vwc.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442351/Black10_V2-0030_sbmwyj.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442341/Black10_V2-0029_rxxrwh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442331/Black10_V2-0024_zp1sty.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442333/Black10_V2-0027_yldjgj.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442333/Black10_V2-0028_llysct.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442328/Black10_V2-0021_yno8j9.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442328/Black10_V2-0023_wnxyxs.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442326/Black10_V2-0026_bvsjrj.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442324/Black10_V2-0025_gbmj1l.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442322/Black10_V2-0022_a29pln.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442320/Black10_V2-0020_lsenpr.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442316/Black10_V2-0019_odbgd8.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442308/Black10_V2-0013_fvmk9p.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442301/Black10_V2-0009_gvyhfx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442295/Black10_V2-0004_chpxok.mp4
+  - percentage: 15
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442995/White15_hb3px3.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442993/White15_2_y9grt1.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442992/White15_1_n0qtbw.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442496/Black15_V2-0014_fnel6d.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442379/Black15_V2-0030_fmdxvt.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442379/Black15_V2-0029_gig6c3.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442377/Black15_V2-0025_h4nbq2.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442377/Black15_V2-0027_igsauz.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442375/Black15_V2-0026_hbr1n3.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442373/Black15_V2-0028_jp0x5u.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442367/Black15_V2-0021_wlrp8e.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442367/Black15_V2-0020_tqsxbt.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442365/Black15_V2-0019_snadim.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442362/Black15_V2-0018_piv4z3.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442358/Black15_V2-0017_uiwf0m.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442356/Black15_V2-0010_mnkso1.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442352/Black15_V2-0009_tkglak.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442347/Black15_V2-0005_dadabh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442346/Black15_V2-0004_nxemvm.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442340/Black15_V2-0001_hg5ox8.mp4
+  - percentage: 20
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443014/White20_V1-0030_czwric.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443011/White20_V1-0028_pzda7d.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443010/White20_V1-0029_og7kqa.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443009/White20_V1-0025_gmqxsg.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443009/White20_V1-0027_ybyu4e.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443008/White20_V1-0017_uxy3gl.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443006/White20_V1-0026_fqbsn2.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443004/White20_V1-0021_stmxjk.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443002/White20_V1-0020_bfyemr.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442997/White20_V1-0001_amfwk4.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442996/White20_V1-0012_tioefn.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442434/Black20_V2-0028_h2l8hy.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442413/Black20_V2-0030_z3qwl5.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442412/Black20_V2-0029_ma9fxn.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442409/Black20_V2-0027_w0cqjl.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442409/Black20_V2-0023_fr4ee6.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442405/Black20_V2-0025_qkn2ot.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442405/Black20_V2-0007_bnmrns.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442402/Black20_V2-0020_wsroxd.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442404/Black20_V2-0022_whcnp0.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442388/Black20_V2-0004_fq8tfu.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442387/Black20_V2-0008_dp3zqo.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442382/Black20_V2-0002_uljpwa.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442382/Black20_V2-0003_rezovi.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442375/Black20_V2-0001_szd7ib.mp4
+  - percentage: 25
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443026/White25_1_taihxu.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443023/White25_8_dyb5js.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443020/White25_6_dc6oep.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443018/White25_2_rr1eii.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443015/White25_3_scc0lw.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443015/White25_5_ho1kfv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443014/White25_dfpoln.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442461/Black25_V2-0024_skqcq7.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442444/Black25_V2-0026_nhc0e3.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442446/Black25_V2-0030_pdbott.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442444/Black25_V2-0029_z0x8yp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442441/Black25_V2-0028_nydest.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442440/Black25_V2-0025_jcqydy.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442439/Black25_V2-0023_kqvusd.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442429/Black25_V2-0018_wo2o4b.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442427/Black25_V2-0011_pmdepr.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442426/Black25_V2-0012_uyavtv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442425/Black25_V2-0013_ilethf.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442423/Black25_V2-0010_jqbtvu.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442422/Black25_V2-0008_qqvmv3.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442421/Black25_V2-0005_xw0u9z.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442418/Black25_V2-0007_kv4gwp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442415/Black25_V2-0002_ymvn8f.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442417/Black25_V2-0006_pij9dt.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442414/Black25_V2-0001_irepyb.mp4
+  - percentage: 30
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441872/White30_V1-0017_lh15eh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443046/White30_V1-0012_cweeex.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443038/White30_V1-0020_h9k4oz.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443037/White30_V1-0023_geyfvo.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443034/White30_V1-0022_cituif.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443033/White30_V1-0021_ehw12p.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443032/White30_V1-0018_oroj9h.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443032/White30_V1-0016_vwomgg.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443030/White30_V1-0008_vcyh4p.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443028/White30_V1-0010_rg7opx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443028/White30_V1-0014_qslpw6.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443021/White30_V1-0004_mulhw5.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443024/White30_V1-0001_lmzybh.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442586/Black30_V2-0023_lvkdfh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442477/Black30_V2-0030_kvrhlh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442475/Black30_V2-0029_wupyws.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442473/Black30_V2-0027_ggbi3w.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442471/Black30_V2-0025_lbbjpm.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442470/Black30_V2-0002_n9nfsu.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442465/Black30_V2-0020_a4z2we.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442467/Black30_V2-0019_eygfyb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442464/Black30_V2-0017_uya4y1.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442463/Black30_V2-0013_iv6ofb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442459/Black30_V2-0012_tymxxx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442455/Black30_V2-0008_wempce.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442452/Black30_V2-0006_zfcv9u.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442451/Black30_V2-0007_rq1bcs.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442449/Black30_V2-0001_jpen8w.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442446/Black30_V2-0003_xvs7yd.mp4
+  - percentage: 35
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441887/White35_V1-0004_rhc5n1.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443052/White35_V1-0030_tv6oph.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443050/White35_V1-0029_p5b69v.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443050/White35_V1-0018_j0mlc7.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443047/White35_V1-0013_svbddq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443047/White35_V1-0015_t2kraa.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443044/White35_V1-0007_r6hk4t.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443043/White35_V1-0009_jdtljk.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443042/White35_V1-0011_pkxxbe.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443042/White35_V1-0005_nvryws.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443040/White35_V1-0003_fon0iu.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443037/White35_V1-0001_hfowif.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442514/Black35_V2-0030_obzenk.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442509/Black35_V2-0028_zs5dnb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442509/Black35_V2-0029_wzsoju.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442506/Black35_V2-0027_ok66pu.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442504/Black35_V2-0024_oy6ews.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442504/Black35_V2-0022_newuy6.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442505/Black35_V2-0025_yqwppp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442502/Black35_V2-0023_kajtmj.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442500/Black35_V2-0020_c9xmit.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442499/Black35_V2-0018_vmyb4w.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442490/Black35_V2-0011_ycnzp6.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442486/Black35_V2-0008_n6ysyv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442482/Black35_V2-0004_ls5el5.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442481/Black35_V2-0002_e9n6ya.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442478/Black35_V2-0001_rcdyz8.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441860/White30_V1-0011_jdedwu.mp4
+  - percentage: 40
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443064/White40_jw0so8.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443053/White40_1_wuvpsd.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442563/Black40_V2-0021_ocoxbe.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442543/Black40_V2-0030_v2aoaq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442542/Black40_V2-0026_ap3eqw.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442542/Black40_V2-0029_ot3wrf.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442536/Black40_V2-0025_rsgss5.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442538/Black40_V2-0023_ueyuhb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442536/Black40_V2-0028_mhn2el.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442534/Black40_V2-0024_jax4sj.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442534/Black40_V2-0022_mpnzpq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442532/Black40_V2-0020_p5bcvc.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442532/Black40_V2-0019_jdx50i.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442525/Black40_V2-0014_mxl8p9.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442518/Black40_V2-0006_vv42cf.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442518/Black40_V2-0004_rbnr0k.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442519/Black40_V2-0010_vuagds.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442514/Black40_V2-0007_ooe4qz.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442514/Black40_V2-0005_btap79.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442513/Black40_V2-0003_t6tgp0.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442510/Black40_V2-0001_fxz0rm.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442509/Black40_V2-0002_cuypyr.mp4
+  - percentage: 45
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441936/White45_V1-0025_ytmlmy.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443084/White45_V1-0030_iofq4g.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443069/White45_V1-0028_krrv21.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443070/White45_V1-0026_cmyabm.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443068/White45_V1-0004_dv0ih7.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443067/White45_V1-0024_minqtx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443065/White45_V1-0019_npsxym.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443063/White45_V1-0014_pgzgbp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443066/White45_V1-0022_plk9kl.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443063/White45_V1-0020_bxgdm0.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443062/White45_V1-0016_qi5liv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443061/White45_V1-0018_foyuch.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443059/White45_V1-0013_hol6lw.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443058/White45_V1-0006_pnjlkb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443057/White45_V1-0010_pe8wkp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443056/White45_V1-0012_bxksfx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443054/White45_V1-0002_qxjitk.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442596/Black45_V2-0017_ltm5xg.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442573/Black45_V2-0027_it0yb4.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442578/Black45_V2-0030_qvgkzr.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442574/Black45_V2-0028_yqjxup.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442574/Black45_V2-0029_cd4hoh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442571/Black45_V2-0026_g7tyuc.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442568/Black45_V2-0025_fpjeny.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442570/Black45_V2-0022_yp2hpa.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442566/Black45_V2-0020_uha5pk.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442564/Black45_V2-0021_a4m5hp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442562/Black45_V2-0019_ud9n4g.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442560/Black45_V2-0018_mxy63e.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442550/Black45_V2-0006_zfhnyp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442547/Black45_V2-0004_krvdmz.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442546/Black45_V2-0003_lvtmnd.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442542/Black45_V2-0002_yktanw.mp4
+  - percentage: 50
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441948/White50_3_eta62k.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441948/White50_8_nrxgvu.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441958/White50_13_bbampq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443187/White50_10_xrqgks.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443083/White50_nvfvmd.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443082/White50_14_bnazmf.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443080/White50_9_yn35yo.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443081/White50_7_eo2dhx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443078/White50_11_l0fcwv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443074/White50_5_ppgqhd.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443072/White50_2_i6p4e4.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443071/White50_1_hcagk7.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442691/Black50_V2-0011_hz3dmz.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442627/Black50_V2-0025_lejowx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442616/Black50_V2-0014_ji0cdp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442610/Black50_V2-0028_gdun3t.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442609/Black50_V2-0030_wl4mcs.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442608/Black50_V2-0029_ge7jij.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442603/Black50_V2-0022_sabg5r.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442601/Black50_V2-0023_qzbptt.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442594/Black50_V2-0016_kbb3jy.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442590/Black50_V2-0013_c3bmsi.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442583/Black50_V2-0003_jwwo5q.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442579/Black50_V2-0001_wje7dd.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442579/Black50_V2-0001_wje7dd.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442580/Black50_V2-0004_desz6n.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442576/Black50_V2-0002_hydjfu.mp4
+  - percentage: 55
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441982/White55_V1-0021_klhblv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443108/White55_V1-0020_fmno5v.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443106/White55_V1-0014_eahdhc.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443096/White55_V1-0022_jbpjxz.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443093/White55_V1-0026_xctnvg.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443091/White55_V1-0028_yvtup9.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443090/White55_V1-0024_x7r6g2.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443085/White55_V1-0016_uf7soj.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443086/White55_V1-0005_edfhdt.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443085/White55_V1-0011_eio19z.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442660/Black55_V2-0015_bkfek7.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442653/Black55_V2-0022_t9zlmm.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442642/Black55_V2-0030_nquca0.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442642/Black55_V2-0027_scd3gm.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442640/Black55_V2-0028_vk0rge.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442640/Black55_V2-0026_q5dii6.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442638/Black55_V2-0029_mtyznv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442637/Black55_V2-0025_nan1ht.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442636/Black55_V2-0024_pdurcf.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442632/Black55_V2-0019_oww0rv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442632/Black55_V2-0020_ha0bcn.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442632/Black55_V2-0018_pwi7us.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442630/Black55_V2-0008_uuqm8w.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442629/Black55_V2-0013_j89sfx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442628/Black55_V2-0016_sdwff8.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442627/Black55_V2-0014_ru9zmg.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442627/Black55_V2-0017_vndlvh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442624/Black55_V2-0012_proncw.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442623/Black55_V2-0011_qi55bb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442615/Black55_V2-0004_srolmv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442618/Black55_V2-0007_rwwehs.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442615/Black55_V2-0006_t6jmmr.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442613/Black55_V2-0002_rveaxb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442611/Black55_V2-0001_zutgvz.mp4
+  - percentage: 60
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442003/White60_V1-0028_w3e9xr.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443108/White60_V1-0030_lu0ao5.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443106/White60_V1-0029_mrs5mb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443104/White60_V1-0024_ej4obn.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443103/White60_V1-0018_hk8fzi.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443103/White60_V1-0027_usde5a.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443101/White60_V1-0005_finrbn.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443099/White60_V1-0016_tv9w5u.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443097/White60_V1-0001_lytcwx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443096/White60_V1-0003_aanqds.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442695/Black60_V2-0017_rntlxx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442686/Black60_V2-0012_qr2dye.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442682/Black60_V2-0030_ewiq6a.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442678/Black60_V2-0027_nlwwdm.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442677/Black60_V2-0028_yjtncr.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442675/Black60_V2-0029_wo8rva.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442673/Black60_V2-0024_gwwbnu.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442673/Black60_V2-0026_wgycrh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442670/Black60_V2-0023_ksfymb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442668/Black60_V2-0021_ankrv3.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442667/Black60_V2-0022_panr41.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442661/Black60_V2-0015_p7ajdl.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442661/Black60_V2-0016_ex03ur.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442661/Black60_V2-0016_ex03ur.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442658/Black60_V2-0013_ekwokp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442649/Black60_V2-0008_dcaytx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442651/Black60_V2-0006_pypnzv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442651/Black60_V2-0007_dsaekx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442645/Black60_V2-0003_np0lb7.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442644/Black60_V2-0001_yufatc.mp4
+  - percentage: 65
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443141/White65_V1-0026_zyoav3.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443125/White65_V1-0008_fvmcro.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443123/White65_V1-0022_oiou7u.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443122/White65_V1-0024_kbjndb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443121/White65_V1-0010_dw4wjz.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443121/White65_V1-0028_tsvfip.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443116/White65_V1-0018_lmzfbp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443115/White65_V1-0015_p420wf.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443112/White65_V1-0012_mfkqkq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443108/White65_V1-0004_h4hn7w.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443108/White65_V1-0002_z8ptqq.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442808/Black65_V2-0018_uppuv4.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442711/Black65_V2-0029_leglxh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442709/Black65_V2-0028_smw5b6.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442709/Black65_V2-0021_xxx68e.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442706/Black65_V2-0026_oacdxp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442705/Black65_V2-0025_qftmtt.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442704/Black65_V2-0023_qv9fsl.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442699/Black65_V2-0019_bpqlmn.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442696/Black65_V2-0017_pcuaap.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442695/Black65_V2-0016_frdlrj.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442691/Black65_V2-0008_ywdypq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442687/Black65_V2-0005_mylcc2.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442687/Black65_V2-0009_uzcr1f.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442686/Black65_V2-0004_x3qmgq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442685/Black65_V2-0007_mupfx3.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442682/Black65_V2-0003_hg3iom.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442680/Black65_V2-0001_fgbyzh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442676/Black65_V2-0002_cszap3.mp4
+  - percentage: 70
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443167/White70_V1-0025_dnojpr.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443160/White70_V1-0013_somv9d.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443146/White70_V1-0027_njhqcw.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443144/White70_V1-0023_dtt6cy.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443143/White70_V1-0029_ryqs7j.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443143/White70_V1-0024_vcflht.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443140/White70_V1-0022_unqsdl.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443138/White70_V1-0021_srxgns.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443138/White70_V1-0017_dhg5hk.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443136/White70_V1-0015_snuvbp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443133/White70_V1-0018_khk5mp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443133/White70_V1-0014_xkrqff.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443125/White70_V1-0003_zbellm.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443123/White70_V1-0001_wzr3hp.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442760/Black70_V2-0019_vttnpp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442743/Black70_V2-0029_wdvgd0.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442737/Black70_V2-0003_atst8t.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442739/Black70_V2-0027_zwf51s.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442739/Black70_V2-0024_r1savt.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442738/Black70_V2-0026_ywlsnn.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442732/Black70_V2-0021_cydtk7.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442728/Black70_V2-0018_w9i4lk.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442725/Black70_V2-0009_oka3ct.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442723/Black70_V2-0014_fur79k.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442722/Black70_V2-0010_go2eko.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442719/Black70_V2-0013_rilzog.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442718/Black70_V2-0012_msj8gq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442715/Black70_V2-0008_pulw3f.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442713/Black70_V2-0006_dyrspv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442715/Black70_V2-0005_jfxfts.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442714/Black70_V2-0002_fhig1g.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442710/Black70_V2-0001_ijbcqv.mp4
+  - percentage: 75
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442072/White75_V1-0007_hbbpim.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442080/White75_V1-0014_jcseii.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443164/White75_V1-0030_dj7yx7.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443161/White75_V1-0020_sawjqn.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443149/White75_V1-0015_zmufam.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443158/White75_V1-0021_bbhps9.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443156/White75_V1-0025_u7xony.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443157/White75_V1-0023_ovx7p2.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443155/White75_V1-0019_ylrypl.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443152/White75_V1-0017_j9cmpc.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443150/White75_V1-0010_tubxuq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443151/White75_V1-0013_mkb7o0.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443148/White75_V1-0012_zxeh4l.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443147/White75_V1-0008_mmrwvf.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443143/White75_V1-0006_n6i3vl.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442801/Black75_V2-0030_ultvut.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442790/Black75_V2-0018_jfvero.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442776/Black75_V2-0027_jmvati.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442775/Black75_V2-0003_bxt0iz.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442774/Black75_V2-0029_hrlgxh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442772/Black75_V2-0025_j8lrlb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442773/Black75_V2-0028_edzn7a.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442771/Black75_V2-0026_q199lz.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442769/Black75_V2-0022_e6w5d1.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442767/Black75_V2-0023_pe9b5e.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442765/Black75_V2-0021_o3lioa.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442762/Black75_V2-0017_rtsidb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442761/Black75_V2-0014_lxbq7d.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442759/Black75_V2-0016_ikga3w.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442758/Black75_V2-0015_jpy2rq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442752/Black75_V2-0009_z326sx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442747/Black75_V2-0006_qsckxs.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442747/Black75_V2-0004_wrnehw.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442744/Black75_V2-0002_bmbq9e.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442742/Black75_V2-0001_exqiqd.mp4
+  - percentage: 80
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442098/White80_V1-0002_gryjsy.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442120/White80_V1-0021_o2ff9a.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443187/White80_V1-0012_pcqurk.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443183/White80_V1-0003_um0dmn.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443181/White80_V1-0024_ebevtk.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443180/White80_V1-0026_xlmmul.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443176/White80_V1-0025_nlwq14.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443177/White80_V1-0022_lgz1oz.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443173/White80_V1-0020_gg0svd.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443173/White80_V1-0019_aib5en.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443172/White80_V1-0007_e9mrmm.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443171/White80_V1-0018_g1uult.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443168/White80_V1-0011_tw3mvp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443166/White80_V1-0009_tpaymb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443163/White80_V1-0001_kf6rtl.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443163/White80_V1-0005_pjkghy.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442816/Black80_V2-0017_hhyovo.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442812/Black80_V2-0027_h49kxr.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442810/Black80_V2-0030_y9o4og.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442809/Black80_V2-0029_sd8uyh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442805/Black80_V2-0025_ds6hj4.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442803/Black80_V2-0024_qtootb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442799/Black80_V2-0021_qqzxey.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442797/Black80_V2-0018_gnputh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442793/Black80_V2-0012_pn9i9c.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442793/Black80_V2-0019_b31y7j.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442793/Black80_V2-0014_m5wh8b.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442792/Black80_V2-0011_ax6rc0.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442788/Black80_V2-0004_ffihbd.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442789/Black80_V2-0007_wxraoe.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442783/Black80_V2-0008_phibjb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442783/Black80_V2-0005_vxnke9.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442780/Black80_V2-0003_myvp8b.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442778/Black80_V2-0002_grvrdy.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442778/Black80_V2-0001_q2eynv.mp4
+  - percentage: 85
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442141/White85_V1-0007_qqgv2d.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442147/White85_V1-0013_mcmoc6.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443246/White85_V1-0018_dg4ch5.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443209/White85_V1-0008_b8vpwv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443207/White85_V1-0012_y8ps9d.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443199/White85_V1-0027_hiwsq8.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443196/White85_V1-0028_hkswqw.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443192/White85_V1-0029_ag12we.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443191/White85_V1-0014_bvtiln.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443191/White85_V1-0016_bc0gns.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443187/White85_V1-0010_rlctxa.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443181/White85_V1-0005_peoqbm.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443177/White85_V1-0001_lqrxnh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443177/White85_V1-0002_tfzx6h.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442935/Black85_V2-0002_gzljrr.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442861/Black85_V2-0028_z11qiy.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442856/Black85_V2-0019_aa3jo7.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442843/Black85_V2-0030_oyq9fd.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442842/Black85_V2-0029_ef0gsl.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442841/Black85_V2-0027_qn9gqf.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442839/Black85_V2-0026_pgqtye.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442838/Black85_V2-0025_bmmxp3.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442837/Black85_V2-0011_fxgvdh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442837/Black85_V2-0024_ly5nbj.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442835/Black85_V2-0022_g2lab1.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442832/Black85_V2-0020_vnfx3x.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442831/Black85_V2-0018_su4ef1.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442830/Black85_V2-0015_ew9ior.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442828/Black85_V2-0016_gnszro.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442827/Black85_V2-0017_tnkpd0.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442826/Black80_V2-0026_ilpl8h.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442823/Black85_V2-0014_in2qna.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442824/Black85_V2-0010_dxxrtm.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442819/Black85_V2-0007_erlhng.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442820/Black85_V2-0006_hkowse.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442817/Black85_V2-0004_nbvo9r.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442818/Black85_V2-0008_fgmrpa.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442816/Black85_V2-0003_bxbmjx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442814/Black85_V2-0005_lurupt.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442814/Black85_V2-0001_rt4vbe.mp4
+  - percentage: 90
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443219/White90_V1-0016_ha2kqs.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443211/White90_V1-0030_nxsne1.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443208/White90_V1-0028_hixewp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443205/White90_V1-0024_ohbmte.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443202/White90_V1-0013_vta4bc.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443206/White90_V1-0026_klci1q.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443204/White90_V1-0009_zfdgsa.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443201/White90_V1-0004_zhyggx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443201/White90_V1-0007_ikfrdd.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443197/White90_V1-0005_zqsz5c.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443195/White90_V1-0003_mlg5gs.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443195/White90_V1-0002_nm46hs.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442890/Black90_V2-0021_amjx7y.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442886/Black90_V2-0015_qvfhg5.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442877/Black90_V2-0029_abv43o.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442877/Black90_V2-0030_xxwmbg.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442872/Black90_V2-0026_jgwtmq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442872/Black90_V2-0028_gahwqn.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442873/Black90_V2-0027_whonzr.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442870/Black90_V2-0024_bnnozs.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442868/Black90_V2-0023_mhgns2.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442865/Black90_V2-0020_dkkua2.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442867/Black90_V2-0025_d8s85b.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442863/Black90_V2-0019_lgqg5p.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442863/Black90_V2-0018_pjweh1.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442862/Black90_V2-0013_aqld9o.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442860/Black90_V2-0017_ylahgq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442858/Black90_V2-0016_b1hpyp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442858/Black90_V2-0012_el3rgg.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442857/Black90_V2-0010_nhokhf.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442850/Black90_V2-0007_fb5uuf.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442848/Black90_V2-0004_rmpe7m.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442847/Black90_V2-0005_r4ahuz.mp4
+  - percentage: 95
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442184/White95_V1-0002_qo6w2c.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442189/White95_V1-0014_ex9imq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443230/White95_V1-0030_gqjsyt.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443226/White95_V1-0003_klhyga.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443225/White95_V1-0028_tftorx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443222/White95_V1-0025_dfzb09.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443225/White95_V1-0027_qjaobp.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443223/White95_V1-0029_gzfil2.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443220/White95_V1-0015_gkxxt2.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443219/White95_V1-0026_y3tbpo.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443221/White95_V1-0023_era6mh.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443213/White95_V1-0017_evgb64.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443215/White95_V1-0019_eszd84.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443211/White95_V1-0013_wqkyl1.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443211/White95_V1-0001_eb1olq.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442921/Black95_V2-0017_mm3sfq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442907/Black95_V2-0026_obgrjd.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442910/Black95_V2-0030_p3xme9.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442908/Black95_V2-0029_kbueh4.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442908/Black95_V2-0027_tuwl9y.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442904/Black95_V2-0028_t4laem.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442902/Black95_V2-0024_knpoeu.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442899/Black95_V2-0021_zc3oc9.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442899/Black95_V2-0023_lvlp4p.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442897/Black95_V2-0022_f0gt4w.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442892/Black95_V2-0015_fmzosi.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442889/Black95_V2-0010_yrdfhk.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442887/Black95_V2-0009_g8b4ba.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442886/Black95_V2-0007_cji8dv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442881/Black95_V2-0002_y9xm2s.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442881/Black95_V2-0004_jf9zpz.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442875/Black95_V2-0001_asfy5n.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442877/Black95_V2-0003_ven19c.mp4
+  - percentage: 100
+    types:
+    - typeName: White
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442236/White100_V1-0022_zquo4p.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443249/White100_V1-0009_tkloxq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443248/White100_V1-0011_djmzvu.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443248/White100_V1-0002_vn42ks.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443246/White100_V1-0005_vtdudx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443245/White100_V1-0029_njdgje.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443243/White100_V1-0028_ylfpug.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443243/White100_V1-0030_e1kzhn.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443242/White100_V1-0027_vjdsd9.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443241/White100_V1-0026_raw1gx.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443240/White100_V1-0023_myxvh3.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443239/White100_V1-0025_tijhvv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443238/White100_V1-0021_m4lh3v.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443235/White100_V1-0020_fcqg4z.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443236/White100_V1-0019_c8rs47.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443235/White100_V1-0017_ixmpjz.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443228/White100_V1-0003_wzcaks.mp4
+    - typeName: Black
+      videoURLs:
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442955/Black100_V2-0009_zmxofc.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442949/Black100_V2-0030_mn5onr.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442946/Black100_V2-0029_focj2l.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442946/Black100_V2-0027_d3i8x7.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442946/Black100_V2-0028_bsepa7.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442946/Black100_V2-0005_zxxper.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442945/Black100_V2-0025_fyfdrq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442939/Black100_V2-0021_x3b84r.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442940/Black100_V2-0026_aawydq.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442941/Black100_V2-0022_f0vncl.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442941/Black100_V2-0023_ukaegu.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442937/Black100_V2-0024_uaxkc2.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442937/Black100_V2-0019_bzj2po.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442934/Black100_V2-0020_btkmra.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442932/Black100_V2-0018_tkotke.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442931/Black100_V2-0015_qmdndi.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442931/Black100_V2-0016_itd046.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442930/Black100_V2-0017_gzksd7.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442926/Black100_V2-0013_pwo7ko.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442925/Black100_V2-0011_adzbyb.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442926/Black100_V2-0012_rubiwa.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442920/Black100_V2-0006_m75vzt.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442917/Black100_V2-0007_ss3vmy.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442916/Black100_V2-0002_djfulo.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442914/Black100_V2-0003_god6nv.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442912/Black100_V2-0004_lprkh5.mp4
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442912/Black100_V2-0001_wfwiyu.mp4

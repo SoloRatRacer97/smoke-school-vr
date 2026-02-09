@@ -1,13 +1,14 @@
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 using UnityEngine.Video;
 using TMPro;
-using System.IO;
 
 public class SimpleVideoPlayer : MonoBehaviour
 {
-    public enum VideoPlayerType { low, med, high, Max };
-    public string[] filenames;
+    public enum VideoPlayerType { low, med, high, Max }
+
+    [Header("Video URLs (Low → Max)")]
+    public string[] videoURLs; // put full URLs here
+
     public VideoPlayer videoPlayer;
 
     [Header("UI Text Fields")]
@@ -17,13 +18,12 @@ public class SimpleVideoPlayer : MonoBehaviour
     public VideoPlayerType currentvideo;
 
     [Header("Loading UI")]
-    public GameObject loadingImage;   // your loading image
+    public GameObject loadingImage;
     private RectTransform loadingImageRect;
     public float rotationSpeed = 200f;
 
     void Start()
     {
-        // Show loading image immediately on start
         if (loadingImage != null)
         {
             loadingImage.SetActive(true);
@@ -35,7 +35,6 @@ public class SimpleVideoPlayer : MonoBehaviour
 
     void Update()
     {
-        // Rotate the loading image if active
         if (loadingImage != null && loadingImage.activeSelf)
             RotateLoadingImage();
     }
@@ -48,65 +47,55 @@ public class SimpleVideoPlayer : MonoBehaviour
     void PlayVideo(VideoPlayerType videoPlayerType)
     {
         currentvideo = videoPlayerType;
-        string filename = "";
         int percent = 0;
+        string url = "";
 
-        // Show loading image on new video
         if (loadingImage != null)
             loadingImage.SetActive(true);
 
         switch (videoPlayerType)
         {
             case VideoPlayerType.low:
-                filename = filenames[0];
+                url = videoURLs[0];
                 percent = 25;
                 break;
 
             case VideoPlayerType.med:
-                filename = filenames[1];
+                url = videoURLs[1];
                 percent = 50;
                 break;
 
             case VideoPlayerType.high:
-                filename = filenames[2];
+                url = videoURLs[2];
                 percent = 75;
                 break;
 
             case VideoPlayerType.Max:
-                filename = filenames[3];
+                url = videoURLs[3];
                 percent = 100;
                 break;
         }
 
-        string path = Path.Combine(Application.streamingAssetsPath, filename);
-
-#if UNITY_WEBGL
-        string url = path;
-#else
-        string url = "file://" + path;
-#endif
-
         if (videoPlayer.isPlaying)
             videoPlayer.Stop();
 
-        videoPlayer.url = "";
         videoPlayer.url = url;
         videoPlayer.isLooping = true;
 
-        // Prepare video before playing
         videoPlayer.Prepare();
 
-        UpdateOpacityUI(percent);
         currentURL = url;
+        UpdateOpacityUI(percent);
 
-        Debug.Log("Preparing video: " + url);
+        Debug.Log("Preparing video from URL: " + url);
     }
 
     void OnVideoPrepared(VideoPlayer vp)
     {
         vp.Play();
         if (loadingImage != null)
-            loadingImage.SetActive(false); // Hide loading image when video starts
+            loadingImage.SetActive(false);
+
         Debug.Log("Video started!");
     }
 
@@ -118,8 +107,6 @@ public class SimpleVideoPlayer : MonoBehaviour
     private void RotateLoadingImage()
     {
         if (loadingImageRect != null)
-        {
             loadingImageRect.Rotate(0f, 0f, -rotationSpeed * Time.deltaTime);
-        }
     }
 }

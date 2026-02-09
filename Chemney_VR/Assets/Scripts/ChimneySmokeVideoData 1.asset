@@ -1,0 +1,1056 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbc4b9bc12ec240c7b6a09e5c28f7f41, type: 3}
+  m_Name: ChimneySmokeVideoData 1
+  m_EditorClassIdentifier: 
+  smokeVideos:
+  - percentage: 0
+    types:
+    - typeName: White
+      videoFileNames:
+      - White00_V1-0001.mp4
+      - White00_V1-0002.mp4
+      - White00_V1-0004.mp4
+      - White00_V1-0008.mp4
+      - White00_V1-0010.mp4
+      - White00_V1-0012.mp4
+      - White00_V1-0014.mp4
+      - White00_V1-0016.mp4
+      - White00_V1-0018.mp4
+      - White00_V1-0020.mp4
+      - White00_V1-0022.mp4
+      - White00_V1-0024.mp4
+      - White00_V1-0026.mp4
+      - White00_V1-0029.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black00_V2-0001.mp4
+      - Black00_V2-0002.mp4
+      - Black00_V2-0003.mp4
+      - Black00_V2-0004.mp4
+      - Black00_V2-0005.mp4
+      - Black00_V2-0006.mp4
+      - Black00_V2-0007.mp4
+      - Black00_V2-0008.mp4
+      - Black00_V2-0009.mp4
+      - Black00_V2-0010.mp4
+      - Black00_V2-0011.mp4
+      - Black00_V2-0012.mp4
+      - Black00_V2-0013.mp4
+      - Black00_V2-0014.mp4
+      - Black00_V2-0015.mp4
+      - Black00_V2-0016.mp4
+      - Black00_V2-0017.mp4
+      - Black00_V2-0018.mp4
+      - Black00_V2-0019.mp4
+      - Black00_V2-0020.mp4
+      - Black00_V2-0021.mp4
+      - Black00_V2-0022.mp4
+      - Black00_V2-0023.mp4
+      - Black00_V2-0024.mp4
+      - Black00_V2-0025.mp4
+      - Black00_V2-0026.mp4
+      - Black00_V2-0027.mp4
+      - Black00_V2-0028.mp4
+      - Black00_V2-0029.mp4
+      - Black00_V2-0030.mp4
+  - percentage: 5
+    types:
+    - typeName: White
+      videoFileNames:
+      - White05_V1-0002.mp4
+      - White05_V1-0004.mp4
+      - White05_V1-0006.mp4
+      - White05_V1-0008.mp4
+      - White05_V1-0011.mp4
+      - White05_V1-0013.mp4
+      - White05_V1-0015.mp4
+      - White05_V1-0017.mp4
+      - White05_V1-0019.mp4
+      - White05_V1-0021.mp4
+      - White05_V1-0022.mp4
+      - White05_V1-0024.mp4
+      - White05_V1-0026.mp4
+      - White05_V1-0028.mp4
+      - White05_V1-0030.mp4
+      - White05_V1-0030.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black05_V2-0001.mp4
+      - Black05_V2-0002.mp4
+      - Black05_V2-0003.mp4
+      - Black05_V2-0004.mp4
+      - Black05_V2-0005.mp4
+      - Black05_V2-0006.mp4
+      - Black05_V2-0007.mp4
+      - Black05_V2-0008.mp4
+      - Black05_V2-0009.mp4
+      - Black05_V2-0010.mp4
+      - Black05_V2-0011.mp4
+      - Black05_V2-0012.mp4
+      - Black05_V2-0013.mp4
+      - Black05_V2-0014.mp4
+      - Black05_V2-0015.mp4
+      - Black05_V2-0016.mp4
+      - Black05_V2-0017.mp4
+      - Black05_V2-0018.mp4
+      - Black05_V2-0019.mp4
+      - Black05_V2-0020.mp4
+      - Black05_V2-0021.mp4
+      - Black05_V2-0022.mp4
+      - Black05_V2-0023.mp4
+      - Black05_V2-0024.mp4
+      - Black05_V2-0025.mp4
+      - Black05_V2-0026.mp4
+      - Black05_V2-0027.mp4
+      - Black05_V2-0028.mp4
+      - Black05_V2-0029.mp4
+      - Black05_V2-0030.mp4
+  - percentage: 10
+    types:
+    - typeName: White
+      videoFileNames:
+      - White10.mp4
+      - White10_1.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black10_V2-0001.mp4
+      - Black10_V2-0002.mp4
+      - Black10_V2-0003.mp4
+      - Black10_V2-0004.mp4
+      - Black10_V2-0005.mp4
+      - Black10_V2-0006.mp4
+      - Black10_V2-0007.mp4
+      - Black10_V2-0008.mp4
+      - Black10_V2-0009.mp4
+      - Black10_V2-0010.mp4
+      - Black10_V2-0011.mp4
+      - Black10_V2-0012.mp4
+      - Black10_V2-0013.mp4
+      - Black10_V2-0014.mp4
+      - Black10_V2-0015.mp4
+      - Black10_V2-0016.mp4
+      - Black10_V2-0017.mp4
+      - Black10_V2-0018.mp4
+      - Black10_V2-0019.mp4
+      - Black10_V2-0020.mp4
+      - Black10_V2-0021.mp4
+      - Black10_V2-0022.mp4
+      - Black10_V2-0023.mp4
+      - Black10_V2-0024.mp4
+      - Black10_V2-0025.mp4
+      - Black10_V2-0026.mp4
+      - Black10_V2-0027.mp4
+      - Black10_V2-0028.mp4
+      - Black10_V2-0029.mp4
+      - Black10_V2-0030.mp4
+  - percentage: 15
+    types:
+    - typeName: White
+      videoFileNames:
+      - White15.mp4
+      - White15_1.mp4
+      - White15_2.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black15_V2-0001.mp4
+      - Black15_V2-0002.mp4
+      - Black15_V2-0003.mp4
+      - Black15_V2-0004.mp4
+      - Black15_V2-0005.mp4
+      - Black15_V2-0006.mp4
+      - Black15_V2-0007.mp4
+      - Black15_V2-0008.mp4
+      - Black15_V2-0009.mp4
+      - Black15_V2-0010.mp4
+      - Black15_V2-0011.mp4
+      - Black15_V2-0012.mp4
+      - Black15_V2-0013.mp4
+      - Black15_V2-0014.mp4
+      - Black15_V2-0015.mp4
+      - Black15_V2-0016.mp4
+      - Black15_V2-0017.mp4
+      - Black15_V2-0018.mp4
+      - Black15_V2-0019.mp4
+      - Black15_V2-0020.mp4
+      - Black15_V2-0021.mp4
+      - Black15_V2-0022.mp4
+      - Black15_V2-0023.mp4
+      - Black15_V2-0024.mp4
+      - Black15_V2-0025.mp4
+      - Black15_V2-0026.mp4
+      - Black15_V2-0027.mp4
+      - Black15_V2-0028.mp4
+      - Black15_V2-0029.mp4
+      - Black15_V2-0030.mp4
+  - percentage: 20
+    types:
+    - typeName: White
+      videoFileNames:
+      - White20_V1-0001.mp4
+      - White20_V1-0011.mp4
+      - White20_V1-0012.mp4
+      - White20_V1-0013.mp4
+      - White20_V1-0014.mp4
+      - White20_V1-0017.mp4
+      - White20_V1-0018.mp4
+      - White20_V1-0019.mp4
+      - White20_V1-0020.mp4
+      - White20_V1-0021.mp4
+      - White20_V1-0023.mp4
+      - White20_V1-0024.mp4
+      - White20_V1-0025.mp4
+      - White20_V1-0026.mp4
+      - White20_V1-0027.mp4
+      - White20_V1-0028.mp4
+      - White20_V1-0029.mp4
+      - White20_V1-0030.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black20_V2-0001.mp4
+      - Black20_V2-0002.mp4
+      - Black20_V2-0003.mp4
+      - Black20_V2-0004.mp4
+      - Black20_V2-0005.mp4
+      - Black20_V2-0006.mp4
+      - Black20_V2-0007.mp4
+      - Black20_V2-0008.mp4
+      - Black20_V2-0009.mp4
+      - Black20_V2-0010.mp4
+      - Black20_V2-0011.mp4
+      - Black20_V2-0012.mp4
+      - Black20_V2-0013.mp4
+      - Black20_V2-0014.mp4
+      - Black20_V2-0015.mp4
+      - Black20_V2-0016.mp4
+      - Black20_V2-0017.mp4
+      - Black20_V2-0018.mp4
+      - Black20_V2-0019.mp4
+      - Black20_V2-0020.mp4
+      - Black20_V2-0021.mp4
+      - Black20_V2-0022.mp4
+      - Black20_V2-0023.mp4
+      - Black20_V2-0024.mp4
+      - Black20_V2-0025.mp4
+      - Black20_V2-0026.mp4
+      - Black20_V2-0027.mp4
+      - Black20_V2-0028.mp4
+      - Black20_V2-0029.mp4
+      - Black20_V2-0030.mp4
+  - percentage: 25
+    types:
+    - typeName: White
+      videoFileNames:
+      - White25.mp4
+      - White25_1.mp4
+      - White25_2.mp4
+      - White25_3.mp4
+      - White25_4.mp4
+      - White25_5.mp4
+      - White25_6.mp4
+      - White25_7.mp4
+      - White25_8.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black25_V2-0001.mp4
+      - Black25_V2-0002.mp4
+      - Black25_V2-0003.mp4
+      - Black25_V2-0004.mp4
+      - Black25_V2-0005.mp4
+      - Black25_V2-0006.mp4
+      - Black25_V2-0007.mp4
+      - Black25_V2-0008.mp4
+      - Black25_V2-0009.mp4
+      - Black25_V2-0010.mp4
+      - Black25_V2-0011.mp4
+      - Black25_V2-0012.mp4
+      - Black25_V2-0013.mp4
+      - Black25_V2-0014.mp4
+      - Black25_V2-0015.mp4
+      - Black25_V2-0016.mp4
+      - Black25_V2-0017.mp4
+      - Black25_V2-0018.mp4
+      - Black25_V2-0019.mp4
+      - Black25_V2-0020.mp4
+      - Black25_V2-0021.mp4
+      - Black25_V2-0022.mp4
+      - Black25_V2-0023.mp4
+      - Black25_V2-0024.mp4
+      - Black25_V2-0025.mp4
+      - Black25_V2-0026.mp4
+      - Black25_V2-0027.mp4
+      - Black25_V2-0028.mp4
+      - Black25_V2-0029.mp4
+      - Black25_V2-0030.mp4
+  - percentage: 30
+    types:
+    - typeName: White
+      videoFileNames:
+      - White30_V1-0001.mp4
+      - White30_V1-0002.mp4
+      - White30_V1-0004.mp4
+      - White30_V1-0008.mp4
+      - White30_V1-0009.mp4
+      - White30_V1-0010.mp4
+      - White30_V1-0011.mp4
+      - White30_V1-0012.mp4
+      - White30_V1-0014.mp4
+      - White30_V1-0016.mp4
+      - White30_V1-0017.mp4
+      - White30_V1-0018.mp4
+      - White30_V1-0020.mp4
+      - White30_V1-0021.mp4
+      - White30_V1-0022.mp4
+      - White30_V1-0023.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black30_V2-0001.mp4
+      - Black30_V2-0002.mp4
+      - Black30_V2-0003.mp4
+      - Black30_V2-0004.mp4
+      - Black30_V2-0005.mp4
+      - Black30_V2-0006.mp4
+      - Black30_V2-0007.mp4
+      - Black30_V2-0008.mp4
+      - Black30_V2-0009.mp4
+      - Black30_V2-0010.mp4
+      - Black30_V2-0011.mp4
+      - Black30_V2-0012.mp4
+      - Black30_V2-0013.mp4
+      - Black30_V2-0014.mp4
+      - Black30_V2-0015.mp4
+      - Black30_V2-0016.mp4
+      - Black30_V2-0017.mp4
+      - Black30_V2-0018.mp4
+      - Black30_V2-0019.mp4
+      - Black30_V2-0020.mp4
+      - Black30_V2-0021.mp4
+      - Black30_V2-0022.mp4
+      - Black30_V2-0023.mp4
+      - Black30_V2-0024.mp4
+      - Black30_V2-0025.mp4
+      - Black30_V2-0026.mp4
+      - Black30_V2-0027.mp4
+      - Black30_V2-0028.mp4
+      - Black30_V2-0029.mp4
+      - Black30_V2-0030.mp4
+  - percentage: 35
+    types:
+    - typeName: White
+      videoFileNames:
+      - White35_V1-0001.mp4
+      - White35_V1-0003.mp4
+      - White35_V1-0004.mp4
+      - White35_V1-0005.mp4
+      - White35_V1-0007.mp4
+      - White35_V1-0009.mp4
+      - White35_V1-0011.mp4
+      - White35_V1-0013.mp4
+      - White35_V1-0015.mp4
+      - White35_V1-0018.mp4
+      - White35_V1-0028.mp4
+      - White35_V1-0029.mp4
+      - White35_V1-0030.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black35_V2-0001.mp4
+      - Black35_V2-0002.mp4
+      - Black35_V2-0003.mp4
+      - Black35_V2-0004.mp4
+      - Black35_V2-0005.mp4
+      - Black35_V2-0006.mp4
+      - Black35_V2-0007.mp4
+      - Black35_V2-0008.mp4
+      - Black35_V2-0009.mp4
+      - Black35_V2-0010.mp4
+      - Black35_V2-0011.mp4
+      - Black35_V2-0012.mp4
+      - Black35_V2-0013.mp4
+      - Black35_V2-0014.mp4
+      - Black35_V2-0015.mp4
+      - Black35_V2-0016.mp4
+      - Black35_V2-0017.mp4
+      - Black35_V2-0018.mp4
+      - Black35_V2-0019.mp4
+      - Black35_V2-0020.mp4
+      - Black35_V2-0021.mp4
+      - Black35_V2-0022.mp4
+      - Black35_V2-0023.mp4
+      - Black35_V2-0024.mp4
+      - Black35_V2-0025.mp4
+      - Black35_V2-0026.mp4
+      - Black35_V2-0027.mp4
+      - Black35_V2-0028.mp4
+      - Black35_V2-0029.mp4
+      - Black35_V2-0030.mp4
+  - percentage: 40
+    types:
+    - typeName: White
+      videoFileNames:
+      - White40.mp4
+      - White40_2.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black40_V2-0001.mp4
+      - Black40_V2-0002.mp4
+      - Black40_V2-0003.mp4
+      - Black40_V2-0004.mp4
+      - Black40_V2-0005.mp4
+      - Black40_V2-0006.mp4
+      - Black40_V2-0007.mp4
+      - Black40_V2-0008.mp4
+      - Black40_V2-0009.mp4
+      - Black40_V2-0010.mp4
+      - Black40_V2-0011.mp4
+      - Black40_V2-0012.mp4
+      - Black40_V2-0013.mp4
+      - Black40_V2-0014.mp4
+      - Black40_V2-0015.mp4
+      - Black40_V2-0016.mp4
+      - Black40_V2-0017.mp4
+      - Black40_V2-0018.mp4
+      - Black40_V2-0019.mp4
+      - Black40_V2-0020.mp4
+      - Black40_V2-0021.mp4
+      - Black40_V2-0022.mp4
+      - Black40_V2-0023.mp4
+      - Black40_V2-0024.mp4
+      - Black40_V2-0025.mp4
+      - Black40_V2-0026.mp4
+      - Black40_V2-0027.mp4
+      - Black40_V2-0028.mp4
+      - Black40_V2-0029.mp4
+      - Black40_V2-0030.mp4
+  - percentage: 45
+    types:
+    - typeName: White
+      videoFileNames:
+      - White45_V1-0002.mp4
+      - White45_V1-0004.mp4
+      - White45_V1-0006.mp4
+      - White45_V1-0010.mp4
+      - White45_V1-0012.mp4
+      - White45_V1-0013.mp4
+      - White45_V1-0014.mp4
+      - White45_V1-0016.mp4
+      - White45_V1-0018.mp4
+      - White45_V1-0019.mp4
+      - White45_V1-0020.mp4
+      - White45_V1-0022.mp4
+      - White45_V1-0024.mp4
+      - White45_V1-0025.mp4
+      - White45_V1-0026.mp4
+      - White45_V1-0028.mp4
+      - White45_V1-0030.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black45_V2-0001.mp4
+      - Black45_V2-0002.mp4
+      - Black45_V2-0003.mp4
+      - Black45_V2-0004.mp4
+      - Black45_V2-0005.mp4
+      - Black45_V2-0006.mp4
+      - Black45_V2-0007.mp4
+      - Black45_V2-0008.mp4
+      - Black45_V2-0009.mp4
+      - Black45_V2-0010.mp4
+      - Black45_V2-0011.mp4
+      - Black45_V2-0012.mp4
+      - Black45_V2-0013.mp4
+      - Black45_V2-0014.mp4
+      - Black45_V2-0015.mp4
+      - Black45_V2-0016.mp4
+      - Black45_V2-0017.mp4
+      - Black45_V2-0018.mp4
+      - Black45_V2-0019.mp4
+      - Black45_V2-0020.mp4
+      - Black45_V2-0021.mp4
+      - Black45_V2-0022.mp4
+      - Black45_V2-0023.mp4
+      - Black45_V2-0024.mp4
+      - Black45_V2-0025.mp4
+      - Black45_V2-0026.mp4
+      - Black45_V2-0027.mp4
+      - Black45_V2-0028.mp4
+      - Black45_V2-0029.mp4
+      - Black45_V2-0030.mp4
+  - percentage: 50
+    types:
+    - typeName: White
+      videoFileNames:
+      - White50.mp4
+      - White50_1.mp4
+      - White50_2.mp4
+      - White50_3.mp4
+      - White50_4.mp4
+      - White50_5.mp4
+      - White50_6.mp4
+      - White50_7.mp4
+      - White50_8.mp4
+      - White50_9.mp4
+      - White50_10.mp4
+      - White50_11.mp4
+      - White50_12.mp4
+      - White50_13.mp4
+      - White50_14.mp4
+      - White50_15.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black50_V2-0001.mp4
+      - Black50_V2-0002.mp4
+      - Black50_V2-0003.mp4
+      - Black50_V2-0004.mp4
+      - Black50_V2-0005.mp4
+      - Black50_V2-0006.mp4
+      - Black50_V2-0007.mp4
+      - Black50_V2-0008.mp4
+      - Black50_V2-0009.mp4
+      - Black50_V2-0010.mp4
+      - Black50_V2-0011.mp4
+      - Black50_V2-0012.mp4
+      - Black50_V2-0013.mp4
+      - Black50_V2-0014.mp4
+      - Black50_V2-0015.mp4
+      - Black50_V2-0016.mp4
+      - Black50_V2-0017.mp4
+      - Black50_V2-0018.mp4
+      - Black50_V2-0019.mp4
+      - Black50_V2-0020.mp4
+      - Black50_V2-0021.mp4
+      - Black50_V2-0022.mp4
+      - Black50_V2-0023.mp4
+      - Black50_V2-0024.mp4
+      - Black50_V2-0025.mp4
+      - Black50_V2-0026.mp4
+      - Black50_V2-0027.mp4
+      - Black50_V2-0028.mp4
+      - Black50_V2-0029.mp4
+      - Black50_V2-0030.mp4
+  - percentage: 55
+    types:
+    - typeName: White
+      videoFileNames:
+      - White55_V1-0005.mp4
+      - White55_V1-0011.mp4
+      - White55_V1-0014.mp4
+      - White55_V1-0016.mp4
+      - White55_V1-0018.mp4
+      - White55_V1-0020.mp4
+      - White55_V1-0021.mp4
+      - White55_V1-0022.mp4
+      - White55_V1-0023.mp4
+      - White55_V1-0024.mp4
+      - White55_V1-0026.mp4
+      - White55_V1-0028.mp4
+      - White55_V1-0030.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black55_V2-0001.mp4
+      - Black55_V2-0002.mp4
+      - Black55_V2-0003.mp4
+      - Black55_V2-0004.mp4
+      - Black55_V2-0005.mp4
+      - Black55_V2-0006.mp4
+      - Black55_V2-0007.mp4
+      - Black55_V2-0008.mp4
+      - Black55_V2-0009.mp4
+      - Black55_V2-0010.mp4
+      - Black55_V2-0011.mp4
+      - Black55_V2-0012.mp4
+      - Black55_V2-0013.mp4
+      - Black55_V2-0014.mp4
+      - Black55_V2-0015.mp4
+      - Black55_V2-0016.mp4
+      - Black55_V2-0017.mp4
+      - Black55_V2-0018.mp4
+      - Black55_V2-0019.mp4
+      - Black55_V2-0020.mp4
+      - Black55_V2-0021.mp4
+      - Black55_V2-0022.mp4
+      - Black55_V2-0023.mp4
+      - Black55_V2-0024.mp4
+      - Black55_V2-0025.mp4
+      - Black55_V2-0026.mp4
+      - Black55_V2-0027.mp4
+      - Black55_V2-0028.mp4
+      - Black55_V2-0029.mp4
+      - Black55_V2-0030.mp4
+  - percentage: 60
+    types:
+    - typeName: White
+      videoFileNames:
+      - White60_V1-0001.mp4
+      - White60_V1-0003.mp4
+      - White60_V1-0005.mp4
+      - White60_V1-0016.mp4
+      - White60_V1-0018.mp4
+      - White60_V1-0024.mp4
+      - White60_V1-0027.mp4
+      - White60_V1-0028.mp4
+      - White60_V1-0029.mp4
+      - White60_V1-0030.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black60_V2-0001.mp4
+      - Black60_V2-0002.mp4
+      - Black60_V2-0003.mp4
+      - Black60_V2-0004.mp4
+      - Black60_V2-0005.mp4
+      - Black60_V2-0006.mp4
+      - Black60_V2-0007.mp4
+      - Black60_V2-0008.mp4
+      - Black60_V2-0009.mp4
+      - Black60_V2-0010.mp4
+      - Black60_V2-0011.mp4
+      - Black60_V2-0012.mp4
+      - Black60_V2-0013.mp4
+      - Black60_V2-0014.mp4
+      - Black60_V2-0015.mp4
+      - Black60_V2-0016.mp4
+      - Black60_V2-0017.mp4
+      - Black60_V2-0018.mp4
+      - Black60_V2-0019.mp4
+      - Black60_V2-0020.mp4
+      - Black60_V2-0021.mp4
+      - Black60_V2-0022.mp4
+      - Black60_V2-0023.mp4
+      - Black60_V2-0024.mp4
+      - Black60_V2-0025.mp4
+      - Black60_V2-0026.mp4
+      - Black60_V2-0027.mp4
+      - Black60_V2-0028.mp4
+      - Black60_V2-0029.mp4
+      - Black60_V2-0030.mp4
+  - percentage: 65
+    types:
+    - typeName: White
+      videoFileNames:
+      - White65_V1-0002.mp4
+      - White65_V1-0004.mp4
+      - White65_V1-0006.mp4
+      - White65_V1-0008.mp4
+      - White65_V1-0010.mp4
+      - White65_V1-0012.mp4
+      - White65_V1-0014.mp4
+      - White65_V1-0015.mp4
+      - White65_V1-0016.mp4
+      - White65_V1-0017.mp4
+      - White65_V1-0018.mp4
+      - White65_V1-0020.mp4
+      - White65_V1-0022.mp4
+      - White65_V1-0024.mp4
+      - White65_V1-0026.mp4
+      - White65_V1-0028.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black65_V2-0001.mp4
+      - Black65_V2-0002.mp4
+      - Black65_V2-0003.mp4
+      - Black65_V2-0004.mp4
+      - Black65_V2-0005.mp4
+      - Black65_V2-0006.mp4
+      - Black65_V2-0007.mp4
+      - Black65_V2-0008.mp4
+      - Black65_V2-0009.mp4
+      - Black65_V2-0010.mp4
+      - Black65_V2-0011.mp4
+      - Black65_V2-0012.mp4
+      - Black65_V2-0013.mp4
+      - Black65_V2-0014.mp4
+      - Black65_V2-0015.mp4
+      - Black65_V2-0016.mp4
+      - Black65_V2-0017.mp4
+      - Black65_V2-0018.mp4
+      - Black65_V2-0019.mp4
+      - Black65_V2-0020.mp4
+      - Black65_V2-0021.mp4
+      - Black65_V2-0022.mp4
+      - Black65_V2-0023.mp4
+      - Black65_V2-0024.mp4
+      - Black65_V2-0025.mp4
+      - Black65_V2-0026.mp4
+      - Black65_V2-0027.mp4
+      - Black65_V2-0028.mp4
+      - Black65_V2-0029.mp4
+      - Black65_V2-0030.mp4
+  - percentage: 70
+    types:
+    - typeName: White
+      videoFileNames:
+      - White70_V1-0001.mp4
+      - White70_V1-0003.mp4
+      - White70_V1-0005.mp4
+      - White70_V1-0007.mp4
+      - White70_V1-0009.mp4
+      - White70_V1-0011.mp4
+      - White70_V1-0012.mp4
+      - White70_V1-0013.mp4
+      - White70_V1-0014.mp4
+      - White70_V1-0015.mp4
+      - White70_V1-0017.mp4
+      - White70_V1-0018.mp4
+      - White70_V1-0020.mp4
+      - White70_V1-0021.mp4
+      - White70_V1-0022.mp4
+      - White70_V1-0023.mp4
+      - White70_V1-0024.mp4
+      - White70_V1-0025.mp4
+      - White70_V1-0027.mp4
+      - White70_V1-0029.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black70_V2-0001.mp4
+      - Black70_V2-0002.mp4
+      - Black70_V2-0003.mp4
+      - Black70_V2-0004.mp4
+      - Black70_V2-0005.mp4
+      - Black70_V2-0006.mp4
+      - Black70_V2-0007.mp4
+      - Black70_V2-0008.mp4
+      - Black70_V2-0009.mp4
+      - Black70_V2-0010.mp4
+      - Black70_V2-0011.mp4
+      - Black70_V2-0012.mp4
+      - Black70_V2-0013.mp4
+      - Black70_V2-0014.mp4
+      - Black70_V2-0015.mp4
+      - Black70_V2-0016.mp4
+      - Black70_V2-0017.mp4
+      - Black70_V2-0018.mp4
+      - Black70_V2-0019.mp4
+      - Black70_V2-0020.mp4
+      - Black70_V2-0021.mp4
+      - Black70_V2-0022.mp4
+      - Black70_V2-0023.mp4
+      - Black70_V2-0024.mp4
+      - Black70_V2-0025.mp4
+      - Black70_V2-0026.mp4
+      - Black70_V2-0027.mp4
+      - Black70_V2-0028.mp4
+      - Black70_V2-0029.mp4
+      - Black70_V2-0030.mp4
+  - percentage: 75
+    types:
+    - typeName: White
+      videoFileNames:
+      - White75_V1-0006.mp4
+      - White75_V1-0007.mp4
+      - White75_V1-0008.mp4
+      - White75_V1-0010.mp4
+      - White75_V1-0012.mp4
+      - White75_V1-0013.mp4
+      - White75_V1-0014.mp4
+      - White75_V1-0015.mp4
+      - White75_V1-0017.mp4
+      - White75_V1-0019.mp4
+      - White75_V1-0020.mp4
+      - White75_V1-0021.mp4
+      - White75_V1-0023.mp4
+      - White75_V1-0025.mp4
+      - White75_V1-0030.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black75_V2-0001.mp4
+      - Black75_V2-0002.mp4
+      - Black75_V2-0003.mp4
+      - "Black75_V2-0004.mp4\uF739"
+      - Black75_V2-0005.mp4
+      - Black75_V2-0006.mp4
+      - Black75_V2-0007.mp4
+      - Black75_V2-0008.mp4
+      - Black75_V2-0009.mp4
+      - Black75_V2-0010.mp4
+      - Black75_V2-0011.mp4
+      - Black75_V2-0012.mp4
+      - Black75_V2-0013.mp4
+      - Black75_V2-0014.mp4
+      - Black75_V2-0015.mp4
+      - Black75_V2-0016.mp4
+      - Black75_V2-0017.mp4
+      - Black75_V2-0018.mp4
+      - Black75_V2-0019.mp4
+      - Black75_V2-0020.mp4
+      - Black75_V2-0021.mp4
+      - Black75_V2-0022.mp4
+      - Black75_V2-0023.mp4
+      - Black75_V2-0024.mp4
+      - Black75_V2-0025.mp4
+      - Black75_V2-0026.mp4
+      - Black75_V2-0027.mp4
+      - Black75_V2-0028.mp4
+      - Black75_V2-0029.mp4
+      - Black75_V2-0030.mp4
+  - percentage: 80
+    types:
+    - typeName: White
+      videoFileNames:
+      - White80_V1-0001.mp4
+      - White80_V1-0002.mp4
+      - White80_V1-0003.mp4
+      - White80_V1-0005.mp4
+      - White80_V1-0007.mp4
+      - White80_V1-0009.mp4
+      - White80_V1-0011.mp4
+      - White80_V1-0012.mp4
+      - White80_V1-0013.mp4
+      - White80_V1-0016.mp4
+      - White80_V1-0018.mp4
+      - White80_V1-0019.mp4
+      - White80_V1-0020.mp4
+      - White80_V1-0021.mp4
+      - White80_V1-0022.mp4
+      - White80_V1-0024.mp4
+      - White80_V1-0025.mp4
+      - White80_V1-0026.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black80_V2-0001.mp4
+      - Black80_V2-0002.mp4
+      - Black80_V2-0003.mp4
+      - Black80_V2-0004.mp4
+      - Black80_V2-0005.mp4
+      - Black80_V2-0006.mp4
+      - Black80_V2-0007.mp4
+      - Black80_V2-0008.mp4
+      - Black80_V2-0009.mp4
+      - Black80_V2-0010.mp4
+      - Black80_V2-0011.mp4
+      - Black80_V2-0012.mp4
+      - Black80_V2-0013.mp4
+      - Black80_V2-0014.mp4
+      - Black80_V2-0015.mp4
+      - Black80_V2-0016.mp4
+      - Black80_V2-0017.mp4
+      - Black80_V2-0018.mp4
+      - Black80_V2-0019.mp4
+      - Black80_V2-0020.mp4
+      - Black80_V2-0021.mp4
+      - Black80_V2-0022.mp4
+      - Black80_V2-0023.mp4
+      - Black80_V2-0024.mp4
+      - Black80_V2-0025.mp4
+      - Black80_V2-0026.mp4
+      - Black80_V2-0027.mp4
+      - Black80_V2-0028.mp4
+      - Black80_V2-0029.mp4
+      - Black80_V2-0030.mp4
+  - percentage: 85
+    types:
+    - typeName: White
+      videoFileNames:
+      - White85_V1-0001.mp4
+      - White85_V1-0002.mp4
+      - White85_V1-0004.mp4
+      - White85_V1-0005.mp4
+      - White85_V1-0006.mp4
+      - White85_V1-0007.mp4
+      - White85_V1-0008.mp4
+      - White85_V1-0010.mp4
+      - White85_V1-0011.mp4
+      - White85_V1-0012.mp4
+      - White85_V1-0013.mp4
+      - White85_V1-0014.mp4
+      - White85_V1-0016.mp4
+      - White85_V1-0018.mp4
+      - White85_V1-0020.mp4
+      - White85_V1-0027.mp4
+      - White85_V1-0028.mp4
+      - White85_V1-0029.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black85_V2-0001.mp4
+      - Black85_V2-0002.mp4
+      - Black85_V2-0003.mp4
+      - Black85_V2-0004.mp4
+      - Black85_V2-0005.mp4
+      - Black85_V2-0006.mp4
+      - Black85_V2-0007.mp4
+      - Black85_V2-0008.mp4
+      - Black85_V2-0009.mp4
+      - Black85_V2-0010.mp4
+      - Black85_V2-0011.mp4
+      - Black85_V2-0012.mp4
+      - Black85_V2-0013.mp4
+      - Black85_V2-0014.mp4
+      - Black85_V2-0015.mp4
+      - Black85_V2-0016.mp4
+      - Black85_V2-0017.mp4
+      - Black85_V2-0018.mp4
+      - Black85_V2-0019.mp4
+      - Black85_V2-0020.mp4
+      - Black85_V2-0021.mp4
+      - Black85_V2-0022.mp4
+      - Black85_V2-0023.mp4
+      - Black85_V2-0024.mp4
+      - Black85_V2-0025.mp4
+      - Black85_V2-0026.mp4
+      - Black85_V2-0027.mp4
+      - Black85_V2-0028.mp4
+      - Black85_V2-0029.mp4
+      - Black85_V2-0030.mp4
+  - percentage: 90
+    types:
+    - typeName: White
+      videoFileNames:
+      - White90_V1-0002.mp4
+      - White90_V1-0003.mp4
+      - White90_V1-0004.mp4
+      - White90_V1-0005.mp4
+      - White90_V1-0007.mp4
+      - White90_V1-0009.mp4
+      - White90_V1-0013.mp4
+      - White90_V1-0016.mp4
+      - White90_V1-0024.mp4
+      - White90_V1-0026.mp4
+      - White90_V1-0028.mp4
+      - White90_V1-0030.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black90_V2-0001.mp4
+      - Black90_V2-0002.mp4
+      - Black90_V2-0003.mp4
+      - Black90_V2-0004.mp4
+      - Black90_V2-0005.mp4
+      - Black90_V2-0006.mp4
+      - Black90_V2-0007.mp4
+      - Black90_V2-0008.mp4
+      - Black90_V2-0009.mp4
+      - Black90_V2-0010.mp4
+      - Black90_V2-0011.mp4
+      - Black90_V2-0012.mp4
+      - Black90_V2-0013.mp4
+      - Black90_V2-0014.mp4
+      - Black90_V2-0015.mp4
+      - Black90_V2-0016.mp4
+      - Black90_V2-0017.mp4
+      - Black90_V2-0018.mp4
+      - Black90_V2-0019.mp4
+      - Black90_V2-0020.mp4
+      - Black90_V2-0021.mp4
+      - Black90_V2-0022.mp4
+      - Black90_V2-0023.mp4
+      - Black90_V2-0024.mp4
+      - Black90_V2-0025.mp4
+      - Black90_V2-0026.mp4
+      - Black90_V2-0027.mp4
+      - Black90_V2-0028.mp4
+      - Black90_V2-0029.mp4
+      - Black90_V2-0030.mp4
+  - percentage: 95
+    types:
+    - typeName: White
+      videoFileNames:
+      - White95_V1-0001.mp4
+      - White95_V1-0002.mp4
+      - White95_V1-0003.mp4
+      - White95_V1-0013.mp4
+      - White95_V1-0014.mp4
+      - White95_V1-0015.mp4
+      - White95_V1-0017.mp4
+      - White95_V1-0019.mp4
+      - White95_V1-0021.mp4
+      - White95_V1-0023.mp4
+      - White95_V1-0025.mp4
+      - White95_V1-0026.mp4
+      - White95_V1-0027.mp4
+      - White95_V1-0028.mp4
+      - White95_V1-0029.mp4
+      - White95_V1-0030.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black95_V2-0001.mp4
+      - Black95_V2-0002.mp4
+      - Black95_V2-0003.mp4
+      - Black95_V2-0004.mp4
+      - Black95_V2-0005.mp4
+      - Black95_V2-0006.mp4
+      - Black95_V2-0007.mp4
+      - Black95_V2-0008.mp4
+      - Black95_V2-0009.mp4
+      - Black95_V2-0010.mp4
+      - Black95_V2-0011.mp4
+      - Black95_V2-0012.mp4
+      - Black95_V2-0013.mp4
+      - Black95_V2-0014.mp4
+      - Black95_V2-0015.mp4
+      - Black95_V2-0016.mp4
+      - Black95_V2-0017.mp4
+      - Black95_V2-0018.mp4
+      - Black95_V2-0019.mp4
+      - Black95_V2-0020.mp4
+      - Black95_V2-0021.mp4
+      - Black95_V2-0022.mp4
+      - Black95_V2-0023.mp4
+      - Black95_V2-0024.mp4
+      - Black95_V2-0025.mp4
+      - Black95_V2-0026.mp4
+      - Black95_V2-0027.mp4
+      - Black95_V2-0028.mp4
+      - Black95_V2-0029.mp4
+      - Black95_V2-0030.mp4
+  - percentage: 100
+    types:
+    - typeName: White
+      videoFileNames:
+      - White100_V1-0001.mp4
+      - White100_V1-0002.mp4
+      - White100_V1-0003.mp4
+      - White100_V1-0005.mp4
+      - White100_V1-0007.mp4
+      - White100_V1-0009.mp4
+      - White100_V1-0011.mp4
+      - White100_V1-0013.mp4
+      - White100_V1-0015.mp4
+      - White100_V1-0017.mp4
+      - White100_V1-0019.mp4
+      - White100_V1-0020.mp4
+      - White100_V1-0021.mp4
+      - White100_V1-0022.mp4
+      - White100_V1-0023.mp4
+      - White100_V1-0025.mp4
+      - White100_V1-0026.mp4
+      - White100_V1-0027.mp4
+      - White100_V1-0028.mp4
+      - White100_V1-0029.mp4
+      - White100_V1-0030.mp4
+    - typeName: Black
+      videoFileNames:
+      - Black100_V2-0001.mp4
+      - Black100_V2-0002.mp4
+      - Black100_V2-0003.mp4
+      - Black100_V2-0004.mp4
+      - Black100_V2-0005.mp4
+      - Black100_V2-0006.mp4
+      - Black100_V2-0007.mp4
+      - Black100_V2-0008.mp4
+      - Black100_V2-0009.mp4
+      - Black100_V2-0010.mp4
+      - Black100_V2-0011.mp4
+      - Black100_V2-0012.mp4
+      - Black100_V2-0013.mp4
+      - Black100_V2-0014.mp4
+      - Black100_V2-0015.mp4
+      - Black100_V2-0016.mp4
+      - Black100_V2-0017.mp4
+      - Black100_V2-0018.mp4
+      - Black100_V2-0019.mp4
+      - Black100_V2-0020.mp4
+      - Black100_V2-0021.mp4
+      - Black100_V2-0022.mp4
+      - Black100_V2-0023.mp4
+      - Black100_V2-0024.mp4
+      - Black100_V2-0025.mp4
+      - Black100_V2-0026.mp4
+      - Black100_V2-0027.mp4
+      - Black100_V2-0028.mp4
+      - Black100_V2-0029.mp4
+      - Black100_V2-0030.mp4

@@ -181,6 +181,7 @@
     <Compile Include="Assets\BNG Framework\Scripts\UI\VRTextInput.cs" />
     <Compile Include="Assets\BNG Framework\Scripts\Components\CharacterIK.cs" />
     <Compile Include="Assets\BNG Framework\Scripts\Core\GrabbableEvents.cs" />
+    <Compile Include="Assets\Scripts\SmokeVideoURLData.cs" />
     <Compile Include="Assets\BNG Framework\HandPoser\Scripts\SavePoseBinding.cs" />
     <Compile Include="Assets\MRTK-Keyboard-main\MRTK\SDK\Experimental\NonNativeKeyboard\Scripts\SymbolKeyboard.cs" />
     <Compile Include="Assets\BNG Framework\Scripts\Core\PlayerGravity.cs" />

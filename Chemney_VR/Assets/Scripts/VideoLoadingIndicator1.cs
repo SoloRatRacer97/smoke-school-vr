@@ -4,63 +4,54 @@ using UnityEngine.Video;
 public class VideoLoadingIndicator1 : MonoBehaviour
 {
     public VideoPlayer videoPlayer;
-    public string videoFileName = "";
+
+    [Header("Online Video URL")]
+    public string videoURL = "https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441745/PlaceholderVideo_mkkihm.mp4";
+
     public GameObject loadingImage;
+
     private RectTransform loadingImageRect;
     private float rotationSpeed = 200f;
 
     void Start()
     {
         if (loadingImage != null)
+        {
             loadingImageRect = loadingImage.GetComponent<RectTransform>();
-        // Show loading image when video starts preparing
-        if (loadingImage != null)
             loadingImage.SetActive(true);
+        }
 
-        // ------------------------------
-        // ✅ NEW PATH LOGIC YOU REQUESTED
-        // ------------------------------
-        string path = System.IO.Path.Combine(Application.streamingAssetsPath, videoFileName);
+        // ✅ LOAD VIDEO FROM LINK
+        videoPlayer.url = videoURL;
+        Debug.Log("VIDEO URL = " + videoURL);
 
-#if UNITY_WEBGL
-        string url = path;
-#else
-        string url = "file://" + path;
-#endif
-
-        videoPlayer.url = url;
-        // ------------------------------
-
-        Debug.Log("VIDEO URL = " + videoPlayer.url);
-
-        // Prepare video
+        // Events
         videoPlayer.prepareCompleted += OnPrepared;
         videoPlayer.loopPointReached += OnFinished;
+
         videoPlayer.Prepare();
     }
 
-
-    private void Update()
+    void Update()
     {
         RotateLoadingImage();
     }
+
     private void OnPrepared(VideoPlayer vp)
     {
-        // Hide loading image when video is ready
         if (loadingImage != null)
             loadingImage.SetActive(false);
 
         vp.Play();
     }
 
-    public void StopVideo(VideoPlayer vp)
+    public void StopVideo()
     {
-        vp.Stop();
+        videoPlayer.Stop();
     }
 
     private void OnFinished(VideoPlayer vp)
     {
-        // Optional: show image again after finish
         if (loadingImage != null)
             loadingImage.SetActive(true);
     }
