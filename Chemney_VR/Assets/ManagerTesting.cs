@@ -343,8 +343,10 @@ public class ManagerTesting : MonoBehaviour
         int nextOpacityIndex = IndexOfOpacity(nextOpacityValue);
         if (nextOpacityIndex == -1) return;
 
-        string nextURL = GetVideoURLByIndex(nextOpacityIndex);
+        //string nextURL = GetVideoURLByIndex(nextOpacityIndex);
+        string nextURL = GetVideoURLByIndex(nextOpacityValue, nextOpacityIndex);
         if (string.IsNullOrEmpty(nextURL)) return;
+
 
         nextVideoURL = nextURL;
         nextVideoIndex = nextOpacityIndex;
@@ -360,12 +362,15 @@ public class ManagerTesting : MonoBehaviour
 
     // Get video URL by index without playing it
 
-    string GetVideoURLByIndex(int index)
-    {
-        LoadGroup(currentQuestionValues[currentQuestionIndex], currentSmokeType);
+    //string GetVideoURLByIndex(int index)
+    //{
+       // LoadGroup(currentQuestionValues[currentQuestionIndex], currentSmokeType);
+       string GetVideoURLByIndex(int opacityPercentage, int videoIndex)
+  {
+    LoadGroup(opacityPercentage, currentSmokeType);
         if (currentTypeGroup == null || currentTypeGroup.videoURLs.Count == 0) return "";
 
-        currentVideoIndex = index % currentTypeGroup.videoURLs.Count;
+        currentVideoIndex = videoIndex % currentTypeGroup.videoURLs.Count;
         return currentTypeGroup.videoURLs[currentVideoIndex];
     }
 
@@ -1211,7 +1216,8 @@ public class ManagerTesting : MonoBehaviour
     // MODIFIED: playVideoByIndex now triggers preloading after video starts
     void playVideoByIndex(int index)
     {
-        string url = GetVideoURLByIndex(index);
+        //string url = GetVideoURLByIndex(index);
+        string url = GetVideoURLByIndex(currentSmokePercentage, index);
         if (string.IsNullOrEmpty(url)) return;
 
         if (videoPlayer.isPlaying) videoPlayer.Stop();
