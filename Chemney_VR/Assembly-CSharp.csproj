@@ -79,6 +79,7 @@
     <Compile Include="Assets\BNG Framework\Scripts\UI\UIPointer.cs" />
     <Compile Include="Assets\Scripts\TubeRenderer.cs" />
     <Compile Include="Assets\BNG Framework\Scripts\Weapons\BulletInsert.cs" />
+    <Compile Include="Assets\Scripts\WebGLLoginBridge.cs" />
     <Compile Include="Assets\BNG Framework\Scripts\Extras\SceneLoader.cs" />
     <Compile Include="Assets\BNG Framework\Scripts\UI\UIButtonCollider.cs" />
     <Compile Include="Assets\BNG Framework\Scripts\Core\SnapZoneScale.cs" />

@@ -131,17 +131,11 @@ public class ScreenshotSender : MonoBehaviour
 
     private string sendGridUrl = "https://smokeschoolvr.piper-386.workers.dev/";
     public static string messageToSend;
-    public static bool didPass = false;
 
     private string ccEmail = "piper@smokeschoolinc.com";
 
     public void CaptureAndSend()
     {
-        if (!didPass)
-        {
-            Debug.Log("Student did not pass - email not sent");
-            return;
-        }
         StartCoroutine(CapturePanelAndSend());
     }
 
@@ -176,14 +170,14 @@ public class ScreenshotSender : MonoBehaviour
         CaptureCamera.gameObject.SetActive(false);
 
         string playerEmail = DataInput_Fields.playerEmail;
-        string subject = "Smoke Test Result - " + DataInput_Fields.studentname;
+        string subject = "Smoke Test Result";
 
         // 1️⃣ Send to user
-        string userMessage = "Student: " + DataInput_Fields.studentname + "\nEmail: " + playerEmail + "\nDate: " + DateTime.Now.ToString("MM/dd/yyyy") + "\nResult: Passed\n\nSee attached screenshot";
+        string userMessage = "See attached screenshot";
         StartCoroutine(SendUsingSendgrid(playerEmail, subject, userMessage, base64Image));
 
         // 2️⃣ Send separate email to CC with player email
-        string ccMessage = "Test by " + DataInput_Fields.studentname + " (" + playerEmail + ") on " + DateTime.Now.ToString("MM/dd/yyyy");
+        string ccMessage = $"Test by {playerEmail}";
         StartCoroutine(SendUsingSendgrid(ccEmail, subject, ccMessage, base64Image));
     }
 
