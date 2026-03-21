@@ -1300,13 +1300,7 @@ public class ManagerTesting : MonoBehaviour
         return totalScoreText;
     }
 
-    private void SetCertMessageVisibility(bool visible)
-    {
-        GameObject certText1 = GameObject.Find("Email Sent Text");
-        GameObject certText2 = GameObject.Find("Email Sent Text (1)");
-        if (certText1 != null) certText1.SetActive(visible);
-        if (certText2 != null) certText2.SetActive(visible);
-    }
+
 
     private void LogIndividualFailingReadings(List<SlideRecord> failingReadings, string context)
     {
@@ -1417,9 +1411,9 @@ public class ManagerTesting : MonoBehaviour
             // User didn't answer any question
             NotPassedPanel.SetActive(true);
             QualifiedPanel.SetActive(false);
-            SetCertMessageVisibility(false);
+            ScreenshotSender.didPass = false;
 
-            YourTotalScore.text = $"Run #{testRunNumber}\nnull"; // display null
+            YourTotalScore.text = $"Run #{testRunNumber}\nnull\n\nsmokeschoolvr.com";
             endTestButtonText.text = "Retake Test";
             Debug.Log($"User failed because no answers were selected on run #{testRunNumber}");
             return;
@@ -1440,7 +1434,6 @@ public class ManagerTesting : MonoBehaviour
         {
             NotPassedPanel.SetActive(true);
             QualifiedPanel.SetActive(false);
-            SetCertMessageVisibility(false);
             endTestButtonText.text = "Retake Test";
             Debug.Log($"FAILED - Run #{testRunNumber} - White Score: {whiteTestScore} (Pass: {whitePassed}), Black Score: {blackTestScore} (Pass: {blackPassed}), Individual Fail: {hasIndividualFail}");
         }
@@ -1448,7 +1441,6 @@ public class ManagerTesting : MonoBehaviour
         {
             QualifiedPanel.SetActive(true);
             NotPassedPanel.SetActive(false);
-            SetCertMessageVisibility(true);
             endTestButtonText.text = "End Test";
             Debug.Log($"PASSED - Run #{testRunNumber} - White Score: {whiteTestScore} (Pass: {whitePassed}), Black Score: {blackTestScore} (Pass: {blackPassed}), Individual Fail: {hasIndividualFail}");
         }
