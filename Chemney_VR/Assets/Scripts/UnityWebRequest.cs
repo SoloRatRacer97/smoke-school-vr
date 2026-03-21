@@ -132,7 +132,7 @@ public class ScreenshotSender : MonoBehaviour
     private string sendGridUrl = "https://smokeschoolvr.piper-386.workers.dev/";
     public static string messageToSend;
 
-    private string ccEmail = "piper@smokeschoolinc.com";
+    private string ccEmail = "todd@cascadewebsolutions.co";
 
     public void CaptureAndSend()
     {

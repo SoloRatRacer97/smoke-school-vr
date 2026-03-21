@@ -1308,26 +1308,26 @@ public class ManagerTesting : MonoBehaviour
             return;
         }
 
-        // Calculate total score
-        int totalScore = whiteTestScore + blackTestScore;
-        YourTotalScore.text = totalScore.ToString();
+        bool whitePassed = whiteTestScore <= 37;
+        bool blackPassed = blackTestScore <= 37;
+        bool didPass = whitePassed && blackPassed;
 
-        // Simple pass/fail logic
-        bool failed = totalScore > 37; // Make sure condition is correct
+        YourTotalScore.text = $"White: {whiteTestScore}\nBlack: {blackTestScore}";
+        ScreenshotSender.didPass = didPass;
 
-        if (failed)
+        if (!didPass)
         {
             NotPassedPanel.SetActive(true);
             QualifiedPanel.SetActive(false);
             endTestButtonText.text = "Retake Test";
-            Debug.Log($"FAILED - Total Score: {totalScore} (White: {whiteTestScore}, Black: {blackTestScore})");
+            Debug.Log($"FAILED - White Score: {whiteTestScore} (Pass: {whitePassed}), Black Score: {blackTestScore} (Pass: {blackPassed})");
         }
         else
         {
             QualifiedPanel.SetActive(true);
             NotPassedPanel.SetActive(false);
             endTestButtonText.text = "End Test";
-            Debug.Log($"PASSED - Total Score: {totalScore} (White: {whiteTestScore}, Black: {blackTestScore})");
+            Debug.Log($"PASSED - White Score: {whiteTestScore} (Pass: {whitePassed}), Black Score: {blackTestScore} (Pass: {blackPassed})");
         }
     }
 
@@ -1386,13 +1386,12 @@ public class ManagerTesting : MonoBehaviour
 
     public void OnEndTestButtonClicked()
     {
-        // Reset scores for retake
-        whiteTestScore = 0;
-        blackTestScore = 0;
-
+        bool whitePassed = whiteTestScore <= 37;
+        bool blackPassed = blackTestScore <= 37;
         DataInput_Fields.checkSceneReload = 1;
+        ScreenshotSender.didPass = (whitePassed && blackPassed);
 
-        if (whiteTestScore + blackTestScore >= 37)
+        if (ScreenshotSender.didPass)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
