@@ -14,6 +14,8 @@ using System.Collections;
 
 public class ManagerTesting : MonoBehaviour
 {
+    public static int testRunNumber = 1;
+
     public struct SlideRecord
     {
         public int questionNumber;
@@ -182,6 +184,7 @@ public class ManagerTesting : MonoBehaviour
     void Start()
     {
         slideRecords.Clear();
+        Debug.Log($"ManagerTesting Start - current test run #{testRunNumber}");
         blackScreen.SetActive(false);
         openresultPannelButton.gameObject.SetActive(false);
         btn_SkipPracticeTest.onClick.AddListener(OnSkipPractice);
@@ -1287,7 +1290,7 @@ public class ManagerTesting : MonoBehaviour
 
     private string BuildTotalScoreText(bool individualFail)
     {
-        string totalScoreText = $"White: {whiteTestScore}\nBlack: {blackTestScore}";
+        string totalScoreText = $"Run #{testRunNumber}\nWhite: {whiteTestScore}\nBlack: {blackTestScore}";
         if (individualFail)
         {
             totalScoreText += "\n⚠ Individual reading exceeded 15%";
@@ -1406,9 +1409,9 @@ public class ManagerTesting : MonoBehaviour
             NotPassedPanel.SetActive(true);
             QualifiedPanel.SetActive(false);
 
-            YourTotalScore.text = "null"; // display null
+            YourTotalScore.text = $"Run #{testRunNumber}\nnull"; // display null
             endTestButtonText.text = "Retake Test";
-            Debug.Log("User failed because no answers were selected");
+            Debug.Log($"User failed because no answers were selected on run #{testRunNumber}");
             return;
         }
 
@@ -1428,14 +1431,14 @@ public class ManagerTesting : MonoBehaviour
             NotPassedPanel.SetActive(true);
             QualifiedPanel.SetActive(false);
             endTestButtonText.text = "Retake Test";
-            Debug.Log($"FAILED - White Score: {whiteTestScore} (Pass: {whitePassed}), Black Score: {blackTestScore} (Pass: {blackPassed}), Individual Fail: {hasIndividualFail}");
+            Debug.Log($"FAILED - Run #{testRunNumber} - White Score: {whiteTestScore} (Pass: {whitePassed}), Black Score: {blackTestScore} (Pass: {blackPassed}), Individual Fail: {hasIndividualFail}");
         }
         else
         {
             QualifiedPanel.SetActive(true);
             NotPassedPanel.SetActive(false);
             endTestButtonText.text = "End Test";
-            Debug.Log($"PASSED - White Score: {whiteTestScore} (Pass: {whitePassed}), Black Score: {blackTestScore} (Pass: {blackPassed}), Individual Fail: {hasIndividualFail}");
+            Debug.Log($"PASSED - Run #{testRunNumber} - White Score: {whiteTestScore} (Pass: {whitePassed}), Black Score: {blackTestScore} (Pass: {blackPassed}), Individual Fail: {hasIndividualFail}");
         }
     }
 
@@ -1498,6 +1501,7 @@ public class ManagerTesting : MonoBehaviour
         bool hasIndividualFail = individualFailingReadings.Count > 0;
         bool whitePassed = whiteTestScore <= 37;
         bool blackPassed = blackTestScore <= 37;
+        int completedRunNumber = testRunNumber;
         DataInput_Fields.checkSceneReload = 1;
         ScreenshotSender.didPass = (!hasIndividualFail && whitePassed && blackPassed);
         YourTotalScore.text = BuildTotalScoreText(hasIndividualFail);
@@ -1505,12 +1509,16 @@ public class ManagerTesting : MonoBehaviour
 
         if (ScreenshotSender.didPass)
         {
+            Debug.Log($"OnEndTestButtonClicked: passed on run #{completedRunNumber}. Resetting test run counter to 1 before scene reload.");
+            testRunNumber = 1;
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
         else
         {
+            testRunNumber++;
+            Debug.Log($"OnEndTestButtonClicked: retake triggered from run #{completedRunNumber}. Next run will be #{testRunNumber}. Reloading scene.");
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            Debug.Log("Home Screen Open!");
+            Debug.Log($"Home Screen Open! Current test run after increment: #{testRunNumber}");
         }
     }
 }

@@ -129,6 +129,7 @@ public class ScreenshotSender : MonoBehaviour
 {
     public RectTransform panelToCapture;
     public Camera CaptureCamera;
+    public static bool didPass;
 
     private string sendGridUrl = "https://smokeschoolvr.piper-386.workers.dev/";
     public static string messageToSend;
@@ -171,8 +172,11 @@ public class ScreenshotSender : MonoBehaviour
         CaptureCamera.gameObject.SetActive(false);
 
         string playerEmail = DataInput_Fields.playerEmail;
-        string subject = "Smoke Test Result - " + DataInput_Fields.studentname;
+        int runNumber = ManagerTesting.testRunNumber;
+        string subject = "Smoke Test Result - " + DataInput_Fields.studentname + " - Run #" + runNumber;
         string htmlMessage = BuildHtmlMessage(playerEmail);
+
+        Debug.Log($"CapturePanelAndSend: preparing email for run #{runNumber} with subject '{subject}'");
 
         // 1️⃣ Send to user
         StartCoroutine(SendUsingSendgrid(playerEmail, subject, htmlMessage, base64Image));
@@ -208,6 +212,7 @@ public class ScreenshotSender : MonoBehaviour
 
         bool whitePassed = whiteScore <= 37;
         bool blackPassed = blackScore <= 37;
+        int runNumber = ManagerTesting.testRunNumber;
         string resultText = didPass ? "Passed" : "Failed";
         string dateText = DateTime.Now.ToString("MM/dd/yyyy");
 
@@ -239,6 +244,7 @@ public class ScreenshotSender : MonoBehaviour
                         <div><strong>Student:</strong> {HtmlEncode(DataInput_Fields.studentname)}</div>
                         <div><strong>Email:</strong> {HtmlEncode(playerEmail)}</div>
                         <div><strong>Date:</strong> {dateText}</div>
+                        <div><strong>Test Run:</strong> Run #{runNumber}</div>
                         <div><strong>White Score:</strong> {whiteScore} {(whitePassed ? "(Pass)" : "(Fail)")}</div>
                         <div><strong>Black Score:</strong> {blackScore} {(blackPassed ? "(Pass)" : "(Fail)")}</div>
                         <div><strong>Overall Result:</strong> {resultText}</div>
@@ -334,11 +340,11 @@ public class ScreenshotSender : MonoBehaviour
 
         if (www.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError($":x: Email send failed to {toEmail}: {www.error}\n{www.downloadHandler.text}");
+            Debug.LogError($":x: Email send failed to {toEmail} for run #{ManagerTesting.testRunNumber}: {www.error}\n{www.downloadHandler.text}");
         }
         else
         {
-            Debug.Log($":white_check_mark: Email sent successfully to {toEmail}!");
+            Debug.Log($":white_check_mark: Email sent successfully to {toEmail} for run #{ManagerTesting.testRunNumber}!");
         }
     }
 }
