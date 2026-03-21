@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Net.Mail;
 
  public class DataInput_Fields : MonoBehaviour
 {
@@ -74,13 +75,20 @@ using TMPro;
 
     void OnGoButtonClicked()
     {
-        string studentID = inputStudentID.text;
-        string emailID = inputEmailID.text;
+        string studentID = inputStudentID.text.Trim();
+        string emailID = inputEmailID.text.Trim();
 
 //checking fields
         if (string.IsNullOrEmpty(studentID) || string.IsNullOrEmpty(emailID))
         {
             warningText.text = "All fields are required.";
+            warningText.gameObject.SetActive(true);
+            return;
+        }
+
+        if (!IsValidEmail(emailID))
+        {
+            warningText.text = "Enter a valid email address.";
             warningText.gameObject.SetActive(true);
             return;
         }
@@ -112,6 +120,19 @@ using TMPro;
         Debug.Log("ID Name : " + studentname);
         Debug.Log("Mail : " + playerEmail);
 
+    }
+
+    bool IsValidEmail(string email)
+    {
+        try
+        {
+            MailAddress mailAddress = new MailAddress(email);
+            return mailAddress.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
  

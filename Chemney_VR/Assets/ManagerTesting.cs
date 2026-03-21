@@ -209,6 +209,7 @@ public class ManagerTesting : MonoBehaviour
         answervalues_test_white = new int[btn_questions.Length];
         answervalues_practice_black = new int[btn_questions.Length];
         answervalues_test_black = new int[btn_questions.Length];
+        InitializeAnswerArrays();
 
         // Setup preload video player
         InitializePreloadVideoPlayer();
@@ -1300,6 +1301,17 @@ public class ManagerTesting : MonoBehaviour
         return totalScoreText;
     }
 
+    private void InitializeAnswerArrays()
+    {
+        for (int i = 0; i < btn_questions.Length; i++)
+        {
+            answervalues_practice_white[i] = -1;
+            answervalues_test_white[i] = -1;
+            answervalues_practice_black[i] = -1;
+            answervalues_test_black[i] = -1;
+        }
+    }
+
 
 
     private void LogIndividualFailingReadings(List<SlideRecord> failingReadings, string context)
@@ -1413,7 +1425,7 @@ public class ManagerTesting : MonoBehaviour
             QualifiedPanel.SetActive(false);
             ScreenshotSender.didPass = false;
 
-            YourTotalScore.text = $"Run #{testRunNumber}\nnull\n\nsmokeschoolvr.com";
+            YourTotalScore.text = $"Run #{testRunNumber}\nNo scored answers recorded\n\nsmokeschoolvr.com";
             endTestButtonText.text = "Retake Test";
             Debug.Log($"User failed because no answers were selected on run #{testRunNumber}");
             return;
@@ -1453,13 +1465,13 @@ public class ManagerTesting : MonoBehaviour
         // Check white test answers
         foreach (var ans in answervalues_test_white)
         {
-            if (ans != 0) return true; // at least one answered
+            if (ans >= 0) return true; // at least one answered
         }
 
         // Check black test answers
         foreach (var ans in answervalues_test_black)
         {
-            if (ans != 0) return true; // at least one answered
+            if (ans >= 0) return true; // at least one answered
         }
 
         return false; // no answers
