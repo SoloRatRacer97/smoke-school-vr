@@ -34,6 +34,36 @@ using TMPro;
 
     void Start()
     {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        // Skip login entirely in WebGL builds — keyboard input freezes the app
+        string savedEmail = PlayerPrefs.GetString(EMAIL_KEY, playerEmail ?? string.Empty);
+        string savedName = PlayerPrefs.GetString(NAME_KEY, studentname ?? string.Empty);
+        bool preserveExistingIdentity = checkSceneReload == 1 &&
+                                        !string.IsNullOrEmpty(savedEmail) &&
+                                        !string.IsNullOrEmpty(savedName);
+
+        if (preserveExistingIdentity)
+        {
+            playerEmail = savedEmail;
+            studentname = savedName;
+        }
+        else
+        {
+            playerEmail = "webgl@test.com";
+            studentname = "WebGL Tester";
+            PlayerPrefs.SetString(EMAIL_KEY, playerEmail);
+            PlayerPrefs.SetString(NAME_KEY, studentname);
+        }
+
+        PlayerPrefs.Save();
+        if (Emailsent != null) Emailsent.text = playerEmail;
+        if (Username != null) Username.text = studentname;
+        if (EmailsentF != null) EmailsentF.text = playerEmail;
+        if (UsernameF != null) UsernameF.text = studentname;
+        LoginPannel.SetActive(false);
+        welcomePannel.SetActive(true);
+        return;
+#endif
         welcomePannel.SetActive(false);
         LoginPannel.SetActive(true);
         goButton.gameObject.SetActive(true);  // Keep it always active (optional UX)

@@ -839,6 +839,7 @@ public class ManagerTesting : MonoBehaviour
         {
             int index = i;
             btn_questions[i].onClick.AddListener(new UnityAction(() => OnQuestion(index)));
+            SetQuestionButtonLabel(i);
             Debug.Log("Button assign");
             btn_questions[i].interactable = false;
         }
@@ -908,6 +909,28 @@ public class ManagerTesting : MonoBehaviour
         if (currenttype == TestType.whiteTest) { CurrentTest_txt.text = "White Smoke Testing"; }
         if (currenttype == TestType.blackPractice) { CurrentTest_txt.text = "Black Smoke Practice"; }
         if (currenttype == TestType.blackTest) { CurrentTest_txt.text = "Black Smoke Testing"; }
+    }
+
+    private void SetQuestionButtonLabel(int index)
+    {
+        if (btn_questions == null || index < 0 || index >= btn_questions.Length || btn_questions[index] == null)
+        {
+            return;
+        }
+
+        string displayNumber = (index + 1).ToString();
+        TMP_Text tmpLabel = btn_questions[index].GetComponentInChildren<TMP_Text>(true);
+        if (tmpLabel != null)
+        {
+            tmpLabel.text = displayNumber;
+            return;
+        }
+
+        Text legacyLabel = btn_questions[index].GetComponentInChildren<Text>(true);
+        if (legacyLabel != null)
+        {
+            legacyLabel.text = displayNumber;
+        }
     }
 
     // MODIFIED: Auto-advance coroutine with preloading
@@ -1257,6 +1280,34 @@ public class ManagerTesting : MonoBehaviour
         return Path.GetFileName(url);
     }
 
+    private List<SlideRecord> GetIndividualFailingReadings()
+    {
+        return slideRecords.Where(record => record.deviation > 3).OrderBy(record => record.smokeColor).ThenBy(record => record.questionNumber).ToList();
+    }
+
+    private string BuildTotalScoreText(bool individualFail)
+    {
+        string totalScoreText = $"White: {whiteTestScore}\nBlack: {blackTestScore}";
+        if (individualFail)
+        {
+            totalScoreText += "\n⚠ Individual reading exceeded 15%";
+        }
+
+        return totalScoreText;
+    }
+
+    private void LogIndividualFailingReadings(List<SlideRecord> failingReadings, string context)
+    {
+        if (failingReadings == null || failingReadings.Count == 0)
+        {
+            return;
+        }
+
+        string details = string.Join("; ", failingReadings.Select(record =>
+            $"{record.smokeColor} Q{record.questionNumber} actual {record.actualOpacity}, answer {record.studentAnswer}, deviation {record.deviation}"));
+        Debug.LogWarning($"{context}: automatic fail due to individual reading(s) exceeding 15%: {details}");
+    }
+
     private void LoadCurrentQuestion()
     {
         for (int i = 0; i < btn_questions.Length; i++)
@@ -1361,26 +1412,30 @@ public class ManagerTesting : MonoBehaviour
             return;
         }
 
+        List<SlideRecord> individualFailingReadings = GetIndividualFailingReadings();
+        bool hasIndividualFail = individualFailingReadings.Count > 0;
         bool whitePassed = whiteTestScore <= 37;
         bool blackPassed = blackTestScore <= 37;
-        bool didPass = whitePassed && blackPassed;
+        bool didPass = !hasIndividualFail && whitePassed && blackPassed;
 
-        YourTotalScore.text = $"White: {whiteTestScore}\nBlack: {blackTestScore}";
+        YourTotalScore.text = BuildTotalScoreText(hasIndividualFail);
         ScreenshotSender.didPass = didPass;
+
+        LogIndividualFailingReadings(individualFailingReadings, "ShowingFinalResult");
 
         if (!didPass)
         {
             NotPassedPanel.SetActive(true);
             QualifiedPanel.SetActive(false);
             endTestButtonText.text = "Retake Test";
-            Debug.Log($"FAILED - White Score: {whiteTestScore} (Pass: {whitePassed}), Black Score: {blackTestScore} (Pass: {blackPassed})");
+            Debug.Log($"FAILED - White Score: {whiteTestScore} (Pass: {whitePassed}), Black Score: {blackTestScore} (Pass: {blackPassed}), Individual Fail: {hasIndividualFail}");
         }
         else
         {
             QualifiedPanel.SetActive(true);
             NotPassedPanel.SetActive(false);
             endTestButtonText.text = "End Test";
-            Debug.Log($"PASSED - White Score: {whiteTestScore} (Pass: {whitePassed}), Black Score: {blackTestScore} (Pass: {blackPassed})");
+            Debug.Log($"PASSED - White Score: {whiteTestScore} (Pass: {whitePassed}), Black Score: {blackTestScore} (Pass: {blackPassed}), Individual Fail: {hasIndividualFail}");
         }
     }
 
@@ -1439,10 +1494,14 @@ public class ManagerTesting : MonoBehaviour
 
     public void OnEndTestButtonClicked()
     {
+        List<SlideRecord> individualFailingReadings = GetIndividualFailingReadings();
+        bool hasIndividualFail = individualFailingReadings.Count > 0;
         bool whitePassed = whiteTestScore <= 37;
         bool blackPassed = blackTestScore <= 37;
         DataInput_Fields.checkSceneReload = 1;
-        ScreenshotSender.didPass = (whitePassed && blackPassed);
+        ScreenshotSender.didPass = (!hasIndividualFail && whitePassed && blackPassed);
+        YourTotalScore.text = BuildTotalScoreText(hasIndividualFail);
+        LogIndividualFailingReadings(individualFailingReadings, "OnEndTestButtonClicked");
 
         if (ScreenshotSender.didPass)
         {
