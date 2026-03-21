@@ -14,6 +14,18 @@ using System.Collections;
 
 public class ManagerTesting : MonoBehaviour
 {
+    public struct SlideRecord
+    {
+        public int questionNumber;
+        public string smokeColor;
+        public string videoFilename;
+        public int actualOpacity;
+        public int studentAnswer;
+        public int deviation;
+    }
+
+    public static List<SlideRecord> slideRecords = new List<SlideRecord>();
+
     public enum TestType { whitePractice, whiteTest, blackPractice, blackTest, TestComplete };
     public TestType currenttype;
 
@@ -169,6 +181,7 @@ public class ManagerTesting : MonoBehaviour
 
     void Start()
     {
+        slideRecords.Clear();
         blackScreen.SetActive(false);
         openresultPannelButton.gameObject.SetActive(false);
         btn_SkipPracticeTest.onClick.AddListener(OnSkipPractice);
@@ -1039,6 +1052,7 @@ public class ManagerTesting : MonoBehaviour
                 YourWhiteSelectedValue[currentQuestionIndex].text = selected.ToString();
                 WhiteOpacityActualValue[currentQuestionIndex].text = actual.ToString();
                 whiteSmokeScore[currentQuestionIndex].text = score.ToString();
+                UpsertSlideRecord(currentQuestionIndex, "White", actual, selected, score);
             }
             else if (currenttype == TestType.blackTest)
             {
@@ -1046,6 +1060,7 @@ public class ManagerTesting : MonoBehaviour
                 YourBlackSelectedValue[currentQuestionIndex].text = selected.ToString();
                 BlackOpacityActualValue[currentQuestionIndex].text = actual.ToString();
                 BlackSmokeScore[currentQuestionIndex].text = score.ToString();
+                UpsertSlideRecord(currentQuestionIndex, "Black", actual, selected, score);
             }
 
             if (currenttype == TestType.whitePractice) { answervalues_practice_white[currentQuestionIndex] = answersValue[i]; }
@@ -1202,6 +1217,44 @@ public class ManagerTesting : MonoBehaviour
             remarks = "Your Value was " + x + "% too low";
         }
         resultSummaryText.text = "" + remarks;
+    }
+
+    private void UpsertSlideRecord(int questionIndex, string smokeColor, int actualOpacity, int studentAnswer, int deviation)
+    {
+        SlideRecord record = new SlideRecord
+        {
+            questionNumber = questionIndex + 1,
+            smokeColor = smokeColor,
+            videoFilename = ExtractVideoFilename(videoPlayer != null ? videoPlayer.url : string.Empty),
+            actualOpacity = actualOpacity,
+            studentAnswer = studentAnswer,
+            deviation = deviation
+        };
+
+        int existingIndex = slideRecords.FindIndex(x => x.questionNumber == record.questionNumber && x.smokeColor == record.smokeColor);
+        if (existingIndex >= 0)
+        {
+            slideRecords[existingIndex] = record;
+        }
+        else
+        {
+            slideRecords.Add(record);
+        }
+    }
+
+    private string ExtractVideoFilename(string url)
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            return string.Empty;
+        }
+
+        if (Uri.TryCreate(url, UriKind.Absolute, out Uri uri))
+        {
+            return Path.GetFileName(uri.LocalPath);
+        }
+
+        return Path.GetFileName(url);
     }
 
     private void LoadCurrentQuestion()
