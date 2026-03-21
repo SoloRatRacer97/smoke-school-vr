@@ -1291,12 +1291,11 @@ public class ManagerTesting : MonoBehaviour
 
     private string BuildTotalScoreText(bool individualFail)
     {
-        string totalScoreText = $"Run #{testRunNumber}\nWhite: {whiteTestScore}\nBlack: {blackTestScore}";
+        string totalScoreText = $"White: {whiteTestScore}\nBlack: {blackTestScore}";
         if (individualFail)
         {
-            totalScoreText += "\n⚠ Reading exceeded 15% limit";
+            totalScoreText += "\n⚠ Reading exceeded 15%";
         }
-        totalScoreText += "\n\nsmokeschoolvr.com";
 
         return totalScoreText;
     }
@@ -1425,7 +1424,7 @@ public class ManagerTesting : MonoBehaviour
             QualifiedPanel.SetActive(false);
             ScreenshotSender.didPass = false;
 
-            YourTotalScore.text = $"Run #{testRunNumber}\nNo scored answers recorded\n\nsmokeschoolvr.com";
+            YourTotalScore.text = "No scored answers recorded";
             endTestButtonText.text = "Retake Test";
             Debug.Log($"User failed because no answers were selected on run #{testRunNumber}");
             return;
