@@ -1295,8 +1295,17 @@ public class ManagerTesting : MonoBehaviour
         {
             totalScoreText += "\n⚠ Individual reading exceeded 15%";
         }
+        totalScoreText += "\n\nsmokeschoolvr.com";
 
         return totalScoreText;
+    }
+
+    private void SetCertMessageVisibility(bool visible)
+    {
+        GameObject certText1 = GameObject.Find("Email Sent Text");
+        GameObject certText2 = GameObject.Find("Email Sent Text (1)");
+        if (certText1 != null) certText1.SetActive(visible);
+        if (certText2 != null) certText2.SetActive(visible);
     }
 
     private void LogIndividualFailingReadings(List<SlideRecord> failingReadings, string context)
@@ -1405,9 +1414,10 @@ public class ManagerTesting : MonoBehaviour
 
         if (!answeredAny)
         {
-            // User didn’t answer any question
+            // User didn't answer any question
             NotPassedPanel.SetActive(true);
             QualifiedPanel.SetActive(false);
+            SetCertMessageVisibility(false);
 
             YourTotalScore.text = $"Run #{testRunNumber}\nnull"; // display null
             endTestButtonText.text = "Retake Test";
@@ -1430,6 +1440,7 @@ public class ManagerTesting : MonoBehaviour
         {
             NotPassedPanel.SetActive(true);
             QualifiedPanel.SetActive(false);
+            SetCertMessageVisibility(false);
             endTestButtonText.text = "Retake Test";
             Debug.Log($"FAILED - Run #{testRunNumber} - White Score: {whiteTestScore} (Pass: {whitePassed}), Black Score: {blackTestScore} (Pass: {blackPassed}), Individual Fail: {hasIndividualFail}");
         }
@@ -1437,6 +1448,7 @@ public class ManagerTesting : MonoBehaviour
         {
             QualifiedPanel.SetActive(true);
             NotPassedPanel.SetActive(false);
+            SetCertMessageVisibility(true);
             endTestButtonText.text = "End Test";
             Debug.Log($"PASSED - Run #{testRunNumber} - White Score: {whiteTestScore} (Pass: {whitePassed}), Black Score: {blackTestScore} (Pass: {blackPassed}), Individual Fail: {hasIndividualFail}");
         }
