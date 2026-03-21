@@ -11,12 +11,24 @@ public class ToggleScreenSwitcher : MonoBehaviour
     public GameObject welcomePanel;
     public GameObject tutorialPanel;
     public GameObject testPanel;
+    public VideoLoadingIndicator1 tutorialVideoLoader;
 
-   public  void OnGoButtonClicked()
+    public void OnGoButtonClicked()
     {
-        welcomePanel.SetActive(false); 
-        tutorialPanel.SetActive(false);
+        bool skipTutorial = skipTutorialToggle != null && skipTutorialToggle.isOn;
+
+        welcomePanel.SetActive(false);
         testPanel.SetActive(false);
-        (skipTutorialToggle.isOn ? testPanel : tutorialPanel).SetActive(true) ;
+        tutorialPanel.SetActive(false);
+
+        if (skipTutorial)
+        {
+            tutorialVideoLoader?.StopVideo();
+            testPanel.SetActive(true);
+            return;
+        }
+
+        tutorialPanel.SetActive(true);
+        tutorialVideoLoader?.ReplayVideo();
     }
 }

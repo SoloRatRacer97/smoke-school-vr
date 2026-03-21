@@ -12,6 +12,7 @@ public class VideoLoadingIndicator1 : MonoBehaviour
 
     private RectTransform loadingImageRect;
     private float rotationSpeed = 200f;
+    private bool eventsRegistered;
 
     void Start()
     {
@@ -21,20 +22,42 @@ public class VideoLoadingIndicator1 : MonoBehaviour
             loadingImage.SetActive(true);
         }
 
-        // ✅ LOAD VIDEO FROM LINK
+        RegisterVideoEvents();
         videoPlayer.url = videoURL;
-        Debug.Log("VIDEO URL = " + videoURL);
-
-        // Events
-        videoPlayer.prepareCompleted += OnPrepared;
-        videoPlayer.loopPointReached += OnFinished;
-
         videoPlayer.Prepare();
     }
 
     void Update()
     {
         RotateLoadingImage();
+    }
+
+    private void OnDisable()
+    {
+        StopVideo();
+    }
+
+    private void OnDestroy()
+    {
+        if (!eventsRegistered || videoPlayer == null)
+        {
+            return;
+        }
+
+        videoPlayer.prepareCompleted -= OnPrepared;
+        videoPlayer.loopPointReached -= OnFinished;
+    }
+
+    private void RegisterVideoEvents()
+    {
+        if (eventsRegistered || videoPlayer == null)
+        {
+            return;
+        }
+
+        videoPlayer.prepareCompleted += OnPrepared;
+        videoPlayer.loopPointReached += OnFinished;
+        eventsRegistered = true;
     }
 
     private void OnPrepared(VideoPlayer vp)
@@ -47,6 +70,11 @@ public class VideoLoadingIndicator1 : MonoBehaviour
 
     public void StopVideo()
     {
+        if (videoPlayer == null)
+        {
+            return;
+        }
+
         videoPlayer.Stop();
     }
 
@@ -66,9 +94,17 @@ public class VideoLoadingIndicator1 : MonoBehaviour
 
     public void ReplayVideo()
     {
+        if (videoPlayer == null)
+        {
+            return;
+        }
+
+        RegisterVideoEvents();
+
         if (loadingImage != null)
             loadingImage.SetActive(true);
 
+        videoPlayer.url = videoURL;
         videoPlayer.Stop();
         videoPlayer.Prepare();
     }

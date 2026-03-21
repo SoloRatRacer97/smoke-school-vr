@@ -1294,7 +1294,7 @@ public class ManagerTesting : MonoBehaviour
         string totalScoreText = $"Run #{testRunNumber}\nWhite: {whiteTestScore}\nBlack: {blackTestScore}";
         if (individualFail)
         {
-            totalScoreText += "\n⚠ Individual reading exceeded 15%";
+            totalScoreText += "\n⚠ Reading exceeded 15% limit";
         }
         totalScoreText += "\n\nsmokeschoolvr.com";
 

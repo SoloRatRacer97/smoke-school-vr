@@ -10747,6 +10747,7 @@ GameObject:
   - component: {fileID: 230944046}
   - component: {fileID: 230944045}
   - component: {fileID: 230944044}
+  - component: {fileID: 230944047}
   m_Layer: 5
   m_Name: Smoke School
   m_TagString: Untagged
@@ -10812,7 +10813,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Smoke School [Current Year] | smokeschoolinc.com
+  m_text: Smoke School 2025 | smokeschoolvr.com
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f675742eaf9c20a4f909d78ee7a14fed, type: 2}
   m_sharedMaterial: {fileID: 4687939059374929122, guid: f675742eaf9c20a4f909d78ee7a14fed, type: 2}
@@ -10883,6 +10884,18 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &230944047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 230944042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e025ff524ca49d08c839a29feba48c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!222 &230944046
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -24584,6 +24597,7 @@ MonoBehaviour:
   welcomePanel: {fileID: 633342534}
   tutorialPanel: {fileID: 1225595346}
   testPanel: {fileID: 55496161}
+  tutorialVideoLoader: {fileID: 1503826432}
 --- !u!114 &554467464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66076,7 +66090,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   videoPlayer: {fileID: 1892072956}
-  videoURL: https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441745/PlaceholderVideo_mkkihm.mp4
+  videoURL: https://res.cloudinary.com/dkzd0f0tu/video/upload/v1774123829/Smoke_School_Intro2_lzx9e4.mov
   loadingImage: {fileID: 112549311}
 --- !u!1 &1506307287
 GameObject:
@@ -66779,11 +66793,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos
-    de texto. Lorem Ipsum ha sido el texto de relleno est\xE1ndar de las industrias
-    desde el a\xF1o 1500, cuando un impresor (N. del T. persona que se dedica a la
-    imprenta) desconocido us\xF3 una galer\xEDa de textos y los mezcl\xF3 de tal
-    manera que logr\xF3 hacer un libro de textos especimen. "
+  m_text: Watch our training video to learn the EPA Method 9 smoke reading technique.
+    It covers observation methods, reference chart use, and tips for accurate
+    opacity readings.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -74458,8 +74470,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 50, y: 2.5}
-  m_SizeDelta: {x: 250, y: 120}
+  m_AnchoredPosition: {x: 0, y: 2.5}
+  m_SizeDelta: {x: 300, y: 140}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1669848361
 MonoBehaviour:
@@ -77380,13 +77392,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos
-    de texto. Lorem Ipsum ha sido el texto de relleno est\xE1ndar de las industrias
-    desde el a\xF1o 1500, cuando un impresor (N. del T. persona que se dedica a la
-    imprenta) desconocido us\xF3 una galer\xEDa de textos y los mezcl\xF3 de tal
-    manera que logr\xF3 hacer un libro de textos especimen. No s\xF3lo sobrevivi\xF3
-    500 a\xF1os, sino que tambi Lorem Ipsum es simplemente el texto de relleno de
-    las imprentas y archivos de texto. Lorem "
+  m_text: Complete the EPA Method 9 certification test. You will evaluate 25
+    white smoke and 25 black smoke readings, and each reading must be within
+    15% of actual opacity to pass.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
