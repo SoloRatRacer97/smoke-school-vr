@@ -1291,13 +1291,7 @@ public class ManagerTesting : MonoBehaviour
 
     private string BuildTotalScoreText(bool individualFail)
     {
-        string totalScoreText = $"White: {whiteTestScore}\nBlack: {blackTestScore}";
-        if (individualFail)
-        {
-            totalScoreText += "\n⚠ Reading exceeded 15%";
-        }
-
-        return totalScoreText;
+        return $"White: {whiteTestScore}\nBlack: {blackTestScore}";
     }
 
     private void InitializeAnswerArrays()
