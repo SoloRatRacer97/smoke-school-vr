@@ -66,13 +66,37 @@ Chemney_VR/
 
 ## Deployment
 
-### Current Setup (Netlify — Manual Deploy)
-The WebGL build is deployed via Netlify Drop (drag-and-drop). To update:
+### Build & Deploy Checklist
 
-1. Open project in Unity 6 Editor
-2. **File → Build Settings → WebGL → Build**
-3. Output goes to `Chemney_VR/WebGLBuild/VR Web Build/`
-4. Deploy the `VR Web Build` folder to Netlify
+**Before building:**
+1. Make sure ALL `.cs` files compile in Unity (check Console for red errors)
+2. Key files that must stay in sync:
+   - `Assets/ManagerTesting.cs` — main test controller
+   - `Assets/Scripts/SmokeSchoolAppState.cs` — certification state (scores, results)
+   - `Assets/Scripts/UnityWebRequest.cs` — email pipeline (reads from SmokeSchoolAppState)
+3. If you see `SlideRecord` errors → `UnityWebRequest.cs` is outdated (SlideRecord was replaced by SmokeSchoolAppState)
+4. If you see `SmokeSchoolAppState` not found → the file is missing from `Assets/Scripts/`
+
+**Building WebGL:**
+1. Open `Chemney_VR/` in Unity 6 Editor
+2. **File → Build Settings → Platform: WebGL → Build**
+3. Select output folder (usually `VR Web Build/` at project root or wherever you've been building)
+4. Wait ~8 minutes for full build (incremental builds are faster)
+5. Output: `index.html`, `Build/` folder with `.wasm`, `.framework.js`, `.loader.js`, `.data`
+
+**Deploying to Netlify:**
+1. Go to Netlify Drop (or your Netlify dashboard)
+2. Drag the `VR Web Build/` folder (the one containing `index.html`)
+3. Done — site updates in ~30 seconds
+
+### Common Build Issues
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `SmokeSchoolAppState` not found | Missing script file | Pull from GitHub — `Assets/Scripts/SmokeSchoolAppState.cs` |
+| `SlideRecord` does not exist | Old UnityWebRequest.cs | Pull latest `UnityWebRequest.cs` from GitHub |
+| Build completes instantly (no output) | Compile errors blocking build | Check Unity Console (red errors), fix scripts first |
+| Build takes 0 seconds | Unity cached build, nothing changed | Clean build: delete `Library/` folder, reopen project |
 
 ### Connecting to GitHub (Recommended)
 To enable auto-deploy on push:
