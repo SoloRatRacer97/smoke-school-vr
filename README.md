@@ -85,9 +85,32 @@ Chemney_VR/
 5. Output: `index.html`, `Build/` folder with `.wasm`, `.framework.js`, `.loader.js`, `.data`
 
 **Deploying to Netlify:**
-1. Go to Netlify Drop (or your Netlify dashboard)
-2. Drag the `VR Web Build/` folder (the one containing `index.html`)
-3. Done — site updates in ~30 seconds
+1. Make sure `_headers` file exists in the build output folder (see below)
+2. Go to Netlify Drop (or your Netlify dashboard)
+3. Drag the `VR Smoke School/` folder (the one containing `index.html`)
+4. Done — site updates in ~30 seconds
+
+⚠️ **Critical: `_headers` file required for Brotli-compressed builds**
+
+Unity WebGL outputs `.br` (Brotli) compressed files. Netlify doesn't know these are compressed WASM/JS — it serves them as `application/x-brotli` which makes the browser hang on the loading screen forever.
+
+The `_headers` file in the build folder fixes this. If it's missing, create it:
+```
+/Build/*.wasm.br
+  Content-Type: application/wasm
+  Content-Encoding: br
+
+/Build/*.js.br
+  Content-Type: application/javascript
+  Content-Encoding: br
+
+/Build/*.data.br
+  Content-Type: application/octet-stream
+  Content-Encoding: br
+```
+
+**Symptom:** Loading bar appears but never completes, site hangs forever.
+**Fix:** Add `_headers` file and re-deploy.
 
 ### Common Build Issues
 
