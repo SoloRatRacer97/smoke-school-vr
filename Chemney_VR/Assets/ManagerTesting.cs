@@ -1256,24 +1256,44 @@ public class ManagerTesting : MonoBehaviour
             SCRATCHQUESTIONINDEX = -1;
             scratchModeStartedFromReview = false;
 
+            ApplyScratchAndRefreshButtonState();
+
+            int nextIndex = scratchQuestionIndex + 1;
+            bool hasNextQuestion = nextIndex < btn_questions.Length;
+
             if (returnToReview)
             {
-                REVIEWQUESTIONINDEX = scratchQuestionIndex;
                 answerSelected = false;
                 RemarksPannel.SetActive(false);
-                ReOpenTestCompletePannel();
+                if (hasNextQuestion)
+                {
+                    REVIEWQUESTIONINDEX = nextIndex;
+                    btn_questions[nextIndex].onClick.Invoke();
+                }
+                else
+                {
+                    ReOpenTestCompletePannel();
+                }
+                return;
+            }
+
+            if (hasNextQuestion)
+            {
+                currentQuestionIndex = nextIndex;
+                answerSelected = false;
+                if (currenttype == TestType.whiteTest || currenttype == TestType.blackTest ||
+                    currenttype == TestType.whitePractice || currenttype == TestType.blackPractice)
+                {
+                    blackScreen.SetActive(true);
+                }
+                LoadCurrentQuestion();
+                ApplyScratchAndRefreshButtonState();
+                btn_questions[currentQuestionIndex].onClick.Invoke();
             }
             else
             {
-                answerSelected = true;
-                ShowRemarksForQuestion(scratchQuestionIndex);
-            }
-
-            ApplyScratchAndRefreshButtonState();
-
-            if (!returnToReview && btn_Next != null)
-            {
-                btn_Next.gameObject.SetActive(true);
+                ApplyScratchAndRefreshButtonState();
+                ShowTestCompletePanel();
             }
 
             return;
@@ -1736,7 +1756,7 @@ public class ManagerTesting : MonoBehaviour
         // Save current question before scratch mode
         lastQuestionBeforeScratch = currentQuestionIndex;
 
-        SCRATCHQUESTIONINDEX = reviewphase ? REVIEWQUESTIONINDEX : -1;
+        SCRATCHQUESTIONINDEX = reviewphase ? REVIEWQUESTIONINDEX : currentQuestionIndex;
         Debug.Log("Scratch Mode Enabled");
         RemarksPannel.SetActive(false);
         TestingCompletePannel.SetActive(false);
@@ -1746,13 +1766,12 @@ public class ManagerTesting : MonoBehaviour
 
         answerSelected = false;
         UpdateQuestionNumberLabel();
-
-        for (int i = 0; i < currentQuestionIndex; i++)
-        {
-            Button btn = btn_questions[i];
-            btn.interactable = true;
-        }
         DisableAnswers();
+        if (SCRATCHQUESTIONINDEX >= 0)
+        {
+            LoadQuestionVideo(SCRATCHQUESTIONINDEX, true);
+            EnableAnswers();
+        }
     }
 
 
