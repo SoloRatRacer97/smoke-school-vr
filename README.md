@@ -114,8 +114,44 @@ curl -X POST https://smokeschoolvr.piper-386.workers.dev/ \
   -d '{"to":"your@email.com","subject":"Test","html":"<h1>Test</h1>"}'
 ```
 
+## Pushing to GitHub
+
+⚠️ **Do NOT use `git push` directly** — the repo is ~1.5GB due to tracked Unity `Library/` files in history. Normal pushes will timeout with HTTP 408.
+
+**Use the GitHub Contents API instead:**
+```bash
+# 1. Get your GitHub token from keychain
+TOKEN=$(printf "protocol=https\nhost=github.com\n" | git credential-osxkeychain get 2>/dev/null | grep password | cut -d= -f2)
+
+# 2. Get the current file SHA from GitHub
+SHA=$(curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://api.github.com/repos/SoloRatRacer97/smoke-school-vr/contents/Chemney_VR/Assets/ManagerTesting.cs" \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['sha'])")
+
+# 3. Push the file via API
+curl -s -X PUT -H "Authorization: Bearer $TOKEN" \
+  "https://api.github.com/repos/SoloRatRacer97/smoke-school-vr/contents/Chemney_VR/Assets/ManagerTesting.cs" \
+  -d "$(python3 -c "
+import json, base64
+with open('Chemney_VR/Assets/ManagerTesting.cs', 'rb') as f:
+    content = base64.b64encode(f.read()).decode()
+print(json.dumps({
+    'message': 'Your commit message here',
+    'content': content,
+    'sha': '$SHA',
+    'branch': 'main'
+}))
+")"
+```
+
+**For multiple files**, repeat steps 2-3 for each file path.
+
+**Long-term fix:** Remove `Library/` from git history with `git filter-repo` to shrink the repo, then normal pushes will work again.
+
 ## Recent Changes
 
+- `02ca2e07` — Fix scratch/refresh state management and button layout
+- `e3b864b5` — Re-enable scratch/refresh + fix slide counter on rereads
 - `469e2ae` — EPA 15% individual fail gate, Q#1 label fix, identity persistence
 - `663c074` — Slide data tracking + HTML email with ALT-152 audit table
 - `724fd8e` — Separate white/black scoring thresholds, dev email swap
