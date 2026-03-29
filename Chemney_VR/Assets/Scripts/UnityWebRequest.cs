@@ -187,46 +187,29 @@ public class ScreenshotSender : MonoBehaviour
 
     private string BuildHtmlMessage(string playerEmail)
     {
-        List<ManagerTesting.SlideRecord> orderedRecords = new List<ManagerTesting.SlideRecord>(ManagerTesting.slideRecords);
-        orderedRecords.Sort((a, b) =>
-        {
-            int colorCompare = string.Equals(a.smokeColor, b.smokeColor, StringComparison.OrdinalIgnoreCase)
-                ? 0
-                : (string.Equals(a.smokeColor, "White", StringComparison.OrdinalIgnoreCase) ? -1 : 1);
-            return colorCompare != 0 ? colorCompare : a.questionNumber.CompareTo(b.questionNumber);
-        });
-
-        int whiteScore = 0;
-        int blackScore = 0;
-        foreach (ManagerTesting.SlideRecord record in orderedRecords)
-        {
-            if (string.Equals(record.smokeColor, "White", StringComparison.OrdinalIgnoreCase))
-            {
-                whiteScore += record.deviation;
-            }
-            else if (string.Equals(record.smokeColor, "Black", StringComparison.OrdinalIgnoreCase))
-            {
-                blackScore += record.deviation;
-            }
-        }
+        List<SmokeSchoolAppState.QuestionResult> orderedRecords = SmokeSchoolAppState.GetOrderedCertificationResults();
+        int whiteScore = SmokeSchoolAppState.GetCertificationTotalScore(SmokeSchoolAppState.SmokeSection.White);
+        int blackScore = SmokeSchoolAppState.GetCertificationTotalScore(SmokeSchoolAppState.SmokeSection.Black);
 
         bool whitePassed = whiteScore <= 37;
         bool blackPassed = blackScore <= 37;
+        bool hasIndividualFail = SmokeSchoolAppState.GetCertificationFailures(3).Count > 0;
+        bool overallPassed = !hasIndividualFail && whitePassed && blackPassed;
         int runNumber = ManagerTesting.testRunNumber;
-        string resultText = didPass ? "Passed" : "Failed";
+        string resultText = overallPassed ? "Passed" : "Failed";
         string dateText = DateTime.Now.ToString("MM/dd/yyyy");
 
         StringBuilder rows = new StringBuilder();
         for (int i = 0; i < orderedRecords.Count; i++)
         {
-            ManagerTesting.SlideRecord record = orderedRecords[i];
+            SmokeSchoolAppState.QuestionResult record = orderedRecords[i];
             string backgroundColor = i % 2 == 0 ? "#ffffff" : "#f5f5f5";
             string deviationStyle = record.deviation > 3 ? "color:#b91c1c;font-weight:bold;" : "color:#111827;";
 
             rows.Append($@"
                 <tr style=""background-color:{backgroundColor};"">
                     <td style=""border:1px solid #d1d5db;padding:8px;"">{record.questionNumber}</td>
-                    <td style=""border:1px solid #d1d5db;padding:8px;"">{HtmlEncode(record.smokeColor)}</td>
+                    <td style=""border:1px solid #d1d5db;padding:8px;"">{HtmlEncode(record.SmokeColorLabel)}</td>
                     <td style=""border:1px solid #d1d5db;padding:8px;"">{HtmlEncode(record.videoFilename)}</td>
                     <td style=""border:1px solid #d1d5db;padding:8px;"">{record.actualOpacity}%</td>
                     <td style=""border:1px solid #d1d5db;padding:8px;"">{record.studentAnswer}%</td>
