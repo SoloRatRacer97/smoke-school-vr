@@ -11,22 +11,11 @@ using UnityEngine.Rendering;
 using System.Linq;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System.Text.RegularExpressions;
 
 public class ManagerTesting : MonoBehaviour
 {
     public static int testRunNumber = 1;
-
-    public struct SlideRecord
-    {
-        public int questionNumber;
-        public string smokeColor;
-        public string videoFilename;
-        public int actualOpacity;
-        public int studentAnswer;
-        public int deviation;
-    }
-
-    public static List<SlideRecord> slideRecords = new List<SlideRecord>();
 
     public enum TestType { whitePractice, whiteTest, blackPractice, blackTest, TestComplete };
     public TestType currenttype;
@@ -40,6 +29,9 @@ public class ManagerTesting : MonoBehaviour
     private bool isNextVideoPrepared = false;
     private string nextVideoURL = "";
     private int nextVideoIndex = -1;
+    private int nextPreparedQuestionIndex = -1;
+    private int nextPreparedOpacity = -1;
+    private string nextPreparedSmokeType = "";
 
     private int[] answersValue = new int[] { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100 };
 
@@ -149,10 +141,14 @@ public class ManagerTesting : MonoBehaviour
     private int currentVideoIndex = 0;
     public SmokeVideoURLData videoURLData;
     private SmokeVideoURLData.SmokeTypeGroup currentTypeGroup;
+    private int[] questionVideoIndices;
+    private string[] questionVideoUrls;
 
     // MODIFIED: Separate scores for white and black smoke tests
     int whiteTestScore = 0;
     int blackTestScore = 0;
+    const int CertificationScoreThreshold = 37;
+    const int IndividualFailureThreshold = 3;
 
     // NEW: Flag to track if first question has been loaded
     private bool isFirstQuestionLoaded = false;
@@ -181,9 +177,64 @@ public class ManagerTesting : MonoBehaviour
         }
     }
 
+    private bool IsPracticeMode()
+    {
+        return currenttype == TestType.whitePractice || currenttype == TestType.blackPractice;
+    }
+
+    private bool IsCertificationTestMode()
+    {
+        return currenttype == TestType.whiteTest ||
+               currenttype == TestType.blackTest ||
+               currenttype == TestType.TestComplete;
+    }
+
+    private int GetDisplayedQuestionIndex()
+    {
+        if (reviewphase && REVIEWQUESTIONINDEX >= 0)
+        {
+            return REVIEWQUESTIONINDEX;
+        }
+
+        if (scratchMode && SCRATCHQUESTIONINDEX >= 0)
+        {
+            return SCRATCHQUESTIONINDEX;
+        }
+
+        return currentQuestionIndex;
+    }
+
+    private void UpdateQuestionNumberLabel()
+    {
+        if (questionNmbr_text == null)
+        {
+            return;
+        }
+
+        int displayedQuestionIndex = Mathf.Max(0, GetDisplayedQuestionIndex());
+        questionNmbr_text.text = "Question: " + (displayedQuestionIndex + 1);
+    }
+
+    private void ApplyScratchAndRefreshButtonState()
+    {
+        bool allowRedoControls = IsPracticeMode() || IsCertificationTestMode();
+
+        if (btn_Scratch != null)
+        {
+            btn_Scratch.interactable = allowRedoControls;
+            btn_Scratch.gameObject.SetActive(allowRedoControls);
+        }
+
+        if (Refresh != null)
+        {
+            Refresh.interactable = allowRedoControls;
+            Refresh.gameObject.SetActive(allowRedoControls);
+        }
+    }
+
     void Start()
     {
-        slideRecords.Clear();
+        SmokeSchoolAppState.ResetCertificationState();
         Debug.Log($"ManagerTesting Start - current test run #{testRunNumber}");
         blackScreen.SetActive(false);
         openresultPannelButton.gameObject.SetActive(false);
@@ -220,7 +271,6 @@ public class ManagerTesting : MonoBehaviour
         // Handle test type logic
         if (currenttype == TestType.whitePractice)
         {
-            btn_Scratch.gameObject.SetActive(false);
             Txt_currentCompleteTest.text = "White Smoke Practice Complete";
             Txt_ContinueText.text = "Continue To White Testing";
             btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Practice";
@@ -232,7 +282,6 @@ public class ManagerTesting : MonoBehaviour
         }
         else if (currenttype == TestType.whiteTest)
         {
-            btn_Scratch.gameObject.SetActive(true);
             Txt_currentCompleteTest.text = "White Smoke Test";
             Txt_ContinueText.text = "Continue To Black Practice";
             btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Smoke Test";
@@ -243,7 +292,6 @@ public class ManagerTesting : MonoBehaviour
         }
         else if (currenttype == TestType.blackPractice)
         {
-            btn_Scratch.gameObject.SetActive(false);
             Txt_currentCompleteTest.text = "Black Smoke Practice";
             Txt_ContinueText.text = "Continue To Black Testing";
             btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Practice";
@@ -254,8 +302,6 @@ public class ManagerTesting : MonoBehaviour
         }
         else if (currenttype == TestType.blackTest)
         {
-
-            btn_Scratch.gameObject.SetActive(true);
             Txt_currentCompleteTest.text = "Black Smoke Test";
             Txt_ContinueText.text = "Continue To Submission";
             btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Smoke Test";
@@ -267,7 +313,9 @@ public class ManagerTesting : MonoBehaviour
 
         DisableAnswers();
         LoadQuestions();
+        ResetQuestionVideoState();
         LoadAnswerListeners();
+        ApplyScratchAndRefreshButtonState();
 
         // video setup
         {
@@ -347,6 +395,194 @@ public class ManagerTesting : MonoBehaviour
         }
     }
 
+    private void ResetQuestionVideoState()
+    {
+        int questionCount = btn_questions != null ? btn_questions.Length : 0;
+        questionVideoIndices = new int[questionCount];
+        questionVideoUrls = new string[questionCount];
+
+        for (int i = 0; i < questionCount; i++)
+        {
+            questionVideoIndices[i] = -1;
+            questionVideoUrls[i] = string.Empty;
+        }
+
+        ClearPreparedVideoState();
+    }
+
+    private void ClearPreparedVideoState()
+    {
+        isNextVideoPrepared = false;
+        nextVideoURL = string.Empty;
+        nextVideoIndex = -1;
+        nextPreparedQuestionIndex = -1;
+        nextPreparedOpacity = -1;
+        nextPreparedSmokeType = string.Empty;
+    }
+
+    private int GetActualOpacityForQuestion(int questionIndex)
+    {
+        if (currentQuestionValues == null || questionIndex < 0 || questionIndex >= currentQuestionValues.Length)
+        {
+            return -1;
+        }
+
+        int definedOpacity = currentQuestionValues[questionIndex];
+        string assignedUrl = questionVideoUrls != null && questionIndex < questionVideoUrls.Length
+            ? questionVideoUrls[questionIndex]
+            : string.Empty;
+
+        if (TryParseOpacityFromVideoUrl(assignedUrl, out string parsedSmokeType, out int parsedOpacity) &&
+            parsedOpacity != definedOpacity)
+        {
+            Debug.LogError(
+                $"Question {questionIndex + 1} expected {definedOpacity}% {currentSmokeType} smoke but assigned video '{ExtractVideoFilename(assignedUrl)}' encodes {parsedSmokeType}{parsedOpacity}.");
+        }
+
+        return definedOpacity;
+    }
+
+    private bool TryParseOpacityFromVideoUrl(string url, out string smokeType, out int opacity)
+    {
+        smokeType = string.Empty;
+        opacity = -1;
+
+        string filename = ExtractVideoFilename(url);
+        if (string.IsNullOrEmpty(filename))
+        {
+            return false;
+        }
+
+        Match match = Regex.Match(filename, @"(?i)(White|Black)(\d{2,3})");
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        smokeType = match.Groups[1].Value;
+        return int.TryParse(match.Groups[2].Value, out opacity);
+    }
+
+    private int GetStoredVideoIndex(int questionIndex)
+    {
+        if (questionVideoIndices == null || questionIndex < 0 || questionIndex >= questionVideoIndices.Length)
+        {
+            return -1;
+        }
+
+        return questionVideoIndices[questionIndex];
+    }
+
+    private int SelectVideoIndexForQuestion(int questionIndex, bool forceNewVariation)
+    {
+        if (currentTypeGroup == null || currentTypeGroup.videoURLs == null || currentTypeGroup.videoURLs.Count == 0)
+        {
+            return -1;
+        }
+
+        int existingIndex = GetStoredVideoIndex(questionIndex);
+        int videoCount = currentTypeGroup.videoURLs.Count;
+
+        if (!forceNewVariation && existingIndex >= 0 && existingIndex < videoCount)
+        {
+            return existingIndex;
+        }
+
+        if (videoCount == 1)
+        {
+            return 0;
+        }
+
+        int selectedIndex;
+        do
+        {
+            selectedIndex = Random.Range(0, videoCount);
+        }
+        while (selectedIndex == existingIndex);
+
+        return selectedIndex;
+    }
+
+    private bool TryUsePreparedVideo(int questionIndex, int opacity)
+    {
+        if (!enablePreloading || !isNextVideoPrepared || string.IsNullOrEmpty(nextVideoURL))
+        {
+            return false;
+        }
+
+        if (nextPreparedQuestionIndex != questionIndex || nextPreparedOpacity != opacity)
+        {
+            return false;
+        }
+
+        if (!string.Equals(nextPreparedSmokeType, currentSmokeType, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        currentVideoIndex = nextVideoIndex;
+        questionVideoIndices[questionIndex] = currentVideoIndex;
+        questionVideoUrls[questionIndex] = nextVideoURL;
+
+        if (videoPlayer.isPlaying)
+        {
+            videoPlayer.Stop();
+        }
+
+        videoPlayer.url = nextVideoURL;
+        videoPlayer.isLooping = true;
+        videoPlayer.Play();
+
+        ClearPreparedVideoState();
+        PreloadNextVideo();
+        return true;
+    }
+
+    private bool LoadQuestionVideo(int questionIndex, bool forceNewVariation)
+    {
+        int actualOpacity = GetActualOpacityForQuestion(questionIndex);
+        if (actualOpacity < 0)
+        {
+            return false;
+        }
+
+        currentSmokePercentage = actualOpacity;
+        LoadGroup(actualOpacity, currentSmokeType);
+
+        if (currentTypeGroup == null || currentTypeGroup.videoURLs == null || currentTypeGroup.videoURLs.Count == 0)
+        {
+            Debug.LogWarning($"No videos found for {currentSmokeType} smoke at {actualOpacity}% for question {questionIndex + 1}.");
+            return false;
+        }
+
+        if (!forceNewVariation && TryUsePreparedVideo(questionIndex, actualOpacity))
+        {
+            return true;
+        }
+
+        currentVideoIndex = SelectVideoIndexForQuestion(questionIndex, forceNewVariation);
+        if (currentVideoIndex < 0 || currentVideoIndex >= currentTypeGroup.videoURLs.Count)
+        {
+            return false;
+        }
+
+        string url = currentTypeGroup.videoURLs[currentVideoIndex];
+        questionVideoIndices[questionIndex] = currentVideoIndex;
+        questionVideoUrls[questionIndex] = url;
+
+        if (videoPlayer.isPlaying)
+        {
+            videoPlayer.Stop();
+        }
+
+        videoPlayer.url = url;
+        videoPlayer.isLooping = true;
+        videoPlayer.Play();
+
+        PreloadNextVideo();
+        return true;
+    }
+
     /// <summary>
     /// Preload the next video in the background for instant playback
     void PreloadNextVideo()
@@ -356,39 +592,27 @@ public class ManagerTesting : MonoBehaviour
         int nextQuestionIndex = currentQuestionIndex + 1;
         if (nextQuestionIndex >= currentQuestionValues.Length) return;
 
-        int nextOpacityValue = currentQuestionValues[nextQuestionIndex];
-        int nextOpacityIndex = IndexOfOpacity(nextOpacityValue);
-        if (nextOpacityIndex == -1) return;
+        int nextOpacityValue = GetActualOpacityForQuestion(nextQuestionIndex);
+        if (nextOpacityValue < 0) return;
 
-        //string nextURL = GetVideoURLByIndex(nextOpacityIndex);
-        string nextURL = GetVideoURLByIndex(nextOpacityValue, nextOpacityIndex);
-        if (string.IsNullOrEmpty(nextURL)) return;
+        LoadGroup(nextOpacityValue, currentSmokeType);
+        if (currentTypeGroup == null || currentTypeGroup.videoURLs == null || currentTypeGroup.videoURLs.Count == 0) return;
 
+        int preparedVideoIndex = SelectVideoIndexForQuestion(nextQuestionIndex, false);
+        if (preparedVideoIndex < 0 || preparedVideoIndex >= currentTypeGroup.videoURLs.Count) return;
 
-        nextVideoURL = nextURL;
-        nextVideoIndex = nextOpacityIndex;
+        nextVideoURL = currentTypeGroup.videoURLs[preparedVideoIndex];
+        nextVideoIndex = preparedVideoIndex;
+        nextPreparedQuestionIndex = nextQuestionIndex;
+        nextPreparedOpacity = nextOpacityValue;
+        nextPreparedSmokeType = currentSmokeType;
         isNextVideoPrepared = false;
 
         if (preloadVideoPlayer.isPrepared)
             preloadVideoPlayer.Stop();
 
-        preloadVideoPlayer.url = nextURL;
+        preloadVideoPlayer.url = nextVideoURL;
         preloadVideoPlayer.Prepare();
-    }
-
-
-    // Get video URL by index without playing it
-
-    //string GetVideoURLByIndex(int index)
-    //{
-       // LoadGroup(currentQuestionValues[currentQuestionIndex], currentSmokeType);
-       string GetVideoURLByIndex(int opacityPercentage, int videoIndex)
-  {
-    LoadGroup(opacityPercentage, currentSmokeType);
-        if (currentTypeGroup == null || currentTypeGroup.videoURLs.Count == 0) return "";
-
-        currentVideoIndex = videoIndex % currentTypeGroup.videoURLs.Count;
-        return currentTypeGroup.videoURLs[currentVideoIndex];
     }
 
 
@@ -398,27 +622,6 @@ public class ManagerTesting : MonoBehaviour
     {
         isNextVideoPrepared = true;
         Debug.Log("Next video preloaded and ready for instant playback!");
-    }
-
-
-    // Use preloaded video if available, otherwise load normally
-    void PlayVideoWithPreload(int index)
-    {
-        if (enablePreloading && isNextVideoPrepared && nextVideoIndex == index && !string.IsNullOrEmpty(nextVideoURL))
-        {
-            if (videoPlayer.isPlaying) videoPlayer.Stop();
-            videoPlayer.url = nextVideoURL;
-            videoPlayer.isLooping = true;
-            videoPlayer.Play();
-            isNextVideoPrepared = false;
-            nextVideoURL = "";
-            nextVideoIndex = -1;
-            PreloadNextVideo();
-        }
-        else
-        {
-            playVideoByIndex(index);
-        }
     }
 
 
@@ -490,7 +693,6 @@ public class ManagerTesting : MonoBehaviour
         {
             currentSmokeType = "white";
             currentQuestionValues = questionvalues_test_white;
-            btn_Scratch.gameObject.SetActive(true);
             Txt_currentCompleteTest.text = "White Smoke Test";
             Txt_ContinueText.text = "Continue To Black Practice";
             CurrentTest_txt.text = "White Smoke Testing";
@@ -501,7 +703,6 @@ public class ManagerTesting : MonoBehaviour
         {
             currentSmokeType = "black";
             currentQuestionValues = questionvalues_practice_black;
-            btn_Scratch.gameObject.SetActive(false);
             Txt_currentCompleteTest.text = "Black Smoke Practice";
             Txt_ContinueText.text = "Continue To Black Testing";
             CurrentTest_txt.text = "Black Smoke Practice";
@@ -511,7 +712,6 @@ public class ManagerTesting : MonoBehaviour
         {
             currentSmokeType = "black";
             currentQuestionValues = questionvalues_test_black;
-            btn_Scratch.gameObject.SetActive(true);
             Txt_currentCompleteTest.text = "Black Smoke Test";
             Txt_ContinueText.text = "Continue To Submission";
             CurrentTest_txt.text = "Black Smoke Testing";
@@ -519,6 +719,7 @@ public class ManagerTesting : MonoBehaviour
         }
 
         LoadCurrentQuestion();
+        ResetQuestionVideoState();
         DisableAnswers();
 
         if (videoPlayer.isPlaying)
@@ -527,9 +728,7 @@ public class ManagerTesting : MonoBehaviour
         }
 
         // Reset preload state when skipping
-        isNextVideoPrepared = false;
-        nextVideoURL = "";
-        nextVideoIndex = -1;
+        ClearPreparedVideoState();
 
         //// Automatically load and play the first video of the new test phase
         //playVideoByIndex(0);
@@ -543,6 +742,7 @@ public class ManagerTesting : MonoBehaviour
             btn_questions[currentQuestionIndex].onClick.Invoke();
         }
         isFirstQuestionLoaded = true;
+        ApplyScratchAndRefreshButtonState();
 
     }
 
@@ -571,6 +771,7 @@ public class ManagerTesting : MonoBehaviour
         Btn_Submission.gameObject.SetActive(true);
 
         currenttype = TestType.TestComplete;
+        ApplyScratchAndRefreshButtonState();
     }
 
     private void Update()
@@ -614,12 +815,17 @@ public class ManagerTesting : MonoBehaviour
     void LoadGroup(int percentage, string type)
     {
         var group = videoURLData.smokeVideos.FirstOrDefault(g => g.percentage == percentage);
-        if (group == null) return;
+        if (group == null)
+        {
+            currentTypeGroup = null;
+            return;
+        }
 
         currentTypeGroup = group.types.FirstOrDefault(t => t.typeName.ToLower() == type.ToLower());
-        if (currentTypeGroup == null || currentTypeGroup.videoURLs.Count == 0) return;
-
-        currentVideoIndex = Random.Range(0, currentTypeGroup.videoURLs.Count);
+        if (currentTypeGroup == null || currentTypeGroup.videoURLs.Count == 0)
+        {
+            currentTypeGroup = null;
+        }
     }
 
     void PlayCurrentVideo()
@@ -651,8 +857,17 @@ public class ManagerTesting : MonoBehaviour
     public void RefreshVideo()
     {
         chkgrptype();
-        currentVideoIndex = (currentVideoIndex + 1) % currentTypeGroup.videoURLs.Count;
-        PlayCurrentVideo();
+
+        int targetQuestionIndex = reviewphase
+            ? REVIEWQUESTIONINDEX
+            : (scratchMode ? SCRATCHQUESTIONINDEX : currentQuestionIndex);
+
+        if (targetQuestionIndex < 0)
+        {
+            targetQuestionIndex = currentQuestionIndex;
+        }
+
+        LoadQuestionVideo(targetQuestionIndex, true);
     }
 
     public void SetSmokePercentage(int newPercentage, string typename)
@@ -687,7 +902,6 @@ public class ManagerTesting : MonoBehaviour
             currentSmokeType = "White";
             currentQuestionValues = questionvalues_test_white;
             currenttype = TestType.whiteTest;
-            btn_Scratch.gameObject.SetActive(true);
             btn_SkipPracticeTest.gameObject.SetActive(true);
         }
         else if (currenttype == TestType.whiteTest)
@@ -695,13 +909,11 @@ public class ManagerTesting : MonoBehaviour
             currentSmokeType = "White";
             currentQuestionValues = questionvalues_practice_black;
             currenttype = TestType.blackPractice;
-            btn_Scratch.gameObject.SetActive(false);
             btn_SkipPracticeTest.gameObject.SetActive(true);
         }
         else if (currenttype == TestType.blackPractice)
         {
             currentSmokeType = "Black";
-            btn_Scratch.gameObject.SetActive(true);
             btn_SkipPracticeTest.gameObject.SetActive(true);
             currentQuestionValues = questionvalues_test_black;
             currenttype = TestType.blackTest;
@@ -709,7 +921,6 @@ public class ManagerTesting : MonoBehaviour
         else if (currenttype == TestType.blackTest)
         {
             currentSmokeType = "Black";
-            btn_Scratch.gameObject.SetActive(false);
             btn_SkipPracticeTest.gameObject.SetActive(false);
             Debug.Log("OPEN RESULT PANNEL");
         }
@@ -718,10 +929,7 @@ public class ManagerTesting : MonoBehaviour
             OpenSignaturePanel();
         }
 
-        // Reset preload state when continuing to next phase
-        isNextVideoPrepared = false;
-        nextVideoURL = "";
-        nextVideoIndex = -1;
+        ResetQuestionVideoState();
 
         // Auto-play first video of new phase
         //playVideoByIndex(0);
@@ -735,6 +943,7 @@ public class ManagerTesting : MonoBehaviour
             btn_questions[currentQuestionIndex].onClick.Invoke();
         }
         isFirstQuestionLoaded = true;
+        ApplyScratchAndRefreshButtonState();
 
     }
 
@@ -858,12 +1067,12 @@ public class ManagerTesting : MonoBehaviour
         {
             Debug.Log(" In scratch Phase");
             SCRATCHQUESTIONINDEX = i;
-            int jvalue = currentQuestionValues[i];
-            int opacityIndex = IndexOfOpacity(jvalue);
-            Debug.Log("opacity index is " + opacityIndex);
-            playVideoByIndex(opacityIndex);
+            Debug.Log("Question Opacity Value " + GetActualOpacityForQuestion(i));
+            UpdateQuestionNumberLabel();
+            LoadQuestionVideo(i, true);
             RemarksPannel.gameObject.SetActive(false);
             EnableAnswers();
+            return;
         }
         if (reviewphase)
         {
@@ -873,34 +1082,23 @@ public class ManagerTesting : MonoBehaviour
 
             REVIEWQUESTIONINDEX = i;
             Debug.Log("Question clicked " + i);
-            int jvalue = currentQuestionValues[i];
-            int opacityIndex = IndexOfOpacity(jvalue);
-            Debug.Log("opacity index is " + opacityIndex);
-            playVideoByIndex(opacityIndex);
+            Debug.Log("Question Opacity Value " + GetActualOpacityForQuestion(i));
+            UpdateQuestionNumberLabel();
+            LoadQuestionVideo(i, true);
             EnableAnswers();
             RemarksPannel.SetActive(false);
             //DisableAnswers();
-            btn_Scratch.gameObject.SetActive(false);
+            ApplyScratchAndRefreshButtonState();
         }
         else if (currentQuestionIndex == i)
         {
             TestingCompletePannel.SetActive(false);
             RemarksPannel.SetActive(false);
             Debug.Log("Question clicked " + i);
-            Debug.Log("Question Opacity Value  " + currentQuestionValues[i]);
-            int jvalue = currentQuestionValues[i];
-            questionNmbr_text.text = ("Question: " + (currentQuestionIndex + 1));
+            Debug.Log("Question Opacity Value  " + GetActualOpacityForQuestion(i));
+            UpdateQuestionNumberLabel();
 
-            currentSmokePercentage = currentQuestionValues[i];
-
-            SetSmokePercentage(currentSmokePercentage, currentSmokeType);
-
-            int opacityIndex = IndexOfOpacity(jvalue);
-
-            Debug.Log("opacity index is " + opacityIndex);
-
-            // Use preloaded video if available
-            PlayVideoWithPreload(opacityIndex);
+            LoadQuestionVideo(i, false);
 
             EnableAnswers();
         }
@@ -952,7 +1150,7 @@ public class ManagerTesting : MonoBehaviour
             blackScreen.SetActive(true);
         }
         LoadCurrentQuestion();
-        btn_Scratch.gameObject.SetActive(true);
+        ApplyScratchAndRefreshButtonState();
 
         // Automatically trigger the next question (will use preloaded video)
         btn_questions[currentQuestionIndex].onClick.Invoke();
@@ -984,7 +1182,7 @@ public class ManagerTesting : MonoBehaviour
             blackScreen.SetActive(true);
         }
         LoadCurrentQuestion();
-        btn_Scratch.gameObject.SetActive(true);
+        ApplyScratchAndRefreshButtonState();
 
         // Trigger the next question (will use preloaded video)
         btn_questions[currentQuestionIndex].onClick.Invoke();
@@ -1008,26 +1206,47 @@ public class ManagerTesting : MonoBehaviour
 
         if (scratchMode)
         {
-            userSelectedValue[SCRATCHQUESTIONINDEX].text = "" + answersValue[i];
+            if (SCRATCHQUESTIONINDEX < 0 || SCRATCHQUESTIONINDEX >= userSelectedValue.Length)
+            {
+                Debug.LogWarning("Scratch answer ignored because no scratch question is selected.");
+                return;
+            }
 
-            if (currenttype == TestType.whitePractice) { answervalues_practice_white[SCRATCHQUESTIONINDEX] = answersValue[i]; }
-            if (currenttype == TestType.whiteTest) { answervalues_test_white[SCRATCHQUESTIONINDEX] = answersValue[i]; }
-            if (currenttype == TestType.blackPractice) { answervalues_practice_black[SCRATCHQUESTIONINDEX] = answersValue[i]; }
-            if (currenttype == TestType.blackTest) { answervalues_test_black[SCRATCHQUESTIONINDEX] = answersValue[i]; }
+            int scratchQuestionIndex = SCRATCHQUESTIONINDEX;
+            userSelectedValue[scratchQuestionIndex].text = "" + answersValue[i];
+
+            if (currenttype == TestType.whitePractice) { answervalues_practice_white[scratchQuestionIndex] = answersValue[i]; }
+            if (currenttype == TestType.whiteTest) { answervalues_test_white[scratchQuestionIndex] = answersValue[i]; }
+            if (currenttype == TestType.blackPractice) { answervalues_practice_black[scratchQuestionIndex] = answersValue[i]; }
+            if (currenttype == TestType.blackTest) { answervalues_test_black[scratchQuestionIndex] = answersValue[i]; }
+
+            if (currenttype == TestType.whiteTest || currenttype == TestType.blackTest)
+            {
+                int actual = GetActualOpacityForQuestion(scratchQuestionIndex);
+                int selected = answersValue[i];
+                int score = Mathf.Abs(selected - actual) / 5;
+                UpsertSlideRecord(
+                    scratchQuestionIndex,
+                    currenttype == TestType.whiteTest ? "White" : "Black",
+                    actual,
+                    selected,
+                    score);
+            }
 
             DisableAnswers();
             videoPlayer.Stop();
 
             scratchMode = false;
             SCRATCHQUESTIONINDEX = -1;
+            answerSelected = true;
+            ShowRemarksForQuestion(scratchQuestionIndex);
+            ApplyScratchAndRefreshButtonState();
 
-            if (lastQuestionBeforeScratch >= 0)
+            if (btn_Next != null)
             {
-                currentQuestionIndex = lastQuestionBeforeScratch;
-                lastQuestionBeforeScratch = -1;
-                LockPreviousQuestions(currentQuestionIndex);
-                btn_questions[currentQuestionIndex].onClick.Invoke();
+                btn_Next.gameObject.SetActive(true);
             }
+
             return;
         }
 
@@ -1041,27 +1260,34 @@ public class ManagerTesting : MonoBehaviour
             if (currenttype == TestType.blackTest) { answervalues_test_black[REVIEWQUESTIONINDEX] = answersValue[i]; }
 
             int selected = answersValue[i];
-            int actual = currentQuestionValues[REVIEWQUESTIONINDEX];
+            int actual = GetActualOpacityForQuestion(REVIEWQUESTIONINDEX);
             int diff = Mathf.Abs(selected - actual);
             int score = Mathf.Abs(diff / 5);
 
+            if (currenttype == TestType.whiteTest || currenttype == TestType.TestComplete)
+            {
+                SmokeSchoolAppState.SmokeSection reviewSection = GetActiveCertificationSection();
+                UpsertSlideRecord(
+                    REVIEWQUESTIONINDEX,
+                    reviewSection == SmokeSchoolAppState.SmokeSection.White ? "White" : "Black",
+                    actual,
+                    selected,
+                    score);
+            }
+
             if (currenttype == TestType.whiteTest)
             {
-                YourWhiteSelectedValue[REVIEWQUESTIONINDEX].text = selected.ToString();
-                WhiteOpacityActualValue[REVIEWQUESTIONINDEX].text = actual.ToString();
-                whiteSmokeScore[REVIEWQUESTIONINDEX].text = score.ToString();
+                UpdateCertificationResultRow(REVIEWQUESTIONINDEX, SmokeSchoolAppState.SmokeSection.White);
             }
             else if (currenttype == TestType.TestComplete)
             {
-                YourBlackSelectedValue[REVIEWQUESTIONINDEX].text = selected.ToString();
-                BlackOpacityActualValue[REVIEWQUESTIONINDEX].text = actual.ToString();
-                BlackSmokeScore[REVIEWQUESTIONINDEX].text = score.ToString();
+                UpdateCertificationResultRow(REVIEWQUESTIONINDEX, SmokeSchoolAppState.SmokeSection.Black);
             }
 
             DisableAnswers();
             videoPlayer.Stop();
             ReOpenTestCompletePannel();
-            btn_Scratch.gameObject.SetActive(false);
+            ApplyScratchAndRefreshButtonState();
             return;
         }
         else
@@ -1069,24 +1295,16 @@ public class ManagerTesting : MonoBehaviour
             userSelectedValue[currentQuestionIndex].text = "" + answersValue[i];
 
             int selected = answersValue[i];
-            int actual = currentQuestionValues[currentQuestionIndex];
+            int actual = GetActualOpacityForQuestion(currentQuestionIndex);
             int diff = Mathf.Abs(selected - actual);
             int score = Mathf.Abs(diff / 5);
 
             if (currenttype == TestType.whiteTest)
             {
-                whiteTestScore += score;
-                YourWhiteSelectedValue[currentQuestionIndex].text = selected.ToString();
-                WhiteOpacityActualValue[currentQuestionIndex].text = actual.ToString();
-                whiteSmokeScore[currentQuestionIndex].text = score.ToString();
                 UpsertSlideRecord(currentQuestionIndex, "White", actual, selected, score);
             }
             else if (currenttype == TestType.blackTest)
             {
-                blackTestScore += score;
-                YourBlackSelectedValue[currentQuestionIndex].text = selected.ToString();
-                BlackOpacityActualValue[currentQuestionIndex].text = actual.ToString();
-                BlackSmokeScore[currentQuestionIndex].text = score.ToString();
                 UpsertSlideRecord(currentQuestionIndex, "Black", actual, selected, score);
             }
 
@@ -1110,8 +1328,8 @@ public class ManagerTesting : MonoBehaviour
                 if (isPractice)
                 {
                     OpenRemarksPannel();
-                    btn_Scratch.gameObject.SetActive(false);
                     btn_SkipPracticeTest.gameObject.SetActive(true);
+                    ApplyScratchAndRefreshButtonState();
 
                     if (btn_Next != null)
                         btn_Next.gameObject.SetActive(true);
@@ -1120,14 +1338,14 @@ public class ManagerTesting : MonoBehaviour
                 }
                 else if (isTest)
                 {
-                    btn_Scratch.gameObject.SetActive(true);
+                    ApplyScratchAndRefreshButtonState();
                     if (!isAutoAdvancing)
                         StartCoroutine(AutoAdvanceToNextQuestion());
                 }
             }
             else
             {
-                btn_Scratch.gameObject.SetActive(false);
+                ApplyScratchAndRefreshButtonState();
 
                 if (isPractice)
                 {
@@ -1135,7 +1353,7 @@ public class ManagerTesting : MonoBehaviour
                     OpenRemarksPannel();
                     TestingCompletePannel.SetActive(false);
                     btn_Next.gameObject.SetActive(false);
-                    btn_Scratch.gameObject.SetActive(false);
+                    ApplyScratchAndRefreshButtonState();
                     // Show TestingComplete after 3 seconds
                     StartCoroutine(ShowTestCompleteAfterDelay(3f));
                 }
@@ -1199,6 +1417,7 @@ public class ManagerTesting : MonoBehaviour
         scratchMode = false;
         foreach (Button X in btn_questions)
             X.interactable = true;
+        ApplyScratchAndRefreshButtonState();
     }
 
 
@@ -1211,62 +1430,67 @@ public class ManagerTesting : MonoBehaviour
     public void OpenRemarksPannel()
     {
         DisableAnswers();
-        int ogvalue = 0;
-        int ansvalue = 0;
-        RemarksPannel.SetActive(true);
         if (reviewphase)
         {
-            ogvalue = currentQuestionValues[REVIEWQUESTIONINDEX];
-            ansvalue = int.Parse(userSelectedValue[REVIEWQUESTIONINDEX].text);
-        }
-        else
-        {
-            ogvalue = currentQuestionValues[(currentQuestionIndex) - 1];
-            ansvalue = int.Parse(userSelectedValue[(currentQuestionIndex) - 1].text);
+            ShowRemarksForQuestion(REVIEWQUESTIONINDEX);
+            return;
         }
 
+        ShowRemarksForQuestion(currentQuestionIndex - 1);
+    }
+
+    private void ShowRemarksForQuestion(int questionIndex)
+    {
+        if (questionIndex < 0 || questionIndex >= userSelectedValue.Length)
+        {
+            Debug.LogWarning($"Cannot show remarks for invalid question index {questionIndex}.");
+            RemarksPannel.SetActive(false);
+            return;
+        }
+
+        if (!int.TryParse(userSelectedValue[questionIndex].text, out int ansvalue))
+        {
+            Debug.LogWarning($"Cannot show remarks for question {questionIndex + 1} because no answer is recorded.");
+            RemarksPannel.SetActive(false);
+            return;
+        }
+
+        int ogvalue = GetActualOpacityForQuestion(questionIndex);
+        RemarksPannel.SetActive(true);
         targetOpacityText.text = "" + ogvalue;
         yourReadingText.text = "" + ansvalue;
-        string remarks = "";
 
         if (ansvalue == ogvalue)
         {
-            remarks = "Your Value was Perfect";
+            resultSummaryText.text = "Your Value was Perfect";
         }
         else if (ansvalue > ogvalue)
         {
             int x = ansvalue - ogvalue;
-            remarks = "Your Value was " + x + "% too high";
+            resultSummaryText.text = "Your Value was " + x + "% too high";
         }
-        else if (ansvalue < ogvalue)
+        else
         {
             int x = ogvalue - ansvalue;
-            remarks = "Your Value was " + x + "% too low";
+            resultSummaryText.text = "Your Value was " + x + "% too low";
         }
-        resultSummaryText.text = "" + remarks;
     }
 
     private void UpsertSlideRecord(int questionIndex, string smokeColor, int actualOpacity, int studentAnswer, int deviation)
     {
-        SlideRecord record = new SlideRecord
-        {
-            questionNumber = questionIndex + 1,
-            smokeColor = smokeColor,
-            videoFilename = ExtractVideoFilename(videoPlayer != null ? videoPlayer.url : string.Empty),
-            actualOpacity = actualOpacity,
-            studentAnswer = studentAnswer,
-            deviation = deviation
-        };
+        SmokeSchoolAppState.SmokeSection smokeSection = string.Equals(smokeColor, "White", StringComparison.OrdinalIgnoreCase)
+            ? SmokeSchoolAppState.SmokeSection.White
+            : SmokeSchoolAppState.SmokeSection.Black;
 
-        int existingIndex = slideRecords.FindIndex(x => x.questionNumber == record.questionNumber && x.smokeColor == record.smokeColor);
-        if (existingIndex >= 0)
-        {
-            slideRecords[existingIndex] = record;
-        }
-        else
-        {
-            slideRecords.Add(record);
-        }
+        SmokeSchoolAppState.RecordCertificationAnswer(
+            smokeSection,
+            questionIndex,
+            actualOpacity,
+            studentAnswer,
+            ExtractVideoFilename(GetAssignedVideoUrl(questionIndex)));
+
+        SyncCertificationScoresFromState();
+        UpdateCertificationResultRow(questionIndex, smokeSection);
     }
 
     private string ExtractVideoFilename(string url)
@@ -1284,13 +1508,27 @@ public class ManagerTesting : MonoBehaviour
         return Path.GetFileName(url);
     }
 
-    private List<SlideRecord> GetIndividualFailingReadings()
+    private string GetAssignedVideoUrl(int questionIndex)
     {
-        return slideRecords.Where(record => record.deviation > 3).OrderBy(record => record.smokeColor).ThenBy(record => record.questionNumber).ToList();
+        if (questionVideoUrls != null &&
+            questionIndex >= 0 &&
+            questionIndex < questionVideoUrls.Length &&
+            !string.IsNullOrEmpty(questionVideoUrls[questionIndex]))
+        {
+            return questionVideoUrls[questionIndex];
+        }
+
+        return videoPlayer != null ? videoPlayer.url : string.Empty;
+    }
+
+    private List<SmokeSchoolAppState.QuestionResult> GetIndividualFailingReadings()
+    {
+        return SmokeSchoolAppState.GetCertificationFailures(IndividualFailureThreshold);
     }
 
     private string BuildTotalScoreText(bool individualFail)
     {
+        SyncCertificationScoresFromState();
         return $"White: {whiteTestScore}\nBlack: {blackTestScore}";
     }
 
@@ -1307,7 +1545,7 @@ public class ManagerTesting : MonoBehaviour
 
 
 
-    private void LogIndividualFailingReadings(List<SlideRecord> failingReadings, string context)
+    private void LogIndividualFailingReadings(List<SmokeSchoolAppState.QuestionResult> failingReadings, string context)
     {
         if (failingReadings == null || failingReadings.Count == 0)
         {
@@ -1315,8 +1553,102 @@ public class ManagerTesting : MonoBehaviour
         }
 
         string details = string.Join("; ", failingReadings.Select(record =>
-            $"{record.smokeColor} Q{record.questionNumber} actual {record.actualOpacity}, answer {record.studentAnswer}, deviation {record.deviation}"));
+            $"{record.SmokeColorLabel} Q{record.questionNumber} actual {record.actualOpacity}, answer {record.studentAnswer}, deviation {record.deviation}"));
         Debug.LogWarning($"{context}: automatic fail due to individual reading(s) exceeding 15%: {details}");
+    }
+
+    private void SyncCertificationScoresFromState()
+    {
+        whiteTestScore = SmokeSchoolAppState.GetCertificationTotalScore(SmokeSchoolAppState.SmokeSection.White);
+        blackTestScore = SmokeSchoolAppState.GetCertificationTotalScore(SmokeSchoolAppState.SmokeSection.Black);
+    }
+
+    private SmokeSchoolAppState.SmokeSection GetActiveCertificationSection()
+    {
+        if (currenttype == TestType.whiteTest)
+        {
+            return SmokeSchoolAppState.SmokeSection.White;
+        }
+
+        return SmokeSchoolAppState.SmokeSection.Black;
+    }
+
+    private void UpdateCertificationResultRow(int questionIndex, SmokeSchoolAppState.SmokeSection smokeSection)
+    {
+        if (!SmokeSchoolAppState.TryGetCertificationResult(smokeSection, questionIndex, out SmokeSchoolAppState.QuestionResult result))
+        {
+            return;
+        }
+
+        TMP_Text[] selectedValues = smokeSection == SmokeSchoolAppState.SmokeSection.White ? YourWhiteSelectedValue : YourBlackSelectedValue;
+        TMP_Text[] actualValues = smokeSection == SmokeSchoolAppState.SmokeSection.White ? WhiteOpacityActualValue : BlackOpacityActualValue;
+        TMP_Text[] scoreValues = smokeSection == SmokeSchoolAppState.SmokeSection.White ? whiteSmokeScore : BlackSmokeScore;
+
+        if (questionIndex >= 0 && questionIndex < selectedValues.Length && selectedValues[questionIndex] != null)
+        {
+            selectedValues[questionIndex].text = result.studentAnswer.ToString();
+        }
+
+        if (questionIndex >= 0 && questionIndex < actualValues.Length && actualValues[questionIndex] != null)
+        {
+            actualValues[questionIndex].text = result.actualOpacity.ToString();
+        }
+
+        if (questionIndex >= 0 && questionIndex < scoreValues.Length && scoreValues[questionIndex] != null)
+        {
+            scoreValues[questionIndex].text = result.deviation.ToString();
+        }
+    }
+
+    private void RefreshCertificationResultRows()
+    {
+        RefreshCertificationResultRowsForSection(SmokeSchoolAppState.SmokeSection.White, YourWhiteSelectedValue, WhiteOpacityActualValue, whiteSmokeScore);
+        RefreshCertificationResultRowsForSection(SmokeSchoolAppState.SmokeSection.Black, YourBlackSelectedValue, BlackOpacityActualValue, BlackSmokeScore);
+    }
+
+    private void RefreshCertificationResultRowsForSection(
+        SmokeSchoolAppState.SmokeSection smokeSection,
+        TMP_Text[] selectedValues,
+        TMP_Text[] actualValues,
+        TMP_Text[] scoreValues)
+    {
+        for (int i = 0; i < selectedValues.Length; i++)
+        {
+            if (SmokeSchoolAppState.TryGetCertificationResult(smokeSection, i, out SmokeSchoolAppState.QuestionResult result))
+            {
+                if (selectedValues[i] != null)
+                {
+                    selectedValues[i].text = result.studentAnswer.ToString();
+                }
+
+                if (actualValues[i] != null)
+                {
+                    actualValues[i].text = result.actualOpacity.ToString();
+                }
+
+                if (scoreValues[i] != null)
+                {
+                    scoreValues[i].text = result.deviation.ToString();
+                }
+            }
+            else
+            {
+                if (selectedValues[i] != null)
+                {
+                    selectedValues[i].text = string.Empty;
+                }
+
+                if (actualValues[i] != null)
+                {
+                    actualValues[i].text = string.Empty;
+                }
+
+                if (scoreValues[i] != null)
+                {
+                    scoreValues[i].text = string.Empty;
+                }
+            }
+        }
     }
 
     private void LoadCurrentQuestion()
@@ -1326,21 +1658,9 @@ public class ManagerTesting : MonoBehaviour
             btn_questions[i].interactable = false;
         }
         btn_questions[currentQuestionIndex].interactable = true;
+        UpdateQuestionNumberLabel();
     }
 
-    // MODIFIED: playVideoByIndex now triggers preloading after video starts
-    void playVideoByIndex(int index)
-    {
-        //string url = GetVideoURLByIndex(index);
-        string url = GetVideoURLByIndex(currentSmokePercentage, index);
-        if (string.IsNullOrEmpty(url)) return;
-
-        if (videoPlayer.isPlaying) videoPlayer.Stop();
-        videoPlayer.url = url;
-        videoPlayer.isLooping = true;
-        videoPlayer.Play();
-        PreloadNextVideo();
-    }
     public void DisableAnswers()
     {
         Debug.Log("check enable");
@@ -1348,8 +1668,7 @@ public class ManagerTesting : MonoBehaviour
         {
             y.interactable = false;
         }
-        Refresh.gameObject.SetActive(false);
-        btn_Scratch.gameObject.SetActive(true);
+        ApplyScratchAndRefreshButtonState();
 
         // Hide Next button when answers are disabled
         if (btn_Next != null)
@@ -1364,8 +1683,7 @@ public class ManagerTesting : MonoBehaviour
         {
             y.interactable = true;
         }
-        Refresh.gameObject.SetActive(true);
-        btn_Scratch.gameObject.SetActive(true);
+        ApplyScratchAndRefreshButtonState();
     }
 
     public int IndexOfOpacity(int x)
@@ -1389,6 +1707,8 @@ public class ManagerTesting : MonoBehaviour
 
         SCRATCHQUESTIONINDEX = -1;
         Debug.Log("Scratch Mode Enabled");
+        RemarksPannel.SetActive(false);
+        TestingCompletePannel.SetActive(false);
 
         if (btn_Next != null)
             btn_Next.gameObject.SetActive(false);
@@ -1408,6 +1728,9 @@ public class ManagerTesting : MonoBehaviour
 
     public void ShowingFinalResult()
     {
+        RefreshCertificationResultRows();
+        SyncCertificationScoresFromState();
+
         // Check if user answered any question
         bool answeredAny = DidUserAnswerAnyQuestion();
 
@@ -1424,10 +1747,10 @@ public class ManagerTesting : MonoBehaviour
             return;
         }
 
-        List<SlideRecord> individualFailingReadings = GetIndividualFailingReadings();
+        List<SmokeSchoolAppState.QuestionResult> individualFailingReadings = GetIndividualFailingReadings();
         bool hasIndividualFail = individualFailingReadings.Count > 0;
-        bool whitePassed = whiteTestScore <= 37;
-        bool blackPassed = blackTestScore <= 37;
+        bool whitePassed = whiteTestScore <= CertificationScoreThreshold;
+        bool blackPassed = blackTestScore <= CertificationScoreThreshold;
         bool didPass = !hasIndividualFail && whitePassed && blackPassed;
 
         YourTotalScore.text = BuildTotalScoreText(hasIndividualFail);
@@ -1455,19 +1778,7 @@ public class ManagerTesting : MonoBehaviour
 
     private bool DidUserAnswerAnyQuestion()
     {
-        // Check white test answers
-        foreach (var ans in answervalues_test_white)
-        {
-            if (ans >= 0) return true; // at least one answered
-        }
-
-        // Check black test answers
-        foreach (var ans in answervalues_test_black)
-        {
-            if (ans >= 0) return true; // at least one answered
-        }
-
-        return false; // no answers
+        return SmokeSchoolAppState.HasAnyCertificationAnswer();
     }
 
 
@@ -1506,10 +1817,13 @@ public class ManagerTesting : MonoBehaviour
 
     public void OnEndTestButtonClicked()
     {
-        List<SlideRecord> individualFailingReadings = GetIndividualFailingReadings();
+        RefreshCertificationResultRows();
+        SyncCertificationScoresFromState();
+
+        List<SmokeSchoolAppState.QuestionResult> individualFailingReadings = GetIndividualFailingReadings();
         bool hasIndividualFail = individualFailingReadings.Count > 0;
-        bool whitePassed = whiteTestScore <= 37;
-        bool blackPassed = blackTestScore <= 37;
+        bool whitePassed = whiteTestScore <= CertificationScoreThreshold;
+        bool blackPassed = blackTestScore <= CertificationScoreThreshold;
         int completedRunNumber = testRunNumber;
         DataInput_Fields.checkSceneReload = 1;
         ScreenshotSender.didPass = (!hasIndividualFail && whitePassed && blackPassed);
