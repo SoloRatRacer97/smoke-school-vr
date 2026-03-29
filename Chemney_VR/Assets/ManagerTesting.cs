@@ -73,6 +73,7 @@ public class ManagerTesting : MonoBehaviour
     public bool scratchMode = false;
     int SCRATCHQUESTIONINDEX = -1;
     public int lastQuestionBeforeScratch = -1;
+    bool scratchModeStartedFromReview = false;
 
 
     [Header("Black Smoke Tutorials")]
@@ -191,14 +192,14 @@ public class ManagerTesting : MonoBehaviour
 
     private int GetDisplayedQuestionIndex()
     {
-        if (reviewphase && REVIEWQUESTIONINDEX >= 0)
-        {
-            return REVIEWQUESTIONINDEX;
-        }
-
         if (scratchMode && SCRATCHQUESTIONINDEX >= 0)
         {
             return SCRATCHQUESTIONINDEX;
+        }
+
+        if (reviewphase && REVIEWQUESTIONINDEX >= 0)
+        {
+            return REVIEWQUESTIONINDEX;
         }
 
         return currentQuestionIndex;
@@ -217,12 +218,14 @@ public class ManagerTesting : MonoBehaviour
 
     private void ApplyScratchAndRefreshButtonState()
     {
-        bool allowRedoControls = IsPracticeMode() || IsCertificationTestMode();
+        bool allowRedoControls = (IsPracticeMode() || IsCertificationTestMode()) &&
+                                 (SignaturePannel == null || !SignaturePannel.activeSelf);
+        bool showScratchButton = allowRedoControls && !scratchMode;
 
         if (btn_Scratch != null)
         {
-            btn_Scratch.interactable = allowRedoControls;
-            btn_Scratch.gameObject.SetActive(allowRedoControls);
+            btn_Scratch.interactable = showScratchButton;
+            btn_Scratch.gameObject.SetActive(showScratchButton);
         }
 
         if (Refresh != null)
@@ -675,8 +678,11 @@ public class ManagerTesting : MonoBehaviour
     private void SkipToTest(TestType testType)
     {
         reviewphase = false;
+        REVIEWQUESTIONINDEX = -1;
         currentQuestionIndex = 0;
         scratchMode = false;
+        SCRATCHQUESTIONINDEX = -1;
+        scratchModeStartedFromReview = false;
         isFirstQuestionLoaded = false; // Reset for new phase
 
         foreach (TMP_Text tt in userSelectedValue)
@@ -771,6 +777,11 @@ public class ManagerTesting : MonoBehaviour
         Btn_Submission.gameObject.SetActive(true);
 
         currenttype = TestType.TestComplete;
+        reviewphase = false;
+        REVIEWQUESTIONINDEX = -1;
+        scratchMode = false;
+        SCRATCHQUESTIONINDEX = -1;
+        scratchModeStartedFromReview = false;
         ApplyScratchAndRefreshButtonState();
     }
 
@@ -858,9 +869,9 @@ public class ManagerTesting : MonoBehaviour
     {
         chkgrptype();
 
-        int targetQuestionIndex = reviewphase
-            ? REVIEWQUESTIONINDEX
-            : (scratchMode ? SCRATCHQUESTIONINDEX : currentQuestionIndex);
+        int targetQuestionIndex = scratchMode
+            ? SCRATCHQUESTIONINDEX
+            : (reviewphase ? REVIEWQUESTIONINDEX : currentQuestionIndex);
 
         if (targetQuestionIndex < 0)
         {
@@ -879,8 +890,12 @@ public class ManagerTesting : MonoBehaviour
     public void ContinueToNextPhase()
     {
         reviewphase = false;
+        REVIEWQUESTIONINDEX = -1;
         currentQuestionIndex = 0;
         isFirstQuestionLoaded = false; // Reset for new phase
+        scratchMode = false;
+        SCRATCHQUESTIONINDEX = -1;
+        scratchModeStartedFromReview = false;
         LoadCurrentQuestion();
         TestingCompletePannel.SetActive(false);
         RemarksPannel.SetActive(false);
@@ -1236,13 +1251,27 @@ public class ManagerTesting : MonoBehaviour
             DisableAnswers();
             videoPlayer.Stop();
 
+            bool returnToReview = scratchModeStartedFromReview || reviewphase;
             scratchMode = false;
             SCRATCHQUESTIONINDEX = -1;
-            answerSelected = true;
-            ShowRemarksForQuestion(scratchQuestionIndex);
+            scratchModeStartedFromReview = false;
+
+            if (returnToReview)
+            {
+                REVIEWQUESTIONINDEX = scratchQuestionIndex;
+                answerSelected = false;
+                RemarksPannel.SetActive(false);
+                ReOpenTestCompletePannel();
+            }
+            else
+            {
+                answerSelected = true;
+                ShowRemarksForQuestion(scratchQuestionIndex);
+            }
+
             ApplyScratchAndRefreshButtonState();
 
-            if (btn_Next != null)
+            if (!returnToReview && btn_Next != null)
             {
                 btn_Next.gameObject.SetActive(true);
             }
@@ -1415,6 +1444,8 @@ public class ManagerTesting : MonoBehaviour
 
         reviewphase = true;
         scratchMode = false;
+        SCRATCHQUESTIONINDEX = -1;
+        scratchModeStartedFromReview = false;
         foreach (Button X in btn_questions)
             X.interactable = true;
         ApplyScratchAndRefreshButtonState();
@@ -1699,13 +1730,13 @@ public class ManagerTesting : MonoBehaviour
 
     public void OnEnabledscratchmode()
     {
-        reviewphase = false;
+        scratchModeStartedFromReview = reviewphase;
         scratchMode = true;
 
         // Save current question before scratch mode
         lastQuestionBeforeScratch = currentQuestionIndex;
 
-        SCRATCHQUESTIONINDEX = -1;
+        SCRATCHQUESTIONINDEX = reviewphase ? REVIEWQUESTIONINDEX : -1;
         Debug.Log("Scratch Mode Enabled");
         RemarksPannel.SetActive(false);
         TestingCompletePannel.SetActive(false);
@@ -1714,6 +1745,7 @@ public class ManagerTesting : MonoBehaviour
             btn_Next.gameObject.SetActive(false);
 
         answerSelected = false;
+        UpdateQuestionNumberLabel();
 
         for (int i = 0; i < currentQuestionIndex; i++)
         {
