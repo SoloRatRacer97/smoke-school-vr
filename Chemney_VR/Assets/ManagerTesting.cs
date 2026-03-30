@@ -219,8 +219,9 @@ public class ManagerTesting : MonoBehaviour
     private void ApplyScratchAndRefreshButtonState()
     {
         bool allowRedoControls = (IsPracticeMode() || IsCertificationTestMode()) &&
-                                 (SignaturePannel == null || !SignaturePannel.activeSelf);
-        bool showScratchButton = allowRedoControls && !scratchMode;
+                                 (SignaturePannel == null || !SignaturePannel.activeSelf) &&
+                                 (TestingCompletePannel == null || !TestingCompletePannel.activeSelf);
+        bool showScratchButton = allowRedoControls;
 
         if (btn_Scratch != null)
         {
@@ -1277,6 +1278,40 @@ public class ManagerTesting : MonoBehaviour
                 return;
             }
 
+            bool isPracticeScratch = currenttype == TestType.whitePractice || currenttype == TestType.blackPractice;
+
+            if (isPracticeScratch)
+            {
+                answerSelected = true;
+                currentQuestionIndex = Mathf.Min(nextIndex, btn_questions.Length - 1);
+                ShowRemarksForQuestion(scratchQuestionIndex);
+                btn_SkipPracticeTest.gameObject.SetActive(true);
+                ApplyScratchAndRefreshButtonState();
+
+                if (hasNextQuestion)
+                {
+                    if (btn_Next != null)
+                    {
+                        btn_Next.gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        StartCoroutine(AutoAdvanceToNextQuestion());
+                    }
+                }
+                else
+                {
+                    if (btn_Next != null)
+                    {
+                        btn_Next.gameObject.SetActive(false);
+                    }
+                    TestingCompletePannel.SetActive(false);
+                    StartCoroutine(ShowTestCompleteAfterDelay(3f));
+                }
+
+                return;
+            }
+
             if (hasNextQuestion)
             {
                 currentQuestionIndex = nextIndex;
@@ -1476,6 +1511,7 @@ public class ManagerTesting : MonoBehaviour
     void ReOpenTestCompletePannel()
     {
         TestingCompletePannel.SetActive(true);
+        ApplyScratchAndRefreshButtonState();
     }
 
     public void OpenRemarksPannel()
