@@ -236,6 +236,19 @@ public class ManagerTesting : MonoBehaviour
         }
     }
 
+    void Awake()
+    {
+        if (blackScreen != null)
+        {
+            blackScreen.SetActive(false);
+        }
+
+        if (loadingImage != null)
+        {
+            loadingImage.SetActive(false);
+        }
+    }
+
     void Start()
     {
         SmokeSchoolAppState.ResetCertificationState();
@@ -358,15 +371,7 @@ public class ManagerTesting : MonoBehaviour
 
 
 
-        //new logic for question
-        if (btn_questions != null && btn_questions.Length > 0)
-        {
-            // ensure currentQuestionIndex is 0
-            currentQuestionIndex = 0;
-            // invoke the question click so OnQuestion handles everything (SetSmokePercentage, PlayVideoWithPreload, etc.)
-            btn_questions[currentQuestionIndex].onClick.Invoke();
-        }
-        isFirstQuestionLoaded = true;
+        StartCurrentPhaseAtFirstQuestion();
     }
 
     // ========== VIDEO PRELOADING SYSTEM ==========
@@ -422,6 +427,32 @@ public class ManagerTesting : MonoBehaviour
         nextPreparedQuestionIndex = -1;
         nextPreparedOpacity = -1;
         nextPreparedSmokeType = string.Empty;
+    }
+
+    private void StartCurrentPhaseAtFirstQuestion()
+    {
+        if (btn_questions == null || btn_questions.Length == 0)
+        {
+            return;
+        }
+
+        reviewphase = false;
+        scratchMode = false;
+        REVIEWQUESTIONINDEX = -1;
+        SCRATCHQUESTIONINDEX = -1;
+        scratchModeStartedFromReview = false;
+        currentQuestionIndex = 0;
+        answerSelected = false;
+        isFirstQuestionLoaded = true;
+
+        if (blackScreen != null)
+        {
+            blackScreen.SetActive(false);
+        }
+
+        LoadCurrentQuestion();
+        UpdateQuestionNumberLabel();
+        LoadQuestionVideo(currentQuestionIndex, false);
     }
 
     private int GetActualOpacityForQuestion(int questionIndex)
@@ -741,14 +772,7 @@ public class ManagerTesting : MonoBehaviour
         //playVideoByIndex(0);
         //isFirstQuestionLoaded = true; // Mark first question as being loaded
 
-        // Trigger the first question so OnQuestion handles playback and UI properly
-        currentQuestionIndex = 0;
-        LoadCurrentQuestion(); // make sure only question 0 is interactable
-        if (btn_questions != null && btn_questions.Length > 0)
-        {
-            btn_questions[currentQuestionIndex].onClick.Invoke();
-        }
-        isFirstQuestionLoaded = true;
+        StartCurrentPhaseAtFirstQuestion();
         ApplyScratchAndRefreshButtonState();
 
     }
@@ -953,14 +977,7 @@ public class ManagerTesting : MonoBehaviour
         //playVideoByIndex(0);
         //isFirstQuestionLoaded = true;
 
-        // Auto-trigger first question of new phase so OnQuestion runs (safer than force-playing index 0)
-        currentQuestionIndex = 0;
-        LoadCurrentQuestion();
-        if (btn_questions != null && btn_questions.Length > 0)
-        {
-            btn_questions[currentQuestionIndex].onClick.Invoke();
-        }
-        isFirstQuestionLoaded = true;
+        StartCurrentPhaseAtFirstQuestion();
         ApplyScratchAndRefreshButtonState();
 
     }
