@@ -879,7 +879,9 @@ public class ManagerTesting : MonoBehaviour
             targetQuestionIndex = currentQuestionIndex;
         }
 
-        LoadQuestionVideo(targetQuestionIndex, true);
+        // Refresh replays the SAME video (forceNewVariation = false)
+        // Scratch loads a NEW video (forceNewVariation = true)
+        LoadQuestionVideo(targetQuestionIndex, false);
     }
 
     public void SetSmokePercentage(int newPercentage, string typename)
