@@ -236,6 +236,37 @@ public class ManagerTesting : MonoBehaviour
         }
     }
 
+    private bool IsShowingPracticeRemarksForPreviousQuestion()
+    {
+        return !scratchMode &&
+               !reviewphase &&
+               IsPracticeMode() &&
+               answerSelected &&
+               RemarksPannel != null &&
+               RemarksPannel.activeSelf &&
+               currentQuestionIndex > 0;
+    }
+
+    private int GetRedoTargetQuestionIndex()
+    {
+        if (scratchMode)
+        {
+            return SCRATCHQUESTIONINDEX;
+        }
+
+        if (reviewphase)
+        {
+            return REVIEWQUESTIONINDEX;
+        }
+
+        if (IsShowingPracticeRemarksForPreviousQuestion())
+        {
+            return currentQuestionIndex - 1;
+        }
+
+        return currentQuestionIndex;
+    }
+
     void Awake()
     {
         if (blackScreen != null)
@@ -894,13 +925,26 @@ public class ManagerTesting : MonoBehaviour
     {
         chkgrptype();
 
-        int targetQuestionIndex = scratchMode
-            ? SCRATCHQUESTIONINDEX
-            : (reviewphase ? REVIEWQUESTIONINDEX : currentQuestionIndex);
+        int targetQuestionIndex = GetRedoTargetQuestionIndex();
 
         if (targetQuestionIndex < 0)
         {
             targetQuestionIndex = currentQuestionIndex;
+        }
+
+        if (!scratchMode && !reviewphase && IsPracticeMode())
+        {
+            currentQuestionIndex = targetQuestionIndex;
+            LoadCurrentQuestion();
+        }
+
+        RemarksPannel.SetActive(false);
+        answerSelected = false;
+        EnableAnswers();
+
+        if (btn_Next != null)
+        {
+            btn_Next.gameObject.SetActive(false);
         }
 
         // Refresh replays the SAME video (forceNewVariation = false)
@@ -1805,13 +1849,14 @@ public class ManagerTesting : MonoBehaviour
 
     public void OnEnabledscratchmode()
     {
+        int targetQuestionIndex = GetRedoTargetQuestionIndex();
         scratchModeStartedFromReview = reviewphase;
         scratchMode = true;
 
         // Save current question before scratch mode
         lastQuestionBeforeScratch = currentQuestionIndex;
 
-        SCRATCHQUESTIONINDEX = reviewphase ? REVIEWQUESTIONINDEX : currentQuestionIndex;
+        SCRATCHQUESTIONINDEX = targetQuestionIndex;
         Debug.Log("Scratch Mode Enabled");
         RemarksPannel.SetActive(false);
         TestingCompletePannel.SetActive(false);
