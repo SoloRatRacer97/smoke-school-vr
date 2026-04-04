@@ -232,7 +232,6 @@ public class ManagerTesting : MonoBehaviour
         if (Refresh != null)
         {
             Refresh.interactable = allowRedoControls;
-            Refresh.gameObject.SetActive(allowRedoControls);
         }
     }
 
@@ -265,6 +264,26 @@ public class ManagerTesting : MonoBehaviour
         }
 
         return currentQuestionIndex;
+    }
+
+    private bool HasAnswerForQuestion(int index)
+    {
+        if (index < 0 || index >= btn_questions.Length)
+        {
+            return false;
+        }
+
+        if (currenttype == TestType.whitePractice)
+        {
+            return answervalues_practice_white[index] >= 0;
+        }
+
+        if (currenttype == TestType.blackPractice)
+        {
+            return answervalues_practice_black[index] >= 0;
+        }
+
+        return false;
     }
 
     void Awake()
@@ -1157,15 +1176,16 @@ public class ManagerTesting : MonoBehaviour
         {
             Debug.Log(" In Reviewphase");
             TestingCompletePannel.SetActive(false);
-
-
             REVIEWQUESTIONINDEX = i;
+            // In review phase, always reopen the question for re-answering.
+            // Hide any previous feedback until the learner submits a new answer.
+            RemarksPannel.SetActive(false);
+
             Debug.Log("Question clicked " + i);
             Debug.Log("Question Opacity Value " + GetActualOpacityForQuestion(i));
             UpdateQuestionNumberLabel();
             LoadQuestionVideo(i, true);
             EnableAnswers();
-            RemarksPannel.SetActive(false);
             //DisableAnswers();
             ApplyScratchAndRefreshButtonState();
         }
@@ -1497,9 +1517,12 @@ public class ManagerTesting : MonoBehaviour
                 if (isPractice)
                 {
                     // ✅ LAST QUESTION IN PRACTICE: Show remarks immediately
-                    OpenRemarksPannel();
+                    ShowRemarksForQuestion(currentQuestionIndex);
                     TestingCompletePannel.SetActive(false);
-                    btn_Next.gameObject.SetActive(false);
+                    if (btn_Next != null)
+                    {
+                        btn_Next.gameObject.SetActive(false);
+                    }
                     ApplyScratchAndRefreshButtonState();
                     // Show TestingComplete after 3 seconds
                     StartCoroutine(ShowTestCompleteAfterDelay(3f));
