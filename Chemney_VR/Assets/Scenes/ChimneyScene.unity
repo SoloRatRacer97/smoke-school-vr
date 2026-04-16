@@ -3037,8 +3037,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currenttype: 0
   videoPlayer: {fileID: 1916800225}
-  preloadVideoPlayer: {fileID: 0}
   enablePreloading: 1
+  preloadBufferSize: 3
   useAutoAdvance: 0
   autoAdvanceDelay: 0
   btn_Next: {fileID: 315225667}
@@ -7902,7 +7902,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &173699589
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17504,7 +17504,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &383863872
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17568,19 +17568,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 383863874}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 55496167}
-        m_TargetAssemblyTypeName: ManagerTesting, Assembly-CSharp
-        m_MethodName: RefreshVideo
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &383863874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19811,7 +19799,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: whoite smoke practice
+  m_text: White smoke practice
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f675742eaf9c20a4f909d78ee7a14fed, type: 2}
   m_sharedMaterial: {fileID: 4687939059374929122, guid: f675742eaf9c20a4f909d78ee7a14fed, type: 2}
@@ -88719,7 +88707,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2015415743
 RectTransform:
   m_ObjectHideFlags: 0
