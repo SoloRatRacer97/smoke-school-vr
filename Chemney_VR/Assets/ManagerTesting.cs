@@ -23,15 +23,26 @@ public class ManagerTesting : MonoBehaviour
     [SerializeField] VideoPlayer videoPlayer;
 
     [Header("Video Preloading System")]
-    [SerializeField] VideoPlayer preloadVideoPlayer; // Second VideoPlayer for preloading
     [Tooltip("Enable/disable video preloading for instant playback")]
     public bool enablePreloading = true;
-    private bool isNextVideoPrepared = false;
-    private string nextVideoURL = "";
-    private int nextVideoIndex = -1;
-    private int nextPreparedQuestionIndex = -1;
-    private int nextPreparedOpacity = -1;
-    private string nextPreparedSmokeType = "";
+    [Tooltip("Number of videos to preload ahead (1-5 recommended)")]
+    public int preloadBufferSize = 3;
+
+    // Tiered preload buffer: N VideoPlayers that buffer upcoming questions
+    [System.Serializable]
+    public struct PreloadedVideo
+    {
+        public int questionIndex;
+        public int opacity;
+        public string smokeType;
+        public string videoURL;
+        public int videoIndex;
+        public bool isPrepared;
+        public VideoPlayer player;
+    }
+
+    private List<PreloadedVideo> preloadBuffer = new List<PreloadedVideo>();
+    private int currentlyPreparingCount = 0;
 
     private int[] answersValue = new int[] { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100 };
 
@@ -330,17 +341,20 @@ public class ManagerTesting : MonoBehaviour
         InitializeAnswerArrays();
 
         // Setup preload video player
-        InitializePreloadVideoPlayer();
+        InitializePreloadVideoPlayers();
 
         // Keep skip button visible at all times
-        btn_SkipPracticeTest.gameObject.SetActive(true);
+        // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+        // btn_SkipPracticeTest.gameObject.SetActive(true);
 
         // Handle test type logic
         if (currenttype == TestType.whitePractice)
         {
             Txt_currentCompleteTest.text = "White Smoke Practice Complete";
             Txt_ContinueText.text = "Continue To White Testing";
-            btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Practice";
+            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+            // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Practice";
+            btn_SkipPracticeTest.gameObject.SetActive(false);
             Debug.Log("White Practice Running");
             reviewphase = false;
             currentQuestionIndex = 0;
@@ -351,7 +365,9 @@ public class ManagerTesting : MonoBehaviour
         {
             Txt_currentCompleteTest.text = "White Smoke Test";
             Txt_ContinueText.text = "Continue To Black Practice";
-            btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Smoke Test";
+            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+            // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Smoke Test";
+            btn_SkipPracticeTest.gameObject.SetActive(false);
             Debug.Log("White Test Running");
             reviewphase = false;
             currentQuestionIndex = 0;
@@ -361,7 +377,9 @@ public class ManagerTesting : MonoBehaviour
         {
             Txt_currentCompleteTest.text = "Black Smoke Practice";
             Txt_ContinueText.text = "Continue To Black Testing";
-            btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Practice";
+            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+            // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Practice";
+            btn_SkipPracticeTest.gameObject.SetActive(false);
             Debug.Log("Black Practice Running");
             reviewphase = false;
             currentQuestionIndex = 0;
@@ -371,7 +389,9 @@ public class ManagerTesting : MonoBehaviour
         {
             Txt_currentCompleteTest.text = "Black Smoke Test";
             Txt_ContinueText.text = "Continue To Submission";
-            btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Smoke Test";
+            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+            // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Smoke Test";
+            btn_SkipPracticeTest.gameObject.SetActive(false);
             Debug.Log("Black Test Running");
             reviewphase = false;
             currentQuestionIndex = 0;
@@ -406,11 +426,8 @@ public class ManagerTesting : MonoBehaviour
             videoPlayer.loopPointReached += OnVideoEnded;
             videoPlayer.errorReceived += OnVideoError;
 
-            // Add preload video player events
-            if (preloadVideoPlayer != null)
-            {
-                preloadVideoPlayer.prepareCompleted += OnPreloadVideoPrepared;
-            }
+            // Preload buffer VideoPlayers register their own prepareCompleted
+            // callbacks in InitializePreloadVideoPlayers()
         }
 
         // Automatically load and play the first video
@@ -429,7 +446,7 @@ public class ManagerTesting : MonoBehaviour
     /// <summary>
     /// Initialize the preload video player (create if doesn't exist)
     /// </summary>
-    void InitializePreloadVideoPlayer()
+    void InitializePreloadVideoPlayers()
     {
         if (!enablePreloading)
         {
@@ -437,21 +454,37 @@ public class ManagerTesting : MonoBehaviour
             return;
         }
 
-        if (preloadVideoPlayer == null)
+        // Clamp buffer size to a reasonable range
+        preloadBufferSize = Mathf.Clamp(preloadBufferSize, 1, 5);
+
+        preloadBuffer.Clear();
+
+        for (int i = 0; i < preloadBufferSize; i++)
         {
-            // Create a new GameObject for the preload video player
-            GameObject preloadObj = new GameObject("PreloadVideoPlayer");
-            preloadObj.transform.SetParent(transform);
-            preloadVideoPlayer = preloadObj.AddComponent<VideoPlayer>();
+            GameObject obj = new GameObject($"PreloadVideoPlayer_{i}");
+            obj.transform.SetParent(transform);
+            VideoPlayer vp = obj.AddComponent<VideoPlayer>();
 
-            // Configure preload video player (hidden, no audio, just for buffering)
-            preloadVideoPlayer.playOnAwake = false;
-            preloadVideoPlayer.waitForFirstFrame = true;
-            preloadVideoPlayer.skipOnDrop = true;
-            preloadVideoPlayer.renderMode = VideoRenderMode.APIOnly; // Don't render, just buffer
+            vp.playOnAwake = false;
+            vp.waitForFirstFrame = true;
+            vp.skipOnDrop = true;
+            vp.renderMode = VideoRenderMode.APIOnly;
+            vp.prepareCompleted += OnPreloadVideoPrepared;
 
-            Debug.Log("Preload VideoPlayer created successfully");
+            PreloadedVideo slot = new PreloadedVideo
+            {
+                questionIndex = -1,
+                opacity = -1,
+                smokeType = "",
+                videoURL = "",
+                videoIndex = -1,
+                isPrepared = false,
+                player = vp
+            };
+            preloadBuffer.Add(slot);
         }
+
+        Debug.Log($"Preload buffer initialized with {preloadBufferSize} VideoPlayers");
     }
 
     private void ResetQuestionVideoState()
@@ -471,12 +504,21 @@ public class ManagerTesting : MonoBehaviour
 
     private void ClearPreparedVideoState()
     {
-        isNextVideoPrepared = false;
-        nextVideoURL = string.Empty;
-        nextVideoIndex = -1;
-        nextPreparedQuestionIndex = -1;
-        nextPreparedOpacity = -1;
-        nextPreparedSmokeType = string.Empty;
+        for (int i = 0; i < preloadBuffer.Count; i++)
+        {
+            if (preloadBuffer[i].player != null && preloadBuffer[i].player.isPrepared)
+                preloadBuffer[i].player.Stop();
+
+            var slot = preloadBuffer[i];
+            slot.questionIndex = -1;
+            slot.opacity = -1;
+            slot.smokeType = "";
+            slot.videoURL = "";
+            slot.videoIndex = -1;
+            slot.isPrepared = false;
+            preloadBuffer[i] = slot;
+        }
+        currentlyPreparingCount = 0;
     }
 
     private void StartCurrentPhaseAtFirstQuestion()
@@ -494,6 +536,9 @@ public class ManagerTesting : MonoBehaviour
         currentQuestionIndex = 0;
         answerSelected = false;
         isFirstQuestionLoaded = true;
+
+        // Invalidate any preloaded videos from a previous phase
+        InvalidateStalePreloads();
 
         if (blackScreen != null)
         {
@@ -590,37 +635,52 @@ public class ManagerTesting : MonoBehaviour
 
     private bool TryUsePreparedVideo(int questionIndex, int opacity)
     {
-        if (!enablePreloading || !isNextVideoPrepared || string.IsNullOrEmpty(nextVideoURL))
+        if (!enablePreloading || preloadBuffer.Count == 0)
         {
             return false;
         }
 
-        if (nextPreparedQuestionIndex != questionIndex || nextPreparedOpacity != opacity)
+        // Search the buffer for a matching prepared video
+        for (int i = 0; i < preloadBuffer.Count; i++)
         {
-            return false;
+            var slot = preloadBuffer[i];
+            if (!slot.isPrepared) continue;
+            if (slot.questionIndex != questionIndex) continue;
+            if (slot.opacity != opacity) continue;
+            if (!string.Equals(slot.smokeType, currentSmokeType, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            // Match found — swap it in
+            currentVideoIndex = slot.videoIndex;
+            questionVideoIndices[questionIndex] = slot.videoIndex;
+            questionVideoUrls[questionIndex] = slot.videoURL;
+
+            if (videoPlayer.isPlaying)
+            {
+                videoPlayer.Stop();
+            }
+
+            videoPlayer.url = slot.videoURL;
+            videoPlayer.isLooping = true;
+            videoPlayer.Play();
+
+            // Remove used slot from buffer
+            slot.questionIndex = -1;
+            slot.opacity = -1;
+            slot.smokeType = "";
+            slot.videoURL = "";
+            slot.videoIndex = -1;
+            slot.isPrepared = false;
+            if (slot.player.isPrepared)
+                slot.player.Stop();
+            preloadBuffer[i] = slot;
+
+            // Fill more slots now that one was consumed
+            FillPreloadBuffer();
+            return true;
         }
 
-        if (!string.Equals(nextPreparedSmokeType, currentSmokeType, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        currentVideoIndex = nextVideoIndex;
-        questionVideoIndices[questionIndex] = currentVideoIndex;
-        questionVideoUrls[questionIndex] = nextVideoURL;
-
-        if (videoPlayer.isPlaying)
-        {
-            videoPlayer.Stop();
-        }
-
-        videoPlayer.url = nextVideoURL;
-        videoPlayer.isLooping = true;
-        videoPlayer.Play();
-
-        ClearPreparedVideoState();
-        PreloadNextVideo();
-        return true;
+        return false;
     }
 
     private bool LoadQuestionVideo(int questionIndex, bool forceNewVariation)
@@ -664,55 +724,168 @@ public class ManagerTesting : MonoBehaviour
         videoPlayer.isLooping = true;
         videoPlayer.Play();
 
-        PreloadNextVideo();
+        FillPreloadBuffer();
         return true;
     }
 
     /// <summary>
-    /// Preload the next video in the background for instant playback
-    void PreloadNextVideo()
+    /// Fill the preload buffer with upcoming questions, preparing them sequentially.
+    /// Called after a video starts playing and after each preload completes.
+    void FillPreloadBuffer()
     {
-        if (!enablePreloading || preloadVideoPlayer == null || reviewphase || scratchMode) return;
+        if (!enablePreloading || preloadBuffer.Count == 0 || reviewphase || scratchMode) return;
 
-        int nextQuestionIndex = currentQuestionIndex + 1;
-        if (nextQuestionIndex >= currentQuestionValues.Length) return;
+        // Save current group state so we can restore it after each preload lookup
+        SmokeTypeGroup savedTypeGroup = currentTypeGroup;
+        string savedSmokeType = currentSmokeType;
 
-        int nextOpacityValue = GetActualOpacityForQuestion(nextQuestionIndex);
-        if (nextOpacityValue < 0) return;
+        for (int offset = 1; offset <= preloadBufferSize; offset++)
+        {
+            int targetQuestionIndex = currentQuestionIndex + offset;
+            if (targetQuestionIndex >= currentQuestionValues.Length) break;
 
-        LoadGroup(nextOpacityValue, currentSmokeType);
-        if (currentTypeGroup == null || currentTypeGroup.videoURLs == null || currentTypeGroup.videoURLs.Count == 0) return;
+            // Already buffering or prepared this question?
+            bool alreadyInBuffer = false;
+            for (int i = 0; i < preloadBuffer.Count; i++)
+            {
+                if (preloadBuffer[i].questionIndex == targetQuestionIndex
+                    && string.Equals(preloadBuffer[i].smokeType, currentSmokeType, StringComparison.OrdinalIgnoreCase))
+                {
+                    alreadyInBuffer = true;
+                    break;
+                }
+            }
+            if (alreadyInBuffer) continue;
 
-        int preparedVideoIndex = SelectVideoIndexForQuestion(nextQuestionIndex, false);
-        if (preparedVideoIndex < 0 || preparedVideoIndex >= currentTypeGroup.videoURLs.Count) return;
+            // Find an idle pool slot
+            int idleSlot = -1;
+            for (int i = 0; i < preloadBuffer.Count; i++)
+            {
+                // A slot is idle if it's not currently preparing and not holding
+                // a video we still need (i.e. its question is past or its question
+                // is this target — meaning it's empty/default)
+                if (preloadBuffer[i].questionIndex < 0)
+                {
+                    idleSlot = i;
+                    break;
+                }
+            }
+            if (idleSlot < 0) break;  // all slots busy
 
-        nextVideoURL = currentTypeGroup.videoURLs[preparedVideoIndex];
-        nextVideoIndex = preparedVideoIndex;
-        nextPreparedQuestionIndex = nextQuestionIndex;
-        nextPreparedOpacity = nextOpacityValue;
-        nextPreparedSmokeType = currentSmokeType;
-        isNextVideoPrepared = false;
+            // Only kick off one new prepare at a time (sequential downloading)
+            if (currentlyPreparingCount > 0) return;
 
-        if (preloadVideoPlayer.isPrepared)
-            preloadVideoPlayer.Stop();
+            StartPreloadSlot(idleSlot, targetQuestionIndex, savedTypeGroup, savedSmokeType);
+        }
 
-        preloadVideoPlayer.url = nextVideoURL;
-        preloadVideoPlayer.Prepare();
+        // Restore group state
+        currentTypeGroup = savedTypeGroup;
+        currentSmokeType = savedSmokeType;
     }
 
+    /// <summary>
+    /// Start preloading a specific question's video into a buffer slot.
+    /// </summary>
+    void StartPreloadSlot(int slotIndex, int targetQuestionIndex, SmokeTypeGroup savedTypeGroup, string savedSmokeType)
+    {
+        int opacity = GetActualOpacityForQuestion(targetQuestionIndex);
+        if (opacity < 0) return;
 
-    // Called when the preload video is ready
+        // LoadGroup overwrites currentTypeGroup — we'll fix that next
+        LoadGroup(opacity, savedSmokeType);
+        if (currentTypeGroup == null || currentTypeGroup.videoURLs == null || currentTypeGroup.videoURLs.Count == 0)
+        {
+            currentTypeGroup = savedTypeGroup;
+            return;
+        }
 
+        int videoIdx = SelectVideoIndexForQuestion(targetQuestionIndex, false);
+        if (videoIdx < 0 || videoIdx >= currentTypeGroup.videoURLs.Count)
+        {
+            currentTypeGroup = savedTypeGroup;
+            return;
+        }
+
+        string url = currentTypeGroup.videoURLs[videoIdx];
+        string slotSmokeType = currentSmokeType;  // capture before restore
+
+        var slot = preloadBuffer[slotIndex];
+        slot.questionIndex = targetQuestionIndex;
+        slot.opacity = opacity;
+        slot.smokeType = slotSmokeType;
+        slot.videoURL = url;
+        slot.videoIndex = videoIdx;
+        slot.isPrepared = false;
+        preloadBuffer[slotIndex] = slot;
+
+        if (slot.player.isPrepared)
+            slot.player.Stop();
+
+        slot.player.url = url;
+        slot.player.Prepare();
+        currentlyPreparingCount++;
+
+        // Restore group state immediately
+        currentTypeGroup = savedTypeGroup;
+        currentSmokeType = savedSmokeType;
+    }
+
+    /// <summary>
+    /// Called when a preload VideoPlayer finishes preparing its video.
+    /// Marks the slot as ready and kicks off the next queued preload.
     void OnPreloadVideoPrepared(VideoPlayer source)
     {
-        isNextVideoPrepared = true;
-        Debug.Log("Next video preloaded and ready for instant playback!");
+        currentlyPreparingCount = Mathf.Max(0, currentlyPreparingCount - 1);
+
+        // Mark the matching slot as prepared
+        for (int i = 0; i < preloadBuffer.Count; i++)
+        {
+            if (preloadBuffer[i].player == source)
+            {
+                var slot = preloadBuffer[i];
+                slot.isPrepared = true;
+                preloadBuffer[i] = slot;
+                Debug.Log($"Preload buffer slot {i} ready: Q{slot.questionIndex} opacity={slot.opacity} {slot.smokeType}");
+                break;
+            }
+        }
+
+        // Try to fill more slots now that a prepare has completed
+        FillPreloadBuffer();
+    }
+
+    /// <summary>
+    /// Remove preloaded videos for questions that are now in the past.
+    /// Call this when advancing phases or jumping around in scratch mode.
+    void InvalidateStalePreloads()
+    {
+        for (int i = 0; i < preloadBuffer.Count; i++)
+        {
+            if (preloadBuffer[i].questionIndex >= 0
+                && preloadBuffer[i].questionIndex <= currentQuestionIndex)
+            {
+                if (preloadBuffer[i].player.isPrepared)
+                    preloadBuffer[i].player.Stop();
+
+                // Reset slot to empty
+                var slot = preloadBuffer[i];
+                slot.questionIndex = -1;
+                slot.opacity = -1;
+                slot.smokeType = "";
+                slot.videoURL = "";
+                slot.videoIndex = -1;
+                slot.isPrepared = false;
+                preloadBuffer[i] = slot;
+            }
+        }
     }
 
 
     // Skip Practice/Test Button
     public void OnSkipPractice()
     {
+        // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+        return;
         Debug.Log("Skip button pressed for " + currenttype);
 
         if (currenttype == TestType.whitePractice)
@@ -784,7 +957,9 @@ public class ManagerTesting : MonoBehaviour
             Txt_currentCompleteTest.text = "White Smoke Test";
             Txt_ContinueText.text = "Continue To Black Practice";
             CurrentTest_txt.text = "White Smoke Testing";
-            btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Smoke Test";
+            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+            // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Smoke Test";
+            btn_SkipPracticeTest.gameObject.SetActive(false);
 
         }
         else if (testType == TestType.blackPractice)
@@ -794,7 +969,9 @@ public class ManagerTesting : MonoBehaviour
             Txt_currentCompleteTest.text = "Black Smoke Practice";
             Txt_ContinueText.text = "Continue To Black Testing";
             CurrentTest_txt.text = "Black Smoke Practice";
-            btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Practice";
+            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+            // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Practice";
+            btn_SkipPracticeTest.gameObject.SetActive(false);
         }
         else if (testType == TestType.blackTest)
         {
@@ -803,7 +980,9 @@ public class ManagerTesting : MonoBehaviour
             Txt_currentCompleteTest.text = "Black Smoke Test";
             Txt_ContinueText.text = "Continue To Submission";
             CurrentTest_txt.text = "Black Smoke Testing";
-            btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Smoke Test";
+            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+            // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Smoke Test";
+            btn_SkipPracticeTest.gameObject.SetActive(false);
         }
 
         LoadCurrentQuestion();
@@ -863,9 +1042,11 @@ public class ManagerTesting : MonoBehaviour
     private void Update()
     {
         bool isVideoPlaying = videoPlayer.isPlaying;
-        bool isBlackScreenOff = !blackScreen.activeSelf;
 
-        if (!isVideoPlaying && isBlackScreenOff)
+        // Show loading spinner when video isn't playing:
+        // - If blackScreen is OFF (normal gap between videos), show spinner
+        // - If blackScreen is ON (intentional loading state), keep spinner visible
+        if (!isVideoPlaying)
         {
             loadingImage.SetActive(true);
             RotateLoadingImage();
@@ -875,24 +1056,11 @@ public class ManagerTesting : MonoBehaviour
             loadingImage.SetActive(false);
         }
 
-        // Update skip button text based on current phase
-        if (currenttype == TestType.whitePractice)
-        {
-            btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip to White Smoke Test";
-        }
-        else if (currenttype == TestType.whiteTest)
-        {
-            btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip to Black Smoke Practice";
-        }
-        else if (currenttype == TestType.blackPractice)
-        {
-            btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip to Black Smoke Test";
-        }
-        else if (currenttype == TestType.blackTest)
-        {
-            btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip to Signature";
-        }
-        else if (currenttype == TestType.TestComplete)
+        // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+        // The skip button text used to update every frame based on current phase.
+        // This is now deactivated. Keeping the frame check for skip in TestComplete
+        // so the button stays hidden at the end.
+        if (currenttype == TestType.TestComplete && btn_SkipPracticeTest != null)
         {
             btn_SkipPracticeTest.gameObject.SetActive(false);
         }
@@ -937,8 +1105,8 @@ public class ManagerTesting : MonoBehaviour
         videoPlayer.isLooping = true;
         videoPlayer.Play();
 
-        // Preload next video in background
-        PreloadNextVideo();
+        // Preload next videos in background
+        FillPreloadBuffer();
     }
     public void RefreshVideo()
     {
@@ -1007,19 +1175,25 @@ public class ManagerTesting : MonoBehaviour
             currentSmokeType = "White";
             currentQuestionValues = questionvalues_test_white;
             currenttype = TestType.whiteTest;
-            btn_SkipPracticeTest.gameObject.SetActive(true);
+            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+            // btn_SkipPracticeTest.gameObject.SetActive(true);
+            btn_SkipPracticeTest.gameObject.SetActive(false);
         }
         else if (currenttype == TestType.whiteTest)
         {
             currentSmokeType = "White";
             currentQuestionValues = questionvalues_practice_black;
             currenttype = TestType.blackPractice;
-            btn_SkipPracticeTest.gameObject.SetActive(true);
+            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+            // btn_SkipPracticeTest.gameObject.SetActive(true);
+            btn_SkipPracticeTest.gameObject.SetActive(false);
         }
         else if (currenttype == TestType.blackPractice)
         {
             currentSmokeType = "Black";
-            btn_SkipPracticeTest.gameObject.SetActive(true);
+            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+            // btn_SkipPracticeTest.gameObject.SetActive(true);
+            btn_SkipPracticeTest.gameObject.SetActive(false);
             currentQuestionValues = questionvalues_test_black;
             currenttype = TestType.blackTest;
         }
@@ -1160,7 +1334,14 @@ public class ManagerTesting : MonoBehaviour
 
     void OnQuestion(int i)
     {
-        blackScreen.SetActive(false);
+        // Only hide blackScreen if video is already playing (user navigating
+        // between questions manually). During auto-advance transitions, the
+        // blackScreen stays visible until OnVideoStarted fires, providing a
+        // clear loading state on slow internet connections.
+        if (videoPlayer.isPlaying)
+        {
+            blackScreen.SetActive(false);
+        }
         if (scratchMode)
         {
             Debug.Log(" In scratch Phase");
@@ -1235,19 +1416,26 @@ public class ManagerTesting : MonoBehaviour
     }
 
     // MODIFIED: Auto-advance coroutine with preloading
+    // Shows blackScreen + loading indicator IMMEDIATELY when answer is selected,
+    // so the user sees a clear "loading next question" state even on slow internet.
     private IEnumerator AutoAdvanceToNextQuestion()
     {
         isAutoAdvancing = true;
+
+        // Show the loading overlay immediately — don't wait for the delay.
+        // This hides stale UI content and shows the spinner right away.
+        if (currenttype == TestType.whiteTest || currenttype == TestType.blackTest ||
+            currenttype == TestType.whitePractice || currenttype == TestType.blackPractice)
+        {
+            blackScreen.SetActive(true);
+            if (loadingImage != null)
+                loadingImage.SetActive(true);
+        }
 
         // Wait for the specified delay
         yield return new WaitForSeconds(autoAdvanceDelay);
 
         // Load and click the next question
-        if (currenttype == TestType.whiteTest || currenttype == TestType.blackTest ||
-            currenttype == TestType.whitePractice || currenttype == TestType.blackPractice)
-        {
-            blackScreen.SetActive(true);
-        }
         LoadCurrentQuestion();
         ApplyScratchAndRefreshButtonState();
 
@@ -1274,11 +1462,13 @@ public class ManagerTesting : MonoBehaviour
 
         answerSelected = false;
 
-        // Advance to next question
+        // Show loading overlay immediately on next-button advance
         if (currenttype == TestType.whiteTest || currenttype == TestType.blackTest ||
             currenttype == TestType.whitePractice || currenttype == TestType.blackPractice)
         {
             blackScreen.SetActive(true);
+            if (loadingImage != null)
+                loadingImage.SetActive(true);
         }
         LoadCurrentQuestion();
         ApplyScratchAndRefreshButtonState();
@@ -1340,6 +1530,9 @@ public class ManagerTesting : MonoBehaviour
             SCRATCHQUESTIONINDEX = -1;
             scratchModeStartedFromReview = false;
 
+            // Invalidate preloads since we're returning from scratch mode
+            InvalidateStalePreloads();
+
             ApplyScratchAndRefreshButtonState();
 
             int nextIndex = scratchQuestionIndex + 1;
@@ -1368,7 +1561,9 @@ public class ManagerTesting : MonoBehaviour
                 answerSelected = true;
                 currentQuestionIndex = Mathf.Min(nextIndex, btn_questions.Length - 1);
                 ShowRemarksForQuestion(scratchQuestionIndex);
-                btn_SkipPracticeTest.gameObject.SetActive(true);
+                // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+                // btn_SkipPracticeTest.gameObject.SetActive(true);
+                btn_SkipPracticeTest.gameObject.SetActive(false);
                 ApplyScratchAndRefreshButtonState();
 
                 if (hasNextQuestion)
@@ -1403,6 +1598,8 @@ public class ManagerTesting : MonoBehaviour
                     currenttype == TestType.whitePractice || currenttype == TestType.blackPractice)
                 {
                     blackScreen.SetActive(true);
+                    if (loadingImage != null)
+                        loadingImage.SetActive(true);
                 }
                 LoadCurrentQuestion();
                 ApplyScratchAndRefreshButtonState();
@@ -1495,7 +1692,9 @@ public class ManagerTesting : MonoBehaviour
                 if (isPractice)
                 {
                     OpenRemarksPannel();
-                    btn_SkipPracticeTest.gameObject.SetActive(true);
+                    // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
+                    // btn_SkipPracticeTest.gameObject.SetActive(true);
+                    btn_SkipPracticeTest.gameObject.SetActive(false);
                     ApplyScratchAndRefreshButtonState();
 
                     if (btn_Next != null)
@@ -1876,6 +2075,9 @@ public class ManagerTesting : MonoBehaviour
         scratchModeStartedFromReview = reviewphase;
         scratchMode = true;
 
+        // Invalidate preloads since user is jumping to a different question
+        InvalidateStalePreloads();
+
         // Save current question before scratch mode
         lastQuestionBeforeScratch = currentQuestionIndex;
 
@@ -1968,6 +2170,12 @@ public class ManagerTesting : MonoBehaviour
     public void OnVideoStarted(VideoPlayer vp)
     {
         loadingImage.SetActive(false);
+
+        // Clear the loading overlay now that video is actually playing
+        if (blackScreen != null)
+        {
+            blackScreen.SetActive(false);
+        }
 
         // NEW: Enable answers for the first question when its video starts playing
         if (isFirstQuestionLoaded && currentQuestionIndex == 0 && !reviewphase && !scratchMode)
