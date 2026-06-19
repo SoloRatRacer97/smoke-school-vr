@@ -53,6 +53,13 @@ public class ManagerTesting : MonoBehaviour
     public float autoAdvanceDelay = 0.5f;
     private bool isAutoAdvancing = false;
 
+    // Flag to keep the loading spinner visible until the video actually
+    // starts playing. Without this, Update() hides the spinner as soon as
+    // VideoPlayer.Play() is called (isPlaying = true) even though the video
+    // hasn't rendered its first frame yet, causing the spinner to flash
+    // briefly then disappear while a stale frozen frame stays on screen.
+    private bool waitingForVideoStart = false;
+
     [Header("Next Button")]
     [Tooltip("Button that user clicks to advance to next question")]
     public Button btn_Next;
@@ -246,6 +253,14 @@ public class ManagerTesting : MonoBehaviour
         }
     }
 
+    private void SetSkipButtonActive(bool isActive)
+    {
+        if (btn_SkipPracticeTest != null)
+        {
+            btn_SkipPracticeTest.gameObject.SetActive(isActive);
+        }
+    }
+
     private bool IsShowingPracticeRemarksForPreviousQuestion()
     {
         return !scratchMode &&
@@ -255,6 +270,16 @@ public class ManagerTesting : MonoBehaviour
                RemarksPannel != null &&
                RemarksPannel.activeSelf &&
                currentQuestionIndex > 0;
+    }
+
+    private string GetVideoUrl(SmokeVideoURLData.SmokeTypeGroup group, int videoIndex)
+    {
+        if (group == null || group.videoURLs == null || videoIndex < 0 || videoIndex >= group.videoURLs.Count)
+        {
+            return string.Empty;
+        }
+
+        return group.videoURLs[videoIndex]?.Trim() ?? string.Empty;
     }
 
     private int GetRedoTargetQuestionIndex()
@@ -310,13 +335,70 @@ public class ManagerTesting : MonoBehaviour
         }
     }
 
+    private bool ValidateRequiredStartupReferences()
+    {
+        bool isValid = true;
+
+        if (btn_questions == null || btn_questions.Length == 0)
+        {
+            Debug.LogError("ManagerTesting requires at least one question button.");
+            isValid = false;
+        }
+
+        if (btn_points == null || btn_points.Length == 0)
+        {
+            Debug.LogError("ManagerTesting requires answer buttons in btn_points.");
+            isValid = false;
+        }
+
+        if (videoPlayer == null)
+        {
+            Debug.LogError("ManagerTesting requires a VideoPlayer reference.");
+            isValid = false;
+        }
+
+        if (loadingImage == null)
+        {
+            Debug.LogError("ManagerTesting requires a loadingImage reference.");
+            isValid = false;
+        }
+
+        if (videoURLData == null)
+        {
+            Debug.LogError("ManagerTesting requires SmokeVideoURLData.");
+            isValid = false;
+        }
+
+        if (TestingCompletePannel == null || RemarksPannel == null)
+        {
+            Debug.LogError("ManagerTesting requires completion and remarks panels.");
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
     void Start()
     {
         SmokeSchoolAppState.ResetCertificationState();
         Debug.Log($"ManagerTesting Start - current test run #{testRunNumber}");
-        blackScreen.SetActive(false);
-        openresultPannelButton.gameObject.SetActive(false);
-        btn_SkipPracticeTest.onClick.AddListener(OnSkipPractice);
+        if (blackScreen != null) blackScreen.SetActive(false);
+
+        if (!ValidateRequiredStartupReferences())
+        {
+            enabled = false;
+            return;
+        }
+
+        if (openresultPannelButton != null)
+        {
+            openresultPannelButton.gameObject.SetActive(false);
+        }
+
+        if (btn_SkipPracticeTest != null)
+        {
+            btn_SkipPracticeTest.onClick.AddListener(OnSkipPractice);
+        }
 
         // Initialize Next button
         if (btn_Next != null)
@@ -354,7 +436,7 @@ public class ManagerTesting : MonoBehaviour
             Txt_ContinueText.text = "Continue To White Testing";
             // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
             // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Practice";
-            btn_SkipPracticeTest.gameObject.SetActive(false);
+            SetSkipButtonActive(false);
             Debug.Log("White Practice Running");
             reviewphase = false;
             currentQuestionIndex = 0;
@@ -367,7 +449,7 @@ public class ManagerTesting : MonoBehaviour
             Txt_ContinueText.text = "Continue To Black Practice";
             // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
             // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Smoke Test";
-            btn_SkipPracticeTest.gameObject.SetActive(false);
+            SetSkipButtonActive(false);
             Debug.Log("White Test Running");
             reviewphase = false;
             currentQuestionIndex = 0;
@@ -379,7 +461,7 @@ public class ManagerTesting : MonoBehaviour
             Txt_ContinueText.text = "Continue To Black Testing";
             // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
             // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Practice";
-            btn_SkipPracticeTest.gameObject.SetActive(false);
+            SetSkipButtonActive(false);
             Debug.Log("Black Practice Running");
             reviewphase = false;
             currentQuestionIndex = 0;
@@ -391,7 +473,7 @@ public class ManagerTesting : MonoBehaviour
             Txt_ContinueText.text = "Continue To Submission";
             // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
             // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Smoke Test";
-            btn_SkipPracticeTest.gameObject.SetActive(false);
+            SetSkipButtonActive(false);
             Debug.Log("Black Test Running");
             reviewphase = false;
             currentQuestionIndex = 0;
@@ -407,18 +489,6 @@ public class ManagerTesting : MonoBehaviour
         // video setup
         {
             loadingImage.SetActive(false);
-            if (videoPlayer == null)
-            {
-                Debug.LogError("VideoPlayer not assigned!");
-                return;
-            }
-
-            if (loadingImage == null)
-            {
-                Debug.LogError("LoadingImage not assigned!");
-                return;
-            }
-
             loadingImageRect = loadingImage.GetComponent<RectTransform>();
             loadingImage.SetActive(true);
 
@@ -660,6 +730,10 @@ public class ManagerTesting : MonoBehaviour
                 videoPlayer.Stop();
             }
 
+            // Same as LoadQuestionVideo — flag that the spinner should
+            // stay visible until OnVideoStarted fires.
+            waitingForVideoStart = true;
+
             videoPlayer.url = slot.videoURL;
             videoPlayer.isLooping = true;
             videoPlayer.Play();
@@ -711,7 +785,13 @@ public class ManagerTesting : MonoBehaviour
             return false;
         }
 
-        string url = currentTypeGroup.videoURLs[currentVideoIndex];
+        string url = GetVideoUrl(currentTypeGroup, currentVideoIndex);
+        if (string.IsNullOrEmpty(url))
+        {
+            Debug.LogWarning($"Video URL is empty for {currentSmokeType} smoke at {actualOpacity}% index {currentVideoIndex}.");
+            return false;
+        }
+
         questionVideoIndices[questionIndex] = currentVideoIndex;
         questionVideoUrls[questionIndex] = url;
 
@@ -719,6 +799,11 @@ public class ManagerTesting : MonoBehaviour
         {
             videoPlayer.Stop();
         }
+
+        // Flag that we're waiting for the new video to actually start
+        // playing (render its first frame).  Update() will keep the
+        // spinner visible until OnVideoStarted clears this flag.
+        waitingForVideoStart = true;
 
         videoPlayer.url = url;
         videoPlayer.isLooping = true;
@@ -736,7 +821,7 @@ public class ManagerTesting : MonoBehaviour
         if (!enablePreloading || preloadBuffer.Count == 0 || reviewphase || scratchMode) return;
 
         // Save current group state so we can restore it after each preload lookup
-        SmokeTypeGroup savedTypeGroup = currentTypeGroup;
+        SmokeVideoURLData.SmokeTypeGroup savedTypeGroup = currentTypeGroup;
         string savedSmokeType = currentSmokeType;
 
         for (int offset = 1; offset <= preloadBufferSize; offset++)
@@ -786,7 +871,7 @@ public class ManagerTesting : MonoBehaviour
     /// <summary>
     /// Start preloading a specific question's video into a buffer slot.
     /// </summary>
-    void StartPreloadSlot(int slotIndex, int targetQuestionIndex, SmokeTypeGroup savedTypeGroup, string savedSmokeType)
+    void StartPreloadSlot(int slotIndex, int targetQuestionIndex, SmokeVideoURLData.SmokeTypeGroup savedTypeGroup, string savedSmokeType)
     {
         int opacity = GetActualOpacityForQuestion(targetQuestionIndex);
         if (opacity < 0) return;
@@ -806,7 +891,14 @@ public class ManagerTesting : MonoBehaviour
             return;
         }
 
-        string url = currentTypeGroup.videoURLs[videoIdx];
+        string url = GetVideoUrl(currentTypeGroup, videoIdx);
+        if (string.IsNullOrEmpty(url))
+        {
+            currentTypeGroup = savedTypeGroup;
+            currentSmokeType = savedSmokeType;
+            return;
+        }
+
         string slotSmokeType = currentSmokeType;  // capture before restore
 
         var slot = preloadBuffer[slotIndex];
@@ -885,36 +977,8 @@ public class ManagerTesting : MonoBehaviour
     public void OnSkipPractice()
     {
         // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-        return;
-        Debug.Log("Skip button pressed for " + currenttype);
-
-        if (currenttype == TestType.whitePractice)
-        {
-            Debug.Log("Skipping White Practice to White Test");
-            manageWhitePracticeTest.GoToWhiteTutorial();
-            //SkipToTest(TestType.whiteTest);
-        }
-        else if (currenttype == TestType.whiteTest)
-        {
-            Debug.Log("Skipping White Test to Black Practice");
-            SkipToTest(TestType.blackPractice);
-        }
-        else if (currenttype == TestType.blackPractice)
-        {
-            Debug.Log("Skipping Black Practice to Black Test");
-            //SkipToTest(TestType.blackTest);
-            mangerBlackPractice.GoToblackTutorial();
-        }
-        else if (currenttype == TestType.blackTest)
-        {
-            Debug.Log("Skipping Black Test to Signature Panel");
-
-
-            currenttype = TestType.TestComplete;
-            ShowingFinalResult();
-
-            OpenSignaturePanel();
-        }
+        Debug.Log("Skip button pressed, but skip navigation is disabled.");
+        SetSkipButtonActive(false);
     }
 
     public void WhiteTestStart()
@@ -959,7 +1023,7 @@ public class ManagerTesting : MonoBehaviour
             CurrentTest_txt.text = "White Smoke Testing";
             // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
             // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Smoke Test";
-            btn_SkipPracticeTest.gameObject.SetActive(false);
+            SetSkipButtonActive(false);
 
         }
         else if (testType == TestType.blackPractice)
@@ -971,7 +1035,7 @@ public class ManagerTesting : MonoBehaviour
             CurrentTest_txt.text = "Black Smoke Practice";
             // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
             // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Practice";
-            btn_SkipPracticeTest.gameObject.SetActive(false);
+            SetSkipButtonActive(false);
         }
         else if (testType == TestType.blackTest)
         {
@@ -982,7 +1046,7 @@ public class ManagerTesting : MonoBehaviour
             CurrentTest_txt.text = "Black Smoke Testing";
             // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
             // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Smoke Test";
-            btn_SkipPracticeTest.gameObject.SetActive(false);
+            SetSkipButtonActive(false);
         }
 
         LoadCurrentQuestion();
@@ -1023,7 +1087,7 @@ public class ManagerTesting : MonoBehaviour
         }
 
         // Hide skip button since we're done with tests
-        btn_SkipPracticeTest.gameObject.SetActive(false);
+        SetSkipButtonActive(false);
 
         // Show signature panel
         SignaturePannel.SetActive(true);
@@ -1041,12 +1105,19 @@ public class ManagerTesting : MonoBehaviour
 
     private void Update()
     {
-        bool isVideoPlaying = videoPlayer.isPlaying;
-
-        // Show loading spinner when video isn't playing:
-        // - If blackScreen is OFF (normal gap between videos), show spinner
-        // - If blackScreen is ON (intentional loading state), keep spinner visible
-        if (!isVideoPlaying)
+        // Show loading spinner while we're waiting for the next video to
+        // actually start playing.  The "waitingForVideoStart" flag is set
+        // whenever we kick off a new question video (OnAnswer, scratch-mode
+        // return, etc.) and cleared only in OnVideoStarted, so the spinner
+        // stays visible throughout the buffering period even though
+        // VideoPlayer.isPlaying may briefly flip to true before the first
+        // frame renders.
+        if (waitingForVideoStart)
+        {
+            loadingImage.SetActive(true);
+            RotateLoadingImage();
+        }
+        else if (!videoPlayer.isPlaying)
         {
             loadingImage.SetActive(true);
             RotateLoadingImage();
@@ -1062,7 +1133,7 @@ public class ManagerTesting : MonoBehaviour
         // so the button stays hidden at the end.
         if (currenttype == TestType.TestComplete && btn_SkipPracticeTest != null)
         {
-            btn_SkipPracticeTest.gameObject.SetActive(false);
+            SetSkipButtonActive(false);
         }
     }
 
@@ -1087,8 +1158,7 @@ public class ManagerTesting : MonoBehaviour
         if (currentTypeGroup == null || currentTypeGroup.videoURLs.Count == 0)
             return;
 
-        // Get the URL directly from the ScriptableObject
-        string videoURL = currentTypeGroup.videoURLs[currentVideoIndex];
+        string videoURL = GetVideoUrl(currentTypeGroup, currentVideoIndex);
 
         if (string.IsNullOrEmpty(videoURL))
         {
@@ -1177,7 +1247,7 @@ public class ManagerTesting : MonoBehaviour
             currenttype = TestType.whiteTest;
             // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
             // btn_SkipPracticeTest.gameObject.SetActive(true);
-            btn_SkipPracticeTest.gameObject.SetActive(false);
+            SetSkipButtonActive(false);
         }
         else if (currenttype == TestType.whiteTest)
         {
@@ -1186,21 +1256,21 @@ public class ManagerTesting : MonoBehaviour
             currenttype = TestType.blackPractice;
             // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
             // btn_SkipPracticeTest.gameObject.SetActive(true);
-            btn_SkipPracticeTest.gameObject.SetActive(false);
+            SetSkipButtonActive(false);
         }
         else if (currenttype == TestType.blackPractice)
         {
             currentSmokeType = "Black";
             // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
             // btn_SkipPracticeTest.gameObject.SetActive(true);
-            btn_SkipPracticeTest.gameObject.SetActive(false);
+            SetSkipButtonActive(false);
             currentQuestionValues = questionvalues_test_black;
             currenttype = TestType.blackTest;
         }
         else if (currenttype == TestType.blackTest)
         {
             currentSmokeType = "Black";
-            btn_SkipPracticeTest.gameObject.SetActive(false);
+            SetSkipButtonActive(false);
             Debug.Log("OPEN RESULT PANNEL");
         }
         else if (currenttype == TestType.TestComplete)
@@ -1334,14 +1404,6 @@ public class ManagerTesting : MonoBehaviour
 
     void OnQuestion(int i)
     {
-        // Only hide blackScreen if video is already playing (user navigating
-        // between questions manually). During auto-advance transitions, the
-        // blackScreen stays visible until OnVideoStarted fires, providing a
-        // clear loading state on slow internet connections.
-        if (videoPlayer.isPlaying)
-        {
-            blackScreen.SetActive(false);
-        }
         if (scratchMode)
         {
             Debug.Log(" In scratch Phase");
@@ -1416,21 +1478,17 @@ public class ManagerTesting : MonoBehaviour
     }
 
     // MODIFIED: Auto-advance coroutine with preloading
-    // Shows blackScreen + loading indicator IMMEDIATELY when answer is selected,
+    // Shows the loading spinner IMMEDIATELY when answer is selected,
     // so the user sees a clear "loading next question" state even on slow internet.
     private IEnumerator AutoAdvanceToNextQuestion()
     {
         isAutoAdvancing = true;
 
-        // Show the loading overlay immediately — don't wait for the delay.
-        // This hides stale UI content and shows the spinner right away.
-        if (currenttype == TestType.whiteTest || currenttype == TestType.blackTest ||
-            currenttype == TestType.whitePractice || currenttype == TestType.blackPractice)
-        {
-            blackScreen.SetActive(true);
-            if (loadingImage != null)
-                loadingImage.SetActive(true);
-        }
+        // Show the loading spinner immediately and keep it visible until
+        // OnVideoStarted fires — don't wait for the delay.
+        waitingForVideoStart = true;
+        if (loadingImage != null)
+            loadingImage.SetActive(true);
 
         // Wait for the specified delay
         yield return new WaitForSeconds(autoAdvanceDelay);
@@ -1462,14 +1520,11 @@ public class ManagerTesting : MonoBehaviour
 
         answerSelected = false;
 
-        // Show loading overlay immediately on next-button advance
-        if (currenttype == TestType.whiteTest || currenttype == TestType.blackTest ||
-            currenttype == TestType.whitePractice || currenttype == TestType.blackPractice)
-        {
-            blackScreen.SetActive(true);
-            if (loadingImage != null)
-                loadingImage.SetActive(true);
-        }
+        // Show loading spinner immediately on next-button advance
+        // and keep it visible until OnVideoStarted fires.
+        waitingForVideoStart = true;
+        if (loadingImage != null)
+            loadingImage.SetActive(true);
         LoadCurrentQuestion();
         ApplyScratchAndRefreshButtonState();
 
@@ -1563,7 +1618,7 @@ public class ManagerTesting : MonoBehaviour
                 ShowRemarksForQuestion(scratchQuestionIndex);
                 // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
                 // btn_SkipPracticeTest.gameObject.SetActive(true);
-                btn_SkipPracticeTest.gameObject.SetActive(false);
+                SetSkipButtonActive(false);
                 ApplyScratchAndRefreshButtonState();
 
                 if (hasNextQuestion)
@@ -1594,13 +1649,9 @@ public class ManagerTesting : MonoBehaviour
             {
                 currentQuestionIndex = nextIndex;
                 answerSelected = false;
-                if (currenttype == TestType.whiteTest || currenttype == TestType.blackTest ||
-                    currenttype == TestType.whitePractice || currenttype == TestType.blackPractice)
-                {
-                    blackScreen.SetActive(true);
-                    if (loadingImage != null)
-                        loadingImage.SetActive(true);
-                }
+                waitingForVideoStart = true;
+                if (loadingImage != null)
+                    loadingImage.SetActive(true);
                 LoadCurrentQuestion();
                 ApplyScratchAndRefreshButtonState();
                 btn_questions[currentQuestionIndex].onClick.Invoke();
@@ -1694,7 +1745,7 @@ public class ManagerTesting : MonoBehaviour
                     OpenRemarksPannel();
                     // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
                     // btn_SkipPracticeTest.gameObject.SetActive(true);
-                    btn_SkipPracticeTest.gameObject.SetActive(false);
+                    SetSkipButtonActive(false);
                     ApplyScratchAndRefreshButtonState();
 
                     if (btn_Next != null)
@@ -2169,13 +2220,11 @@ public class ManagerTesting : MonoBehaviour
     // MODIFIED: Enable answers for first question when video starts
     public void OnVideoStarted(VideoPlayer vp)
     {
-        loadingImage.SetActive(false);
+        // Clear the "waiting for video" flag — the spinner will now hide
+        // in Update() on the next frame since isPlaying will be true.
+        waitingForVideoStart = false;
 
-        // Clear the loading overlay now that video is actually playing
-        if (blackScreen != null)
-        {
-            blackScreen.SetActive(false);
-        }
+        loadingImage.SetActive(false);
 
         // NEW: Enable answers for the first question when its video starts playing
         if (isFirstQuestionLoaded && currentQuestionIndex == 0 && !reviewphase && !scratchMode)
@@ -2195,6 +2244,33 @@ public class ManagerTesting : MonoBehaviour
     {
         Debug.LogError("VideoPlayer error: " + message);
         loadingImage.SetActive(true);
+    }
+
+    private void OnDestroy()
+    {
+        if (videoPlayer != null)
+        {
+            videoPlayer.started -= OnVideoStarted;
+            videoPlayer.loopPointReached -= OnVideoEnded;
+            videoPlayer.errorReceived -= OnVideoError;
+        }
+
+        for (int i = 0; i < preloadBuffer.Count; i++)
+        {
+            VideoPlayer preloadPlayer = preloadBuffer[i].player;
+            if (preloadPlayer == null)
+            {
+                continue;
+            }
+
+            preloadPlayer.prepareCompleted -= OnPreloadVideoPrepared;
+            if (preloadPlayer.isPlaying || preloadPlayer.isPrepared)
+            {
+                preloadPlayer.Stop();
+            }
+        }
+
+        preloadBuffer.Clear();
     }
 
     public void OnEndTestButtonClicked()

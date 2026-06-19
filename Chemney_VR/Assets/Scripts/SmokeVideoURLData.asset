@@ -27,7 +27,7 @@ MonoBehaviour:
       - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442953/White00_V1-0008_hdy1u0.mp4
     - typeName: Black
       videoURLs:
-      - 'https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441732/Black00_V2-0029_nwzlnu.mp4 '
+      - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441732/Black00_V2-0029_nwzlnu.mp4
       - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441723/Black00_V2-0025_eaybbp.mp4
       - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441645/Black00_V2-0030_zxflvd.mp4
       - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441633/Black00_V2-0024_teflnr.mp4

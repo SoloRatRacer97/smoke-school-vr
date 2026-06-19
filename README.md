@@ -30,10 +30,11 @@ Chemney_VR/
 │   ├── Scenes/
 │   │   └── ChimneyScene.unity     # Active scene
 │   └── ...
-├── WebGLBuild/
-│   └── VR Web Build/              # Compiled WebGL output (deploy this folder)
+├── VR Smoke School/               # Current compiled WebGL output (deploy this folder)
 └── ProjectSettings/
 ```
+
+See `ACTIVE_RUNTIME_PATH.md` for the current active scene/script path, legacy cleanup candidates, video-quality notes, and Unity smoke-test checklist.
 
 ## Key Files
 
@@ -80,7 +81,7 @@ Chemney_VR/
 **Building WebGL:**
 1. Open `Chemney_VR/` in Unity 6 Editor
 2. **File → Build Settings → Platform: WebGL → Build**
-3. Select output folder (usually `VR Web Build/` at project root or wherever you've been building)
+3. Select output folder: `Chemney_VR/VR Smoke School/`
 4. Wait ~8 minutes for full build (incremental builds are faster)
 5. Output: `index.html`, `Build/` folder with `.wasm`, `.framework.js`, `.loader.js`, `.data`
 
@@ -112,6 +113,19 @@ The `_headers` file in the build folder fixes this. If it's missing, create it:
 **Symptom:** Loading bar appears but never completes, site hangs forever.
 **Fix:** Add `_headers` file and re-deploy.
 
+After deploying, verify the real asset headers. The `.br` files must not be served as `application/x-brotli` without `Content-Encoding: br`:
+
+```
+curl -I https://YOUR-SITE.netlify.app/Build/VR%20Smoke%20School.wasm.br
+```
+
+Expected headers include:
+
+```
+Content-Type: application/wasm
+Content-Encoding: br
+```
+
 ### Common Build Issues
 
 | Error | Cause | Fix |
@@ -126,7 +140,7 @@ To enable auto-deploy on push:
 
 1. In Netlify dashboard → **Site settings → Build & deploy → Link to Git**
 2. Connect the `SoloRatRacer97/smoke-school-vr` repository
-3. Set publish directory to `Chemney_VR/WebGLBuild/VR Web Build`
+3. Set publish directory to `Chemney_VR/VR Smoke School`
 4. Note: This deploys the pre-built WebGL output. Unity builds still need to be done locally and committed.
 
 ## Email Configuration
