@@ -10,14 +10,12 @@
   Content-Type: application/octet-stream
   Content-Encoding: br
 
-/Build/*.wasm.br
-  Content-Type: application/wasm
-  Content-Encoding: br
-
-/Build/*.js.br
-  Content-Type: application/javascript
-  Content-Encoding: br
-
 /Build/*.data.br
-  Content-Type: application/octet-stream
   Content-Encoding: br
+  Content-Type: application/octet-stream
+/Build/*.wasm.br
+  Content-Encoding: br
+  Content-Type: application/wasm
+/Build/*.js.br
+  Content-Encoding: br
+  Content-Type: application/javascript

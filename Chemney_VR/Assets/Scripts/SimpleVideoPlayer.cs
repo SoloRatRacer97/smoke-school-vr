@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Video;
 using TMPro;
+using System.Collections.Generic;
 
 public class SimpleVideoPlayer : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class SimpleVideoPlayer : MonoBehaviour
 
     [Header("Video URLs (Low → Max)")]
     public string[] videoURLs; // put full URLs here
+    public bool preloadVideoURLs = true;
 
     public VideoPlayer videoPlayer;
 
@@ -21,6 +23,8 @@ public class SimpleVideoPlayer : MonoBehaviour
     public GameObject loadingImage;
     private RectTransform loadingImageRect;
     public float rotationSpeed = 200f;
+    private readonly List<VideoPlayer> preloadPlayers = new List<VideoPlayer>();
+    private int nextPreloadIndex = 0;
 
     void Start()
     {
@@ -31,6 +35,11 @@ public class SimpleVideoPlayer : MonoBehaviour
         }
 
         videoPlayer.prepareCompleted += OnVideoPrepared;
+
+        if (preloadVideoURLs)
+        {
+            PreloadNextVideoURL();
+        }
     }
 
     void Update()
@@ -90,6 +99,41 @@ public class SimpleVideoPlayer : MonoBehaviour
         Debug.Log("Preparing video from URL: " + url);
     }
 
+    void PreloadNextVideoURL()
+    {
+        if (videoURLs == null)
+            return;
+
+        while (nextPreloadIndex < videoURLs.Length && string.IsNullOrEmpty(videoURLs[nextPreloadIndex]))
+        {
+            nextPreloadIndex++;
+        }
+
+        if (nextPreloadIndex >= videoURLs.Length)
+            return;
+
+        GameObject obj = new GameObject($"PracticePreloadVideoPlayer_{nextPreloadIndex}");
+        obj.transform.SetParent(transform);
+
+        VideoPlayer preloadPlayer = obj.AddComponent<VideoPlayer>();
+        preloadPlayer.playOnAwake = false;
+        preloadPlayer.waitForFirstFrame = true;
+        preloadPlayer.skipOnDrop = true;
+        preloadPlayer.renderMode = VideoRenderMode.APIOnly;
+        preloadPlayer.url = videoURLs[nextPreloadIndex];
+        preloadPlayer.prepareCompleted += OnPreloadPrepared;
+
+        preloadPlayers.Add(preloadPlayer);
+        nextPreloadIndex++;
+        preloadPlayer.Prepare();
+    }
+
+    void OnPreloadPrepared(VideoPlayer vp)
+    {
+        vp.prepareCompleted -= OnPreloadPrepared;
+        PreloadNextVideoURL();
+    }
+
     void OnVideoPrepared(VideoPlayer vp)
     {
         vp.Play();
@@ -108,5 +152,25 @@ public class SimpleVideoPlayer : MonoBehaviour
     {
         if (loadingImageRect != null)
             loadingImageRect.Rotate(0f, 0f, -rotationSpeed * Time.deltaTime);
+    }
+
+    void OnDestroy()
+    {
+        if (videoPlayer != null)
+        {
+            videoPlayer.prepareCompleted -= OnVideoPrepared;
+        }
+
+        for (int i = 0; i < preloadPlayers.Count; i++)
+        {
+            if (preloadPlayers[i] == null)
+                continue;
+
+            preloadPlayers[i].prepareCompleted -= OnPreloadPrepared;
+            if (preloadPlayers[i].isPlaying || preloadPlayers[i].isPrepared)
+            {
+                preloadPlayers[i].Stop();
+            }
+        }
     }
 }

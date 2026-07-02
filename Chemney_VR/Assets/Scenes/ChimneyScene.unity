@@ -37525,10 +37525,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   videoURLs:
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443026/White25_1_taihxu.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441948/White50_3_eta62k.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443164/White75_V1-0030_dj7yx7.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442236/White100_V1-0022_zquo4p.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782929658/White25_V1-0001_rymmk1.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782932934/White50_V1-0001_zjrtrb.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782924976/White75_V1-0001_xgv9if.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782927688/White100_V1-0001_pfuaav.mp4
   videoPlayer: {fileID: 802954607}
   opacityText: {fileID: 1465754530}
   testTypeText: {fileID: 222245948}
@@ -37666,10 +37666,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   videoURLs:
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443026/White25_1_taihxu.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441948/White50_3_eta62k.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443164/White75_V1-0030_dj7yx7.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442236/White100_V1-0022_zquo4p.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782929658/White25_V1-0001_rymmk1.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782932934/White50_V1-0001_zjrtrb.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782924976/White75_V1-0001_xgv9if.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782927688/White100_V1-0001_pfuaav.mp4
   videoPlayer: {fileID: 807464815}
   opacityText: {fileID: 250853058}
   testTypeText: {fileID: 1519331897}

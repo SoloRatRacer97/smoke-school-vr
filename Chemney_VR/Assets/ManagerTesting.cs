@@ -42,7 +42,14 @@ public class ManagerTesting : MonoBehaviour
     }
 
     private List<PreloadedVideo> preloadBuffer = new List<PreloadedVideo>();
+    private readonly List<RenderTexture> ownedPreloadTextures = new List<RenderTexture>();
     private int currentlyPreparingCount = 0;
+    private bool pendingMainVideoPlay = false;
+    private string pendingMainVideoUrl = string.Empty;
+    private RawImage[] videoDisplayImages = new RawImage[0];
+    private RenderTexture initialVideoTexture;
+    private bool hasDeferredTestStart = false;
+    private TestType deferredTestStartType;
 
     private int[] answersValue = new int[] { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100 };
 
@@ -335,6 +342,26 @@ public class ManagerTesting : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        if (!hasDeferredTestStart)
+        {
+            return;
+        }
+
+        TestType testType = deferredTestStartType;
+        hasDeferredTestStart = false;
+        StartCoroutine(RunDeferredTestStart(testType));
+    }
+
+    private IEnumerator RunDeferredTestStart(TestType testType)
+    {
+        // The scene's Begin Test button activates this panel after invoking WhiteTestStart.
+        // Waiting one frame guarantees the VideoPlayer and render targets are active before Prepare().
+        yield return null;
+        SkipToTest(testType);
+    }
+
     private bool ValidateRequiredStartupReferences()
     {
         bool isValid = true;
@@ -422,6 +449,8 @@ public class ManagerTesting : MonoBehaviour
         answervalues_test_black = new int[btn_questions.Length];
         InitializeAnswerArrays();
 
+        CacheVideoDisplayTargets();
+
         // Setup preload video player
         InitializePreloadVideoPlayers();
 
@@ -492,9 +521,7 @@ public class ManagerTesting : MonoBehaviour
             loadingImageRect = loadingImage.GetComponent<RectTransform>();
             loadingImage.SetActive(true);
 
-            videoPlayer.started += OnVideoStarted;
-            videoPlayer.loopPointReached += OnVideoEnded;
-            videoPlayer.errorReceived += OnVideoError;
+            AttachActiveVideoPlayerEvents(videoPlayer);
 
             // Preload buffer VideoPlayers register their own prepareCompleted
             // callbacks in InitializePreloadVideoPlayers()
@@ -538,8 +565,12 @@ public class ManagerTesting : MonoBehaviour
             vp.playOnAwake = false;
             vp.waitForFirstFrame = true;
             vp.skipOnDrop = true;
-            vp.renderMode = VideoRenderMode.APIOnly;
-            vp.prepareCompleted += OnPreloadVideoPrepared;
+            vp.isLooping = true;
+            vp.audioOutputMode = VideoAudioOutputMode.None;
+            vp.renderMode = VideoRenderMode.RenderTexture;
+            vp.aspectRatio = videoPlayer.aspectRatio;
+            vp.targetTexture = CreatePreloadRenderTexture(i);
+            AttachPreloadVideoPlayerEvents(vp);
 
             PreloadedVideo slot = new PreloadedVideo
             {
@@ -555,6 +586,113 @@ public class ManagerTesting : MonoBehaviour
         }
 
         Debug.Log($"Preload buffer initialized with {preloadBufferSize} VideoPlayers");
+    }
+
+    private void CacheVideoDisplayTargets()
+    {
+        initialVideoTexture = videoPlayer != null ? videoPlayer.targetTexture : null;
+        if (videoPlayer != null)
+        {
+            videoPlayer.waitForFirstFrame = true;
+        }
+
+        if (initialVideoTexture == null)
+        {
+            videoDisplayImages = new RawImage[0];
+            return;
+        }
+
+        videoDisplayImages = GetComponentsInChildren<RawImage>(true)
+            .Where(image => image != null && image.texture == initialVideoTexture)
+            .ToArray();
+
+        Debug.Log($"Found {videoDisplayImages.Length} video display image(s) using the main render texture.");
+    }
+
+    private RenderTexture CreatePreloadRenderTexture(int index)
+    {
+        int width = initialVideoTexture != null ? initialVideoTexture.width : 2560;
+        int height = initialVideoTexture != null ? initialVideoTexture.height : 1440;
+        RenderTextureFormat format = initialVideoTexture != null ? initialVideoTexture.format : RenderTextureFormat.ARGB32;
+
+        RenderTexture texture = new RenderTexture(width, height, 0, format)
+        {
+            name = $"PreloadVideoTexture_{index}",
+            useMipMap = false,
+            autoGenerateMips = false
+        };
+        texture.Create();
+        ownedPreloadTextures.Add(texture);
+        return texture;
+    }
+
+    private void AttachActiveVideoPlayerEvents(VideoPlayer player)
+    {
+        if (player == null)
+        {
+            return;
+        }
+
+        player.started -= OnVideoStarted;
+        player.prepareCompleted -= OnMainVideoPrepared;
+        player.loopPointReached -= OnVideoEnded;
+        player.errorReceived -= OnVideoError;
+
+        player.started += OnVideoStarted;
+        player.prepareCompleted += OnMainVideoPrepared;
+        player.loopPointReached += OnVideoEnded;
+        player.errorReceived += OnVideoError;
+        player.waitForFirstFrame = true;
+    }
+
+    private void DetachActiveVideoPlayerEvents(VideoPlayer player)
+    {
+        if (player == null)
+        {
+            return;
+        }
+
+        player.started -= OnVideoStarted;
+        player.prepareCompleted -= OnMainVideoPrepared;
+        player.loopPointReached -= OnVideoEnded;
+        player.errorReceived -= OnVideoError;
+    }
+
+    private void AttachPreloadVideoPlayerEvents(VideoPlayer player)
+    {
+        if (player == null)
+        {
+            return;
+        }
+
+        player.prepareCompleted -= OnPreloadVideoPrepared;
+        player.prepareCompleted += OnPreloadVideoPrepared;
+    }
+
+    private void DetachPreloadVideoPlayerEvents(VideoPlayer player)
+    {
+        if (player == null)
+        {
+            return;
+        }
+
+        player.prepareCompleted -= OnPreloadVideoPrepared;
+    }
+
+    private void AssignDisplayedTexture(Texture texture)
+    {
+        if (texture == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < videoDisplayImages.Length; i++)
+        {
+            if (videoDisplayImages[i] != null)
+            {
+                videoDisplayImages[i].texture = texture;
+            }
+        }
     }
 
     private void ResetQuestionVideoState()
@@ -576,8 +714,11 @@ public class ManagerTesting : MonoBehaviour
     {
         for (int i = 0; i < preloadBuffer.Count; i++)
         {
-            if (preloadBuffer[i].player != null && preloadBuffer[i].player.isPrepared)
+            if (preloadBuffer[i].player != null &&
+                (preloadBuffer[i].player.isPrepared || preloadBuffer[i].player.isPlaying || !string.IsNullOrEmpty(preloadBuffer[i].player.url)))
+            {
                 preloadBuffer[i].player.Stop();
+            }
 
             var slot = preloadBuffer[i];
             slot.questionIndex = -1;
@@ -725,29 +866,7 @@ public class ManagerTesting : MonoBehaviour
             questionVideoIndices[questionIndex] = slot.videoIndex;
             questionVideoUrls[questionIndex] = slot.videoURL;
 
-            if (videoPlayer.isPlaying)
-            {
-                videoPlayer.Stop();
-            }
-
-            // Same as LoadQuestionVideo — flag that the spinner should
-            // stay visible until OnVideoStarted fires.
-            waitingForVideoStart = true;
-
-            videoPlayer.url = slot.videoURL;
-            videoPlayer.isLooping = true;
-            videoPlayer.Play();
-
-            // Remove used slot from buffer
-            slot.questionIndex = -1;
-            slot.opacity = -1;
-            slot.smokeType = "";
-            slot.videoURL = "";
-            slot.videoIndex = -1;
-            slot.isPrepared = false;
-            if (slot.player.isPrepared)
-                slot.player.Stop();
-            preloadBuffer[i] = slot;
+            PromotePreloadedVideo(i);
 
             // Fill more slots now that one was consumed
             FillPreloadBuffer();
@@ -755,6 +874,70 @@ public class ManagerTesting : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void PromotePreloadedVideo(int slotIndex)
+    {
+        PreloadedVideo slot = preloadBuffer[slotIndex];
+        VideoPlayer nextPlayer = slot.player;
+        VideoPlayer previousPlayer = videoPlayer;
+
+        if (nextPlayer == null)
+        {
+            return;
+        }
+
+        DetachPreloadVideoPlayerEvents(nextPlayer);
+        DetachActiveVideoPlayerEvents(previousPlayer);
+
+        videoPlayer = nextPlayer;
+        AttachActiveVideoPlayerEvents(videoPlayer);
+
+        if (!videoPlayer.isPlaying)
+        {
+            videoPlayer.Play();
+        }
+
+        AssignDisplayedTexture(videoPlayer.targetTexture);
+        pendingMainVideoPlay = false;
+        pendingMainVideoUrl = string.Empty;
+        waitingForVideoStart = false;
+
+        if (loadingImage != null)
+        {
+            loadingImage.SetActive(false);
+        }
+
+        if (isFirstQuestionLoaded && currentQuestionIndex == 0 && !reviewphase && !scratchMode)
+        {
+            EnableAnswers();
+            isFirstQuestionLoaded = false;
+        }
+
+        if (previousPlayer != null && previousPlayer != videoPlayer)
+        {
+            if (previousPlayer.isPlaying || previousPlayer.isPrepared)
+            {
+                previousPlayer.Stop();
+            }
+
+            previousPlayer.url = string.Empty;
+            previousPlayer.isLooping = true;
+            previousPlayer.waitForFirstFrame = true;
+            previousPlayer.audioOutputMode = VideoAudioOutputMode.None;
+            previousPlayer.renderMode = VideoRenderMode.RenderTexture;
+            previousPlayer.aspectRatio = videoPlayer.aspectRatio;
+            AttachPreloadVideoPlayerEvents(previousPlayer);
+        }
+
+        slot.questionIndex = -1;
+        slot.opacity = -1;
+        slot.smokeType = "";
+        slot.videoURL = "";
+        slot.videoIndex = -1;
+        slot.isPrepared = false;
+        slot.player = previousPlayer;
+        preloadBuffer[slotIndex] = slot;
     }
 
     private bool LoadQuestionVideo(int questionIndex, bool forceNewVariation)
@@ -795,22 +978,38 @@ public class ManagerTesting : MonoBehaviour
         questionVideoIndices[questionIndex] = currentVideoIndex;
         questionVideoUrls[questionIndex] = url;
 
-        if (videoPlayer.isPlaying)
+        PrepareAndPlayMainVideo(url);
+
+        FillPreloadBuffer();
+        return true;
+    }
+
+    private void PrepareAndPlayMainVideo(string url)
+    {
+        if (videoPlayer.isPlaying || videoPlayer.isPrepared || !string.IsNullOrEmpty(videoPlayer.url))
         {
             videoPlayer.Stop();
         }
 
-        // Flag that we're waiting for the new video to actually start
-        // playing (render its first frame).  Update() will keep the
-        // spinner visible until OnVideoStarted clears this flag.
+        AssignDisplayedTexture(videoPlayer.targetTexture);
+        pendingMainVideoPlay = true;
+        pendingMainVideoUrl = url;
+
+        // Keep the spinner visible until OnVideoStarted confirms the first frame.
         waitingForVideoStart = true;
 
         videoPlayer.url = url;
         videoPlayer.isLooping = true;
-        videoPlayer.Play();
+        videoPlayer.waitForFirstFrame = true;
+        videoPlayer.Prepare();
+    }
 
-        FillPreloadBuffer();
-        return true;
+    private void PauseActiveVideo()
+    {
+        if (videoPlayer != null && videoPlayer.isPlaying)
+        {
+            videoPlayer.Pause();
+        }
     }
 
     /// <summary>
@@ -935,15 +1134,40 @@ public class ManagerTesting : MonoBehaviour
             if (preloadBuffer[i].player == source)
             {
                 var slot = preloadBuffer[i];
+                if (slot.questionIndex < 0 || string.IsNullOrEmpty(slot.videoURL) || source.url != slot.videoURL)
+                {
+                    break;
+                }
+
                 slot.isPrepared = true;
                 preloadBuffer[i] = slot;
                 Debug.Log($"Preload buffer slot {i} ready: Q{slot.questionIndex} opacity={slot.opacity} {slot.smokeType}");
+                StartCoroutine(PrimePreloadedVideo(source));
                 break;
             }
         }
 
         // Try to fill more slots now that a prepare has completed
         FillPreloadBuffer();
+    }
+
+    private IEnumerator PrimePreloadedVideo(VideoPlayer source)
+    {
+        if (source == null || source == videoPlayer)
+        {
+            yield break;
+        }
+
+        source.Play();
+
+        // Give WebGL a couple frames to push the first decoded frame into the hidden render texture.
+        yield return null;
+        yield return null;
+
+        if (source != videoPlayer && source.isPlaying)
+        {
+            source.Pause();
+        }
     }
 
     /// <summary>
@@ -956,8 +1180,11 @@ public class ManagerTesting : MonoBehaviour
             if (preloadBuffer[i].questionIndex >= 0
                 && preloadBuffer[i].questionIndex <= currentQuestionIndex)
             {
-                if (preloadBuffer[i].player.isPrepared)
+                if (preloadBuffer[i].player != null &&
+                    (preloadBuffer[i].player.isPrepared || preloadBuffer[i].player.isPlaying || !string.IsNullOrEmpty(preloadBuffer[i].player.url)))
+                {
                     preloadBuffer[i].player.Stop();
+                }
 
                 // Reset slot to empty
                 var slot = preloadBuffer[i];
@@ -983,15 +1210,27 @@ public class ManagerTesting : MonoBehaviour
 
     public void WhiteTestStart()
     {
-        SkipToTest(TestType.whiteTest);
+        StartOrDeferTest(TestType.whiteTest);
     }
     public void BlackPraticeStart()
     {
-        SkipToTest(TestType.blackPractice);
+        StartOrDeferTest(TestType.blackPractice);
     }
     public void BlackTestStart()
     {
-        SkipToTest(TestType.blackTest);
+        StartOrDeferTest(TestType.blackTest);
+    }
+
+    private void StartOrDeferTest(TestType testType)
+    {
+        if (!isActiveAndEnabled || !gameObject.activeInHierarchy)
+        {
+            deferredTestStartType = testType;
+            hasDeferredTestStart = true;
+            return;
+        }
+
+        SkipToTest(testType);
     }
     // Skip to test phase
     private void SkipToTest(TestType testType)
@@ -1105,19 +1344,7 @@ public class ManagerTesting : MonoBehaviour
 
     private void Update()
     {
-        // Show loading spinner while we're waiting for the next video to
-        // actually start playing.  The "waitingForVideoStart" flag is set
-        // whenever we kick off a new question video (OnAnswer, scratch-mode
-        // return, etc.) and cleared only in OnVideoStarted, so the spinner
-        // stays visible throughout the buffering period even though
-        // VideoPlayer.isPlaying may briefly flip to true before the first
-        // frame renders.
-        if (waitingForVideoStart)
-        {
-            loadingImage.SetActive(true);
-            RotateLoadingImage();
-        }
-        else if (!videoPlayer.isPlaying)
+        if (waitingForVideoStart || pendingMainVideoPlay)
         {
             loadingImage.SetActive(true);
             RotateLoadingImage();
@@ -1166,14 +1393,7 @@ public class ManagerTesting : MonoBehaviour
             return;
         }
 
-        // Stop current video if playing
-        if (videoPlayer.isPlaying)
-            videoPlayer.Stop();
-
-        // Assign URL and play
-        videoPlayer.url = videoURL;
-        videoPlayer.isLooping = true;
-        videoPlayer.Play();
+        PrepareAndPlayMainVideo(videoURL);
 
         // Preload next videos in background
         FillPreloadBuffer();
@@ -1484,12 +1704,6 @@ public class ManagerTesting : MonoBehaviour
     {
         isAutoAdvancing = true;
 
-        // Show the loading spinner immediately and keep it visible until
-        // OnVideoStarted fires — don't wait for the delay.
-        waitingForVideoStart = true;
-        if (loadingImage != null)
-            loadingImage.SetActive(true);
-
         // Wait for the specified delay
         yield return new WaitForSeconds(autoAdvanceDelay);
 
@@ -1520,11 +1734,6 @@ public class ManagerTesting : MonoBehaviour
 
         answerSelected = false;
 
-        // Show loading spinner immediately on next-button advance
-        // and keep it visible until OnVideoStarted fires.
-        waitingForVideoStart = true;
-        if (loadingImage != null)
-            loadingImage.SetActive(true);
         LoadCurrentQuestion();
         ApplyScratchAndRefreshButtonState();
 
@@ -1578,7 +1787,7 @@ public class ManagerTesting : MonoBehaviour
             }
 
             DisableAnswers();
-            videoPlayer.Stop();
+            PauseActiveVideo();
 
             bool returnToReview = scratchModeStartedFromReview || reviewphase;
             scratchMode = false;
@@ -1649,9 +1858,6 @@ public class ManagerTesting : MonoBehaviour
             {
                 currentQuestionIndex = nextIndex;
                 answerSelected = false;
-                waitingForVideoStart = true;
-                if (loadingImage != null)
-                    loadingImage.SetActive(true);
                 LoadCurrentQuestion();
                 ApplyScratchAndRefreshButtonState();
                 btn_questions[currentQuestionIndex].onClick.Invoke();
@@ -1700,7 +1906,7 @@ public class ManagerTesting : MonoBehaviour
             }
 
             DisableAnswers();
-            videoPlayer.Stop();
+            PauseActiveVideo();
             ReOpenTestCompletePannel();
             ApplyScratchAndRefreshButtonState();
             return;
@@ -1729,7 +1935,7 @@ public class ManagerTesting : MonoBehaviour
             if (currenttype == TestType.blackTest) { answervalues_test_black[currentQuestionIndex] = answersValue[i]; }
 
             DisableAnswers();
-            videoPlayer.Stop();
+            PauseActiveVideo();
 
             bool isPractice = (currenttype == TestType.whitePractice || currenttype == TestType.blackPractice);
             bool isTest = (currenttype == TestType.whiteTest || currenttype == TestType.blackTest);
@@ -2220,6 +2426,11 @@ public class ManagerTesting : MonoBehaviour
     // MODIFIED: Enable answers for first question when video starts
     public void OnVideoStarted(VideoPlayer vp)
     {
+        if (vp != videoPlayer)
+        {
+            return;
+        }
+
         // Clear the "waiting for video" flag — the spinner will now hide
         // in Update() on the next frame since isPlaying will be true.
         waitingForVideoStart = false;
@@ -2235,25 +2446,54 @@ public class ManagerTesting : MonoBehaviour
         }
     }
 
+    private void OnMainVideoPrepared(VideoPlayer vp)
+    {
+        if (vp != videoPlayer)
+        {
+            return;
+        }
+
+        if (!pendingMainVideoPlay)
+        {
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(pendingMainVideoUrl) && vp.url != pendingMainVideoUrl)
+        {
+            return;
+        }
+
+        pendingMainVideoPlay = false;
+        pendingMainVideoUrl = string.Empty;
+        vp.Play();
+    }
+
     private void OnVideoEnded(VideoPlayer vp)
     {
+        if (vp != videoPlayer)
+        {
+            return;
+        }
+
         loadingImage.SetActive(true);
     }
 
     private void OnVideoError(VideoPlayer vp, string message)
     {
+        if (vp != videoPlayer)
+        {
+            return;
+        }
+
         Debug.LogError("VideoPlayer error: " + message);
+        pendingMainVideoPlay = false;
+        pendingMainVideoUrl = string.Empty;
         loadingImage.SetActive(true);
     }
 
     private void OnDestroy()
     {
-        if (videoPlayer != null)
-        {
-            videoPlayer.started -= OnVideoStarted;
-            videoPlayer.loopPointReached -= OnVideoEnded;
-            videoPlayer.errorReceived -= OnVideoError;
-        }
+        DetachActiveVideoPlayerEvents(videoPlayer);
 
         for (int i = 0; i < preloadBuffer.Count; i++)
         {
@@ -2263,7 +2503,7 @@ public class ManagerTesting : MonoBehaviour
                 continue;
             }
 
-            preloadPlayer.prepareCompleted -= OnPreloadVideoPrepared;
+            DetachPreloadVideoPlayerEvents(preloadPlayer);
             if (preloadPlayer.isPlaying || preloadPlayer.isPrepared)
             {
                 preloadPlayer.Stop();
@@ -2271,6 +2511,17 @@ public class ManagerTesting : MonoBehaviour
         }
 
         preloadBuffer.Clear();
+
+        for (int i = 0; i < ownedPreloadTextures.Count; i++)
+        {
+            if (ownedPreloadTextures[i] != null)
+            {
+                ownedPreloadTextures[i].Release();
+                Destroy(ownedPreloadTextures[i]);
+            }
+        }
+
+        ownedPreloadTextures.Clear();
     }
 
     public void OnEndTestButtonClicked()
