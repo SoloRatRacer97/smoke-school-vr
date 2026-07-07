@@ -43,6 +43,7 @@ public static class CommandLineNetlifyWebGLBuild
         }
 
         WriteNetlifyHeaders();
+        WriteNetlifyRedirects();
     }
 
     private static void WriteNetlifyHeaders()
@@ -67,5 +68,13 @@ public static class CommandLineNetlifyWebGLBuild
             "/Build/*.js.br\n" +
             "  Content-Encoding: br\n" +
             "  Content-Type: application/javascript\n");
+    }
+
+    private static void WriteNetlifyRedirects()
+    {
+        File.WriteAllText(Path.Combine(OutputPath, "_redirects"),
+            "/api/auth/login /.netlify/functions/auth-login 200\n" +
+            "/api/auth/me /.netlify/functions/auth-me 200\n" +
+            "/api/auth/logout /.netlify/functions/auth-logout 200\n");
     }
 }

@@ -2,8 +2,12 @@
 using UnityEngine.UI;
 using TMPro;
 using System.Net.Mail;
+using System;
+using System.Collections;
+using System.Text;
+using UnityEngine.Networking;
 
- public class DataInput_Fields : MonoBehaviour
+public class DataInput_Fields : MonoBehaviour
 {
     [Header("Input Fields")]
     public static string playerEmail;
@@ -30,99 +34,376 @@ using System.Net.Mail;
     public static int checkSceneReload;
 
 
+    [Header("Authentication")]
+    [SerializeField] private string editorAuthBaseUrl = "http://localhost:8888";
+    [SerializeField] private string authMePath = "/api/auth/me";
+    [SerializeField] private string authLoginPath = "/api/auth/login";
+
+
     private const string EMAIL_KEY = "PLAYER_EMAIL";
     private const string NAME_KEY = "STUDENT_NAME";
 
+    [Serializable]
+    private class AuthLoginRequest
+    {
+        public string email;
+        public string password;
+    }
+
+    [Serializable]
+    private class AuthUser
+    {
+        public string id;
+        public string email;
+        public string displayName;
+        public string studentId;
+    }
+
+    [Serializable]
+    private class AuthResponse
+    {
+        public bool ok;
+        public string error;
+        public AuthUser user;
+    }
+
     void Start()
     {
-        welcomePannel.SetActive(false);
-        LoginPannel.SetActive(true);
-        goButton.gameObject.SetActive(true);  // Keep it always active (optional UX)
+        ConfigureLoginFields();
+        ShowLoginPanel();
 
-        warningText.gameObject.SetActive(false);
+        SetWarning("Checking saved login...");
 
-        inputStudentID.onValueChanged.AddListener(delegate { HideWarningIfValid(); });
-        inputEmailID.onValueChanged.AddListener(delegate { HideWarningIfValid(); });
-
-        goButton.onClick.AddListener(OnGoButtonClicked);
-        playerEmail = PlayerPrefs.GetString(EMAIL_KEY);
-        studentname = PlayerPrefs.GetString(NAME_KEY);
-        if (checkSceneReload == 1)
+        if (inputStudentID != null)
         {
-            Emailsent.text = playerEmail;
-            Username.text = studentname;
+            inputStudentID.onValueChanged.AddListener(delegate { HideWarningIfValid(); });
+        }
 
-            EmailsentF.text = playerEmail;
-            UsernameF.text = studentname;
-            LoginPannel.SetActive(false);
-            welcomePannel.SetActive(true);
-        }
-        else
+        if (inputEmailID != null)
         {
-            LoginPannel.SetActive(true);
-            welcomePannel.SetActive(false);
+            inputEmailID.onValueChanged.AddListener(delegate { HideWarningIfValid(); });
         }
+
+        if (goButton != null && !HasPersistentLoginClick())
+        {
+            goButton.onClick.AddListener(OnGoButtonClicked);
+        }
+
+        playerEmail = string.Empty;
+        studentname = string.Empty;
+
+        StartCoroutine(CheckExistingSession());
     }
 
     void HideWarningIfValid()
     {
 
-        if (!string.IsNullOrEmpty(inputStudentID.text) && !string.IsNullOrEmpty(inputEmailID.text))
+        if (inputStudentID != null
+            && inputEmailID != null
+            && !string.IsNullOrEmpty(inputStudentID.text)
+            && !string.IsNullOrEmpty(inputEmailID.text))
         {
-            warningText.gameObject.SetActive(false);
+            HideWarning();
         }
     }
 
-    void OnGoButtonClicked()
+    public void OnGoButtonClicked()
     {
-        string studentID = inputStudentID.text.Trim();
-        string emailID = inputEmailID.text.Trim();
-
-//checking fields
-        if (string.IsNullOrEmpty(studentID) || string.IsNullOrEmpty(emailID))
+        if (inputStudentID == null || inputEmailID == null)
         {
-            warningText.text = "All fields are required.";
-            warningText.gameObject.SetActive(true);
+            SetWarning("Sign in form is not configured.");
             return;
         }
 
-        if (!IsValidEmail(emailID))
+        string email = inputStudentID.text.Trim();
+        string password = inputEmailID.text;
+
+        // Check fields.
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
         {
-            warningText.text = "Enter a valid email address.";
-            warningText.gameObject.SetActive(true);
+            SetWarning("Email and password are required.");
             return;
         }
 
-        playerEmail = emailID;
-        studentname = studentID;
+        if (!IsValidEmail(email))
+        {
+            SetWarning("Enter a valid email address.");
+            return;
+        }
+
+        StartCoroutine(Login(email, password));
+
+    }
+
+    private IEnumerator CheckExistingSession()
+    {
+        SetLoginInteractable(false);
+
+        using (UnityWebRequest request = UnityWebRequest.Get(BuildAuthUrl(authMePath)))
+        {
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Accept", "application/json");
+            yield return request.SendWebRequest();
+
+            if (IsSuccess(request, out AuthResponse authResponse) && authResponse.user != null)
+            {
+                CompleteAuthenticatedLogin(authResponse.user, authResponse.user.email);
+                yield break;
+            }
+        }
+
+        HideWarning();
+        ShowLoginPanel();
+        SetLoginInteractable(true);
+    }
+
+    private IEnumerator Login(string email, string password)
+    {
+        SetLoginInteractable(false);
+        SetWarning("Signing in...");
+
+        AuthLoginRequest payload = new AuthLoginRequest
+        {
+            email = email,
+            password = password
+        };
+
+        byte[] body = Encoding.UTF8.GetBytes(JsonUtility.ToJson(payload));
+
+        using (UnityWebRequest request = new UnityWebRequest(BuildAuthUrl(authLoginPath), UnityWebRequest.kHttpVerbPOST))
+        {
+            request.uploadHandler = new UploadHandlerRaw(body);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Accept", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (IsSuccess(request, out AuthResponse authResponse) && authResponse.user != null)
+            {
+                inputEmailID.text = string.Empty;
+                CompleteAuthenticatedLogin(authResponse.user, email);
+                yield break;
+            }
+
+            SetWarning(BuildLoginError(request));
+            SetLoginInteractable(true);
+        }
+    }
+
+    private void CompleteAuthenticatedLogin(AuthUser user, string fallbackEmail)
+    {
+        playerEmail = string.IsNullOrEmpty(user.email) ? fallbackEmail : user.email;
+        studentname = ResolveStudentName(user, playerEmail);
 
         PlayerPrefs.SetString(EMAIL_KEY, playerEmail);
         PlayerPrefs.SetString(NAME_KEY, studentname);
         PlayerPrefs.Save();
 
-        Debug.Log("before Mail : " + emailID);
-        Debug.Log("before Name : " + studentID);
+        Debug.Log("Authenticated Mail : " + playerEmail);
+        Debug.Log("Authenticated Name : " + studentname);
 
-        //end screen 
-        Emailsent.text = playerEmail;
-        Username.text = studentname;
+        // End screen.
+        SetIdentityText(Emailsent, playerEmail);
+        SetIdentityText(Username, studentname);
 
-        EmailsentF.text = playerEmail;
-        UsernameF.text = studentname;
+        SetIdentityText(EmailsentF, playerEmail);
+        SetIdentityText(UsernameF, studentname);
 
-        ScreenshotSender.messageToSend = $"Student ID: {studentID}\nEmail ID: {emailID}";
+        ScreenshotSender.messageToSend = $"Student ID: {studentname}\nEmail ID: {playerEmail}";
 
-        Debug.Log($"Student ID: {studentID}, Email ID: {emailID}");
+        Debug.Log($"Student ID: {studentname}, Email ID: {playerEmail}");
 
-        warningText.gameObject.SetActive(false);
-        LoginPannel.SetActive(false);
-        welcomePannel.SetActive(true);
+        HideWarning();
+        ShowWelcomePanel();
+        SetLoginInteractable(true);
         Debug.Log("ID Name : " + studentname);
         Debug.Log("Mail : " + playerEmail);
-
     }
 
-    bool IsValidEmail(string email)
+    private void ConfigureLoginFields()
+    {
+        if (inputStudentID != null)
+        {
+            inputStudentID.contentType = InputField.ContentType.EmailAddress;
+            inputStudentID.text = PlayerPrefs.GetString(EMAIL_KEY, string.Empty);
+            SetPlaceholder(inputStudentID, "Email");
+        }
+
+        if (inputEmailID != null)
+        {
+            inputEmailID.contentType = InputField.ContentType.Password;
+            inputEmailID.text = string.Empty;
+            SetPlaceholder(inputEmailID, "Password");
+        }
+
+        SetLoginInteractable(true);
+    }
+
+    private void SetPlaceholder(InputField inputField, string placeholderText)
+    {
+        if (inputField.placeholder is Text textPlaceholder)
+        {
+            textPlaceholder.text = placeholderText;
+        }
+
+        inputField.ForceLabelUpdate();
+    }
+
+    private string BuildAuthUrl(string path)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        return path;
+#else
+        return editorAuthBaseUrl.TrimEnd('/') + path;
+#endif
+    }
+
+    private bool IsSuccess(UnityWebRequest request, out AuthResponse authResponse)
+    {
+        authResponse = null;
+
+        bool httpSuccess = request.responseCode >= 200 && request.responseCode < 300;
+        if (!httpSuccess || string.IsNullOrEmpty(request.downloadHandler.text))
+        {
+            return false;
+        }
+
+        try
+        {
+            authResponse = JsonUtility.FromJson<AuthResponse>(request.downloadHandler.text);
+            return authResponse != null && authResponse.ok;
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning("Could not parse auth response: " + exception.Message);
+            return false;
+        }
+    }
+
+    private string BuildLoginError(UnityWebRequest request)
+    {
+        if (request.responseCode == 401)
+        {
+            return "Invalid email or password.";
+        }
+
+        if (request.responseCode >= 500)
+        {
+            return "Sign in is unavailable. Try again later.";
+        }
+
+        return "Could not sign in. Check your connection and try again.";
+    }
+
+    private string ResolveStudentName(AuthUser user, string email)
+    {
+        if (!string.IsNullOrEmpty(user.studentId))
+        {
+            return user.studentId;
+        }
+
+        if (!string.IsNullOrEmpty(user.displayName))
+        {
+            return user.displayName;
+        }
+
+        int atIndex = email.IndexOf('@');
+        return atIndex > 0 ? email.Substring(0, atIndex) : email;
+    }
+
+    private void SetIdentityText(TMP_Text text, string value)
+    {
+        if (text != null)
+        {
+            text.text = value;
+        }
+    }
+
+    private void ShowLoginPanel()
+    {
+        if (welcomePannel != null)
+        {
+            welcomePannel.SetActive(false);
+        }
+
+        if (LoginPannel != null)
+        {
+            LoginPannel.SetActive(true);
+        }
+
+        if (goButton != null)
+        {
+            goButton.gameObject.SetActive(true);
+        }
+    }
+
+    private void ShowWelcomePanel()
+    {
+        if (LoginPannel != null)
+        {
+            LoginPannel.SetActive(false);
+        }
+
+        if (welcomePannel != null)
+        {
+            welcomePannel.SetActive(true);
+        }
+    }
+
+    private void SetLoginInteractable(bool isInteractable)
+    {
+        if (goButton != null)
+        {
+            goButton.interactable = isInteractable;
+        }
+
+        if (inputStudentID != null)
+        {
+            inputStudentID.interactable = isInteractable;
+        }
+
+        if (inputEmailID != null)
+        {
+            inputEmailID.interactable = isInteractable;
+        }
+    }
+
+    private void SetWarning(string message)
+    {
+        if (warningText == null)
+        {
+            return;
+        }
+
+        warningText.text = message;
+        warningText.gameObject.SetActive(true);
+    }
+
+    private void HideWarning()
+    {
+        if (warningText != null)
+        {
+            warningText.gameObject.SetActive(false);
+        }
+    }
+
+    private bool HasPersistentLoginClick()
+    {
+        int eventCount = goButton.onClick.GetPersistentEventCount();
+        for (int index = 0; index < eventCount; index++)
+        {
+            if (goButton.onClick.GetPersistentTarget(index) == this
+                && goButton.onClick.GetPersistentMethodName(index) == nameof(OnGoButtonClicked))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool IsValidEmail(string email)
     {
         try
         {

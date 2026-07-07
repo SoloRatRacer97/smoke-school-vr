@@ -29385,7 +29385,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1339834710781379199, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Text
-      value: User ID..
+      value: Email
       objectReference: {fileID: 0}
     - target: {fileID: 1339834710781379199, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Color.b
@@ -29505,7 +29505,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4727522418468997121, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Name
-      value: Username Input
+      value: Email Input
       objectReference: {fileID: 0}
     - target: {fileID: 4727522418468997121, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_IsActive
@@ -32775,7 +32775,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1339834710781379199, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Text
-      value: Email ID..
+      value: Password
       objectReference: {fileID: 0}
     - target: {fileID: 1339834710781379199, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Color.b
