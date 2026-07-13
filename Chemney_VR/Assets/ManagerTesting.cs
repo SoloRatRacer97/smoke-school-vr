@@ -50,6 +50,7 @@ public class ManagerTesting : MonoBehaviour
     private RenderTexture initialVideoTexture;
     private bool hasDeferredTestStart = false;
     private TestType deferredTestStartType;
+    private bool questionsLoaded = false;
 
     private int[] answersValue = new int[] { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100 };
 
@@ -359,7 +360,19 @@ public class ManagerTesting : MonoBehaviour
         // The scene's Begin Test button activates this panel after invoking WhiteTestStart.
         // Waiting one frame guarantees the VideoPlayer and render targets are active before Prepare().
         yield return null;
+        yield return WaitForDeferredFirstQuestionPreload(testType, 2f);
         SkipToTest(testType);
+    }
+
+    private IEnumerator WaitForDeferredFirstQuestionPreload(TestType testType, float timeoutSeconds)
+    {
+        string smokeType = testType == TestType.whiteTest ? "white" : "black";
+        float elapsed = 0f;
+        while (HasPreloadStartedForQuestion(0, smokeType) && !HasPreparedVideoForQuestion(0, smokeType) && elapsed < timeoutSeconds)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
     }
 
     private bool ValidateRequiredStartupReferences()
@@ -419,7 +432,10 @@ public class ManagerTesting : MonoBehaviour
 
         if (openresultPannelButton != null)
         {
-            openresultPannelButton.gameObject.SetActive(false);
+            if (openresultPannelButton != null)
+            {
+                openresultPannelButton.gameObject.SetActive(false);
+            }
         }
 
         if (btn_SkipPracticeTest != null)
@@ -438,21 +454,16 @@ public class ManagerTesting : MonoBehaviour
             Debug.LogWarning("Next Button is not assigned! Please assign it in the Inspector or enable Auto-Advance.");
         }
 
-        questionvalues_practice_white = new int[btn_questions.Length];
-        questionvalues_test_white = new int[btn_questions.Length];
-        questionvalues_practice_black = new int[btn_questions.Length];
-        questionvalues_test_black = new int[btn_questions.Length];
-
-        answervalues_practice_white = new int[btn_questions.Length];
-        answervalues_test_white = new int[btn_questions.Length];
-        answervalues_practice_black = new int[btn_questions.Length];
-        answervalues_test_black = new int[btn_questions.Length];
+        EnsureQuestionArraysInitialized();
         InitializeAnswerArrays();
 
         CacheVideoDisplayTargets();
 
         // Setup preload video player
-        InitializePreloadVideoPlayers();
+        if (preloadBuffer.Count == 0)
+        {
+            InitializePreloadVideoPlayers();
+        }
 
         // Keep skip button visible at all times
         // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
@@ -510,8 +521,16 @@ public class ManagerTesting : MonoBehaviour
         }
 
         DisableAnswers();
-        LoadQuestions();
-        ResetQuestionVideoState();
+        if (!questionsLoaded)
+        {
+            LoadQuestions();
+        }
+        bool preserveWarmFirstQuestion = HasPreloadStartedForQuestion(0, currentSmokeType);
+        ResetQuestionAssignmentsOnly();
+        if (!preserveWarmFirstQuestion)
+        {
+            ClearPreparedVideoState();
+        }
         LoadAnswerListeners();
         ApplyScratchAndRefreshButtonState();
 
@@ -697,6 +716,61 @@ public class ManagerTesting : MonoBehaviour
 
     private void ResetQuestionVideoState()
     {
+        ResetQuestionAssignmentsOnly();
+        ClearPreparedVideoState();
+    }
+
+    private void EnsureQuestionArraysInitialized()
+    {
+        int questionCount = btn_questions != null ? btn_questions.Length : 0;
+        if (questionCount <= 0)
+        {
+            return;
+        }
+
+        if (questionvalues_practice_white == null || questionvalues_practice_white.Length != questionCount)
+        {
+            questionvalues_practice_white = new int[questionCount];
+        }
+
+        if (questionvalues_test_white == null || questionvalues_test_white.Length != questionCount)
+        {
+            questionvalues_test_white = new int[questionCount];
+        }
+
+        if (questionvalues_practice_black == null || questionvalues_practice_black.Length != questionCount)
+        {
+            questionvalues_practice_black = new int[questionCount];
+        }
+
+        if (questionvalues_test_black == null || questionvalues_test_black.Length != questionCount)
+        {
+            questionvalues_test_black = new int[questionCount];
+        }
+
+        if (answervalues_practice_white == null || answervalues_practice_white.Length != questionCount)
+        {
+            answervalues_practice_white = new int[questionCount];
+        }
+
+        if (answervalues_test_white == null || answervalues_test_white.Length != questionCount)
+        {
+            answervalues_test_white = new int[questionCount];
+        }
+
+        if (answervalues_practice_black == null || answervalues_practice_black.Length != questionCount)
+        {
+            answervalues_practice_black = new int[questionCount];
+        }
+
+        if (answervalues_test_black == null || answervalues_test_black.Length != questionCount)
+        {
+            answervalues_test_black = new int[questionCount];
+        }
+    }
+
+    private void ResetQuestionAssignmentsOnly()
+    {
         int questionCount = btn_questions != null ? btn_questions.Length : 0;
         questionVideoIndices = new int[questionCount];
         questionVideoUrls = new string[questionCount];
@@ -706,8 +780,6 @@ public class ManagerTesting : MonoBehaviour
             questionVideoIndices[i] = -1;
             questionVideoUrls[i] = string.Empty;
         }
-
-        ClearPreparedVideoState();
     }
 
     private void ClearPreparedVideoState()
@@ -733,6 +805,30 @@ public class ManagerTesting : MonoBehaviour
     }
 
     private void StartCurrentPhaseAtFirstQuestion()
+    {
+        if (HasPreloadStartedForQuestion(0, currentSmokeType) && !HasPreparedVideoForQuestion(0, currentSmokeType))
+        {
+            StartCoroutine(StartCurrentPhaseAtFirstQuestionAfterWarmup(2f));
+            return;
+        }
+
+        StartCurrentPhaseAtFirstQuestionNow();
+    }
+
+    private IEnumerator StartCurrentPhaseAtFirstQuestionAfterWarmup(float timeoutSeconds)
+    {
+        string smokeType = currentSmokeType;
+        float elapsed = 0f;
+        while (HasPreloadStartedForQuestion(0, smokeType) && !HasPreparedVideoForQuestion(0, smokeType) && elapsed < timeoutSeconds)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        StartCurrentPhaseAtFirstQuestionNow();
+    }
+
+    private void StartCurrentPhaseAtFirstQuestionNow()
     {
         if (btn_questions == null || btn_questions.Length == 0)
         {
@@ -1178,7 +1274,7 @@ public class ManagerTesting : MonoBehaviour
         for (int i = 0; i < preloadBuffer.Count; i++)
         {
             if (preloadBuffer[i].questionIndex >= 0
-                && preloadBuffer[i].questionIndex <= currentQuestionIndex)
+                && preloadBuffer[i].questionIndex < currentQuestionIndex)
             {
                 if (preloadBuffer[i].player != null &&
                     (preloadBuffer[i].player.isPrepared || preloadBuffer[i].player.isPlaying || !string.IsNullOrEmpty(preloadBuffer[i].player.url)))
@@ -1227,10 +1323,110 @@ public class ManagerTesting : MonoBehaviour
         {
             deferredTestStartType = testType;
             hasDeferredTestStart = true;
+            WarmFirstQuestionPreload(testType);
             return;
         }
 
         SkipToTest(testType);
+    }
+
+    public void WarmFirstQuestionPreload(TestType testType)
+    {
+        if (!enablePreloading || preloadBuffer.Count == 0)
+        {
+            CacheVideoDisplayTargets();
+            InitializePreloadVideoPlayers();
+        }
+
+        if (!enablePreloading || preloadBuffer.Count == 0)
+        {
+            return;
+        }
+
+        EnsureQuestionArraysInitialized();
+        if (!questionsLoaded)
+        {
+            LoadQuestions();
+            ResetQuestionAssignmentsOnly();
+        }
+
+        reviewphase = false;
+        scratchMode = false;
+        REVIEWQUESTIONINDEX = -1;
+        SCRATCHQUESTIONINDEX = -1;
+        currentQuestionIndex = 0;
+
+        if (testType == TestType.whitePractice)
+        {
+            currentSmokeType = "white";
+            currentQuestionValues = questionvalues_practice_white;
+        }
+        else if (testType == TestType.whiteTest)
+        {
+            currentSmokeType = "white";
+            currentQuestionValues = questionvalues_test_white;
+        }
+        else if (testType == TestType.blackPractice)
+        {
+            currentSmokeType = "black";
+            currentQuestionValues = questionvalues_practice_black;
+        }
+        else if (testType == TestType.blackTest)
+        {
+            currentSmokeType = "black";
+            currentQuestionValues = questionvalues_test_black;
+        }
+        else
+        {
+            return;
+        }
+
+        ClearPreparedVideoState();
+        SmokeVideoURLData.SmokeTypeGroup savedTypeGroup = currentTypeGroup;
+        string savedSmokeType = currentSmokeType;
+        StartPreloadSlot(0, 0, savedTypeGroup, savedSmokeType);
+        currentTypeGroup = savedTypeGroup;
+        currentSmokeType = savedSmokeType;
+    }
+
+    private bool HasPreparedVideoForQuestion(int questionIndex, string smokeType)
+    {
+        if (!enablePreloading || preloadBuffer.Count == 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < preloadBuffer.Count; i++)
+        {
+            if (preloadBuffer[i].questionIndex == questionIndex
+                && string.Equals(preloadBuffer[i].smokeType, smokeType, StringComparison.OrdinalIgnoreCase)
+                && preloadBuffer[i].isPrepared)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool HasPreloadStartedForQuestion(int questionIndex, string smokeType)
+    {
+        if (!enablePreloading || preloadBuffer.Count == 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < preloadBuffer.Count; i++)
+        {
+            if (preloadBuffer[i].questionIndex == questionIndex
+                && string.Equals(preloadBuffer[i].smokeType, smokeType, StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrEmpty(preloadBuffer[i].videoURL))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
     // Skip to test phase
     private void SkipToTest(TestType testType)
@@ -1288,17 +1484,19 @@ public class ManagerTesting : MonoBehaviour
             SetSkipButtonActive(false);
         }
 
-        LoadCurrentQuestion();
-        ResetQuestionVideoState();
+        bool preservePreparedFirstQuestion = HasPreparedVideoForQuestion(0, currentSmokeType);
+        ResetQuestionAssignmentsOnly();
+        if (!preservePreparedFirstQuestion)
+        {
+            ClearPreparedVideoState();
+        }
+
         DisableAnswers();
 
         if (videoPlayer.isPlaying)
         {
             videoPlayer.Stop();
         }
-
-        // Reset preload state when skipping
-        ClearPreparedVideoState();
 
         //// Automatically load and play the first video of the new test phase
         //playVideoByIndex(0);
@@ -1590,8 +1788,10 @@ public class ManagerTesting : MonoBehaviour
                          (i > 0 ? $"(previous: {currentArray[i - 1]}, difference: {Mathf.Abs(selectedValue - currentArray[i - 1])})" : "(first value)"));
             }
 
-            Debug.Log($"Array {z} completed. Used {usedValues.Count} unique values out of {answersValue.Length} total values.");
+        Debug.Log($"Array {z} completed. Used {usedValues.Count} unique values out of {answersValue.Length} total values.");
         }
+
+        questionsLoaded = true;
 
         if (currenttype == TestType.whitePractice)
         {
@@ -2016,7 +2216,10 @@ public class ManagerTesting : MonoBehaviour
         {
             Txt_ContinueText.text = "Continue To Black Practice";
             Txt_currentCompleteTest.text = "White Smoke Testing Complete";
-            openresultPannelButton.gameObject.SetActive(true);
+            if (openresultPannelButton != null)
+            {
+                openresultPannelButton.gameObject.SetActive(false);
+            }
             BlackPracticeButton.SetActive(true);
         }
         else if (currenttype == TestType.blackPractice)
@@ -2025,7 +2228,10 @@ public class ManagerTesting : MonoBehaviour
             Txt_currentCompleteTest.text = "Black Smoke Practice Complete";
             BlackTestButton.SetActive(true);
             Btn_Submission.gameObject.SetActive(false);
-            openresultPannelButton.gameObject.SetActive(false);
+            if (openresultPannelButton != null)
+            {
+                openresultPannelButton.gameObject.SetActive(false);
+            }
             Debug.Log("Black pratice complete");
         }
         else if (currenttype == TestType.blackTest)

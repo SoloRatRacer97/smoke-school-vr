@@ -35,6 +35,7 @@ public class DataInput_Fields : MonoBehaviour
 
 
     [Header("Authentication")]
+    [SerializeField] private bool authenticationEnabled = false;
     [SerializeField] private string editorAuthBaseUrl = "http://localhost:8888";
     [SerializeField] private string authMePath = "/api/auth/me";
     [SerializeField] private string authLoginPath = "/api/auth/login";
@@ -92,6 +93,24 @@ public class DataInput_Fields : MonoBehaviour
         playerEmail = string.Empty;
         studentname = string.Empty;
 
+        if (!authenticationEnabled)
+        {
+            if (checkSceneReload == 1)
+            {
+                string savedEmail = PlayerPrefs.GetString(EMAIL_KEY, string.Empty);
+                string savedName = PlayerPrefs.GetString(NAME_KEY, string.Empty);
+                if (!string.IsNullOrEmpty(savedEmail) && !string.IsNullOrEmpty(savedName))
+                {
+                    CompleteLocalLogin(savedName, savedEmail);
+                    return;
+                }
+            }
+
+            HideWarning();
+            SetLoginInteractable(true);
+            return;
+        }
+
         StartCoroutine(CheckExistingSession());
     }
 
@@ -112,6 +131,12 @@ public class DataInput_Fields : MonoBehaviour
         if (inputStudentID == null || inputEmailID == null)
         {
             SetWarning("Sign in form is not configured.");
+            return;
+        }
+
+        if (!authenticationEnabled)
+        {
+            CompleteLocalLoginFromForm();
             return;
         }
 
@@ -221,20 +246,69 @@ public class DataInput_Fields : MonoBehaviour
         Debug.Log("Mail : " + playerEmail);
     }
 
+    private void CompleteLocalLoginFromForm()
+    {
+        string studentID = inputStudentID.text.Trim();
+        string emailID = inputEmailID.text.Trim();
+
+        if (string.IsNullOrEmpty(studentID) || string.IsNullOrEmpty(emailID))
+        {
+            SetWarning("All fields are required.");
+            return;
+        }
+
+        if (!IsValidEmail(emailID))
+        {
+            SetWarning("Enter a valid email address.");
+            return;
+        }
+
+        CompleteLocalLogin(studentID, emailID);
+    }
+
+    private void CompleteLocalLogin(string studentID, string emailID)
+    {
+        playerEmail = emailID;
+        studentname = studentID;
+
+        PlayerPrefs.SetString(EMAIL_KEY, playerEmail);
+        PlayerPrefs.SetString(NAME_KEY, studentname);
+        PlayerPrefs.Save();
+
+        Debug.Log("Local test login Mail : " + playerEmail);
+        Debug.Log("Local test login Name : " + studentname);
+
+        SetIdentityText(Emailsent, playerEmail);
+        SetIdentityText(Username, studentname);
+
+        SetIdentityText(EmailsentF, playerEmail);
+        SetIdentityText(UsernameF, studentname);
+
+        ScreenshotSender.messageToSend = $"Student ID: {studentname}\nEmail ID: {playerEmail}";
+
+        HideWarning();
+        ShowWelcomePanel();
+        SetLoginInteractable(true);
+    }
+
     private void ConfigureLoginFields()
     {
         if (inputStudentID != null)
         {
-            inputStudentID.contentType = InputField.ContentType.EmailAddress;
-            inputStudentID.text = PlayerPrefs.GetString(EMAIL_KEY, string.Empty);
-            SetPlaceholder(inputStudentID, "Email");
+            inputStudentID.contentType = authenticationEnabled
+                ? InputField.ContentType.EmailAddress
+                : InputField.ContentType.Standard;
+            inputStudentID.text = PlayerPrefs.GetString(authenticationEnabled ? EMAIL_KEY : NAME_KEY, string.Empty);
+            SetPlaceholder(inputStudentID, authenticationEnabled ? "Email" : "Student ID");
         }
 
         if (inputEmailID != null)
         {
-            inputEmailID.contentType = InputField.ContentType.Password;
-            inputEmailID.text = string.Empty;
-            SetPlaceholder(inputEmailID, "Password");
+            inputEmailID.contentType = authenticationEnabled
+                ? InputField.ContentType.Password
+                : InputField.ContentType.EmailAddress;
+            inputEmailID.text = authenticationEnabled ? string.Empty : PlayerPrefs.GetString(EMAIL_KEY, string.Empty);
+            SetPlaceholder(inputEmailID, authenticationEnabled ? "Password" : "Email");
         }
 
         SetLoginInteractable(true);

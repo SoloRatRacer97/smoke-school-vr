@@ -6,6 +6,7 @@ public class MangerBlackPractice : MonoBehaviour
    
     public GameObject TestPane;
     public SimpleVideoPlayer simpleVideoPlayer;
+    public ManagerTesting managerTesting;
     public GameObject TestingCompletePanl;
     public GameObject RemarksPanel;
 
@@ -28,8 +29,22 @@ public class MangerBlackPractice : MonoBehaviour
         blackBegainPracticPanl.SetActive(true);
         TestPane.SetActive(false);
         simpleVideoPlayer.playVideoURL(0);
+        WarmBlackPracticePreload();
         TestingCompletePanl.SetActive(false);
         RemarksPanel.SetActive(false);
     }
-}
 
+    private void WarmBlackPracticePreload()
+    {
+        ManagerTesting manager = managerTesting;
+        if (manager == null)
+        {
+            manager = FindFirstObjectByType<ManagerTesting>(FindObjectsInactive.Include);
+        }
+
+        if (manager != null)
+        {
+            manager.WarmFirstQuestionPreload(ManagerTesting.TestType.blackPractice);
+        }
+    }
+}
