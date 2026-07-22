@@ -16,8 +16,8 @@ MonoBehaviour:
   VROptionalFeatures: 2
   ARRequiredReferenceSpace: 2
   AROptionalFeatures: -1
-  UseFramebufferScaleFactor: 0
-  UseNativeResolution: 0
+  UseFramebufferScaleFactor: 1
+  UseNativeResolution: 1
   FramebufferScaleFactor: 1
   AutoLoadWebXRManager: 1
   AutoLoadWebXRInputSystem: 1

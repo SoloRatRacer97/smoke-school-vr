@@ -21,6 +21,10 @@ public class ManagerTesting : MonoBehaviour
     public TestType currenttype;
 
     [SerializeField] VideoPlayer videoPlayer;
+    private SmokeVideoDirectDisplay smokeVideoDirectDisplay;
+    private VideoPlayer activeVideoPlayer;
+    private VideoPlayer registeredPlaybackPlayer;
+    private int activePreloadSlotIndex = -1;
 
     [Header("Video Preloading System")]
     [Tooltip("Enable/disable video preloading for instant playback")]
@@ -206,6 +210,159 @@ public class ManagerTesting : MonoBehaviour
         return currenttype == TestType.whiteTest ||
                currenttype == TestType.blackTest ||
                currenttype == TestType.TestComplete;
+    }
+
+    private void InitializeSmokeVideoDirectDisplay()
+    {
+        if (videoPlayer == null)
+        {
+            return;
+        }
+
+        smokeVideoDirectDisplay = videoPlayer.GetComponent<SmokeVideoDirectDisplay>();
+        if (smokeVideoDirectDisplay == null)
+        {
+            smokeVideoDirectDisplay = videoPlayer.gameObject.AddComponent<SmokeVideoDirectDisplay>();
+        }
+
+        smokeVideoDirectDisplay.Initialize(videoPlayer);
+    }
+
+    private void HideSmokeVideoDirectDisplay()
+    {
+        if (smokeVideoDirectDisplay != null)
+        {
+            smokeVideoDirectDisplay.Hide();
+        }
+    }
+
+    private void RequestSmokeVideoDirectDisplay()
+    {
+        if (smokeVideoDirectDisplay != null)
+        {
+            smokeVideoDirectDisplay.RequestShow();
+        }
+    }
+
+    private VideoPlayer GetActiveVideoPlayer()
+    {
+        return activeVideoPlayer != null ? activeVideoPlayer : videoPlayer;
+    }
+
+    private bool IsActiveVideoPlaying()
+    {
+        VideoPlayer player = GetActiveVideoPlayer();
+        return player != null && player.isPlaying;
+    }
+
+    private void ConfigureQuestionVideoPlayer(VideoPlayer player)
+    {
+        if (player == null)
+        {
+            return;
+        }
+
+        player.renderMode = VideoRenderMode.APIOnly;
+        player.targetTexture = null;
+        player.audioOutputMode = VideoAudioOutputMode.None;
+        player.waitForFirstFrame = true;
+        player.skipOnDrop = false;
+    }
+
+    private void SetActivePlaybackPlayer(VideoPlayer player)
+    {
+        if (player == null)
+        {
+            return;
+        }
+
+        if (registeredPlaybackPlayer != player)
+        {
+            if (registeredPlaybackPlayer != null)
+            {
+                registeredPlaybackPlayer.started -= OnVideoStarted;
+                registeredPlaybackPlayer.loopPointReached -= OnVideoEnded;
+                registeredPlaybackPlayer.errorReceived -= OnVideoError;
+            }
+
+            registeredPlaybackPlayer = player;
+            registeredPlaybackPlayer.started += OnVideoStarted;
+            registeredPlaybackPlayer.loopPointReached += OnVideoEnded;
+            registeredPlaybackPlayer.errorReceived += OnVideoError;
+        }
+
+        activeVideoPlayer = player;
+        ConfigureQuestionVideoPlayer(activeVideoPlayer);
+
+        if (smokeVideoDirectDisplay != null)
+        {
+            smokeVideoDirectDisplay.SetVideoPlayer(activeVideoPlayer);
+        }
+    }
+
+    private bool IsActivePreloadSlot(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= preloadBuffer.Count)
+        {
+            return false;
+        }
+
+        if (slotIndex == activePreloadSlotIndex)
+        {
+            return true;
+        }
+
+        return activeVideoPlayer != null && preloadBuffer[slotIndex].player == activeVideoPlayer;
+    }
+
+    private void ClearPreloadSlot(int slotIndex, bool stopPlayer)
+    {
+        if (slotIndex < 0 || slotIndex >= preloadBuffer.Count)
+        {
+            return;
+        }
+
+        var slot = preloadBuffer[slotIndex];
+        if (stopPlayer && slot.player != null)
+        {
+            slot.player.Stop();
+        }
+
+        slot.questionIndex = -1;
+        slot.opacity = -1;
+        slot.smokeType = "";
+        slot.videoURL = "";
+        slot.videoIndex = -1;
+        slot.isPrepared = false;
+        preloadBuffer[slotIndex] = slot;
+    }
+
+    private void ReleaseActivePreloadSlot()
+    {
+        if (activePreloadSlotIndex < 0)
+        {
+            return;
+        }
+
+        ClearPreloadSlot(activePreloadSlotIndex, false);
+        activePreloadSlotIndex = -1;
+    }
+
+    private void StopActiveVideoPlayer()
+    {
+        HideSmokeVideoDirectDisplay();
+
+        VideoPlayer player = GetActiveVideoPlayer();
+        if (player != null && (player.isPlaying || player.isPrepared))
+        {
+            player.Stop();
+        }
+
+        ReleaseActivePreloadSlot();
+        if (videoPlayer != null)
+        {
+            SetActivePlaybackPlayer(videoPlayer);
+        }
     }
 
     private int GetDisplayedQuestionIndex()
@@ -424,6 +581,7 @@ public class ManagerTesting : MonoBehaviour
 
         // Setup preload video player
         InitializePreloadVideoPlayers();
+        InitializeSmokeVideoDirectDisplay();
 
         // Keep skip button visible at all times
         // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
@@ -492,9 +650,7 @@ public class ManagerTesting : MonoBehaviour
             loadingImageRect = loadingImage.GetComponent<RectTransform>();
             loadingImage.SetActive(true);
 
-            videoPlayer.started += OnVideoStarted;
-            videoPlayer.loopPointReached += OnVideoEnded;
-            videoPlayer.errorReceived += OnVideoError;
+            SetActivePlaybackPlayer(videoPlayer);
 
             // Preload buffer VideoPlayers register their own prepareCompleted
             // callbacks in InitializePreloadVideoPlayers()
@@ -539,6 +695,7 @@ public class ManagerTesting : MonoBehaviour
             vp.waitForFirstFrame = true;
             vp.skipOnDrop = true;
             vp.renderMode = VideoRenderMode.APIOnly;
+            vp.audioOutputMode = VideoAudioOutputMode.None;
             vp.prepareCompleted += OnPreloadVideoPrepared;
 
             PreloadedVideo slot = new PreloadedVideo
@@ -576,17 +733,12 @@ public class ManagerTesting : MonoBehaviour
     {
         for (int i = 0; i < preloadBuffer.Count; i++)
         {
-            if (preloadBuffer[i].player != null && preloadBuffer[i].player.isPrepared)
-                preloadBuffer[i].player.Stop();
+            if (IsActivePreloadSlot(i))
+            {
+                continue;
+            }
 
-            var slot = preloadBuffer[i];
-            slot.questionIndex = -1;
-            slot.opacity = -1;
-            slot.smokeType = "";
-            slot.videoURL = "";
-            slot.videoIndex = -1;
-            slot.isPrepared = false;
-            preloadBuffer[i] = slot;
+            ClearPreloadSlot(i, true);
         }
         currentlyPreparingCount = 0;
     }
@@ -713,6 +865,11 @@ public class ManagerTesting : MonoBehaviour
         // Search the buffer for a matching prepared video
         for (int i = 0; i < preloadBuffer.Count; i++)
         {
+            if (IsActivePreloadSlot(i))
+            {
+                continue;
+            }
+
             var slot = preloadBuffer[i];
             if (!slot.isPrepared) continue;
             if (slot.questionIndex != questionIndex) continue;
@@ -725,29 +882,18 @@ public class ManagerTesting : MonoBehaviour
             questionVideoIndices[questionIndex] = slot.videoIndex;
             questionVideoUrls[questionIndex] = slot.videoURL;
 
-            if (videoPlayer.isPlaying)
-            {
-                videoPlayer.Stop();
-            }
+            StopActiveVideoPlayer();
 
             // Same as LoadQuestionVideo — flag that the spinner should
             // stay visible until OnVideoStarted fires.
             waitingForVideoStart = true;
+            HideSmokeVideoDirectDisplay();
 
-            videoPlayer.url = slot.videoURL;
-            videoPlayer.isLooping = true;
-            videoPlayer.Play();
-
-            // Remove used slot from buffer
-            slot.questionIndex = -1;
-            slot.opacity = -1;
-            slot.smokeType = "";
-            slot.videoURL = "";
-            slot.videoIndex = -1;
-            slot.isPrepared = false;
-            if (slot.player.isPrepared)
-                slot.player.Stop();
-            preloadBuffer[i] = slot;
+            VideoPlayer preparedPlayer = slot.player;
+            activePreloadSlotIndex = i;
+            SetActivePlaybackPlayer(preparedPlayer);
+            preparedPlayer.isLooping = true;
+            preparedPlayer.Play();
 
             // Fill more slots now that one was consumed
             FillPreloadBuffer();
@@ -795,16 +941,15 @@ public class ManagerTesting : MonoBehaviour
         questionVideoIndices[questionIndex] = currentVideoIndex;
         questionVideoUrls[questionIndex] = url;
 
-        if (videoPlayer.isPlaying)
-        {
-            videoPlayer.Stop();
-        }
+        StopActiveVideoPlayer();
 
         // Flag that we're waiting for the new video to actually start
         // playing (render its first frame).  Update() will keep the
         // spinner visible until OnVideoStarted clears this flag.
         waitingForVideoStart = true;
+        HideSmokeVideoDirectDisplay();
 
+        SetActivePlaybackPlayer(videoPlayer);
         videoPlayer.url = url;
         videoPlayer.isLooping = true;
         videoPlayer.Play();
@@ -833,6 +978,11 @@ public class ManagerTesting : MonoBehaviour
             bool alreadyInBuffer = false;
             for (int i = 0; i < preloadBuffer.Count; i++)
             {
+                if (IsActivePreloadSlot(i))
+                {
+                    continue;
+                }
+
                 if (preloadBuffer[i].questionIndex == targetQuestionIndex
                     && string.Equals(preloadBuffer[i].smokeType, currentSmokeType, StringComparison.OrdinalIgnoreCase))
                 {
@@ -846,6 +996,11 @@ public class ManagerTesting : MonoBehaviour
             int idleSlot = -1;
             for (int i = 0; i < preloadBuffer.Count; i++)
             {
+                if (IsActivePreloadSlot(i))
+                {
+                    continue;
+                }
+
                 // A slot is idle if it's not currently preparing and not holding
                 // a video we still need (i.e. its question is past or its question
                 // is this target — meaning it's empty/default)
@@ -873,6 +1028,11 @@ public class ManagerTesting : MonoBehaviour
     /// </summary>
     void StartPreloadSlot(int slotIndex, int targetQuestionIndex, SmokeVideoURLData.SmokeTypeGroup savedTypeGroup, string savedSmokeType)
     {
+        if (IsActivePreloadSlot(slotIndex))
+        {
+            return;
+        }
+
         int opacity = GetActualOpacityForQuestion(targetQuestionIndex);
         if (opacity < 0) return;
 
@@ -902,6 +1062,20 @@ public class ManagerTesting : MonoBehaviour
         string slotSmokeType = currentSmokeType;  // capture before restore
 
         var slot = preloadBuffer[slotIndex];
+        if (slot.player == null)
+        {
+            currentTypeGroup = savedTypeGroup;
+            currentSmokeType = savedSmokeType;
+            return;
+        }
+
+        slot.player.Stop();
+        slot.player.renderMode = VideoRenderMode.APIOnly;
+        slot.player.targetTexture = null;
+        slot.player.audioOutputMode = VideoAudioOutputMode.None;
+        slot.player.waitForFirstFrame = true;
+        slot.player.skipOnDrop = true;
+
         slot.questionIndex = targetQuestionIndex;
         slot.opacity = opacity;
         slot.smokeType = slotSmokeType;
@@ -909,9 +1083,6 @@ public class ManagerTesting : MonoBehaviour
         slot.videoIndex = videoIdx;
         slot.isPrepared = false;
         preloadBuffer[slotIndex] = slot;
-
-        if (slot.player.isPrepared)
-            slot.player.Stop();
 
         slot.player.url = url;
         slot.player.Prepare();
@@ -935,6 +1106,11 @@ public class ManagerTesting : MonoBehaviour
             if (preloadBuffer[i].player == source)
             {
                 var slot = preloadBuffer[i];
+                if (IsActivePreloadSlot(i) || slot.questionIndex < 0 || !string.Equals(source.url, slot.videoURL, StringComparison.Ordinal))
+                {
+                    break;
+                }
+
                 slot.isPrepared = true;
                 preloadBuffer[i] = slot;
                 Debug.Log($"Preload buffer slot {i} ready: Q{slot.questionIndex} opacity={slot.opacity} {slot.smokeType}");
@@ -953,21 +1129,15 @@ public class ManagerTesting : MonoBehaviour
     {
         for (int i = 0; i < preloadBuffer.Count; i++)
         {
+            if (IsActivePreloadSlot(i))
+            {
+                continue;
+            }
+
             if (preloadBuffer[i].questionIndex >= 0
                 && preloadBuffer[i].questionIndex <= currentQuestionIndex)
             {
-                if (preloadBuffer[i].player.isPrepared)
-                    preloadBuffer[i].player.Stop();
-
-                // Reset slot to empty
-                var slot = preloadBuffer[i];
-                slot.questionIndex = -1;
-                slot.opacity = -1;
-                slot.smokeType = "";
-                slot.videoURL = "";
-                slot.videoIndex = -1;
-                slot.isPrepared = false;
-                preloadBuffer[i] = slot;
+                ClearPreloadSlot(i, true);
             }
         }
     }
@@ -1053,10 +1223,7 @@ public class ManagerTesting : MonoBehaviour
         ResetQuestionVideoState();
         DisableAnswers();
 
-        if (videoPlayer.isPlaying)
-        {
-            videoPlayer.Stop();
-        }
+        StopActiveVideoPlayer();
 
         // Reset preload state when skipping
         ClearPreparedVideoState();
@@ -1081,10 +1248,7 @@ public class ManagerTesting : MonoBehaviour
         tutorialsPannel.SetActive(false);
 
         // Stop video if playing
-        if (videoPlayer.isPlaying)
-        {
-            videoPlayer.Stop();
-        }
+        StopActiveVideoPlayer();
 
         // Hide skip button since we're done with tests
         SetSkipButtonActive(false);
@@ -1114,10 +1278,11 @@ public class ManagerTesting : MonoBehaviour
         // frame renders.
         if (waitingForVideoStart)
         {
+            HideSmokeVideoDirectDisplay();
             loadingImage.SetActive(true);
             RotateLoadingImage();
         }
-        else if (!videoPlayer.isPlaying)
+        else if (!IsActiveVideoPlaying())
         {
             loadingImage.SetActive(true);
             RotateLoadingImage();
@@ -1167,10 +1332,11 @@ public class ManagerTesting : MonoBehaviour
         }
 
         // Stop current video if playing
-        if (videoPlayer.isPlaying)
-            videoPlayer.Stop();
+        StopActiveVideoPlayer();
 
         // Assign URL and play
+        HideSmokeVideoDirectDisplay();
+        SetActivePlaybackPlayer(videoPlayer);
         videoPlayer.url = videoURL;
         videoPlayer.isLooping = true;
         videoPlayer.Play();
@@ -1578,7 +1744,7 @@ public class ManagerTesting : MonoBehaviour
             }
 
             DisableAnswers();
-            videoPlayer.Stop();
+            StopActiveVideoPlayer();
 
             bool returnToReview = scratchModeStartedFromReview || reviewphase;
             scratchMode = false;
@@ -1700,7 +1866,7 @@ public class ManagerTesting : MonoBehaviour
             }
 
             DisableAnswers();
-            videoPlayer.Stop();
+            StopActiveVideoPlayer();
             ReOpenTestCompletePannel();
             ApplyScratchAndRefreshButtonState();
             return;
@@ -1729,7 +1895,7 @@ public class ManagerTesting : MonoBehaviour
             if (currenttype == TestType.blackTest) { answervalues_test_black[currentQuestionIndex] = answersValue[i]; }
 
             DisableAnswers();
-            videoPlayer.Stop();
+            StopActiveVideoPlayer();
 
             bool isPractice = (currenttype == TestType.whitePractice || currenttype == TestType.blackPractice);
             bool isTest = (currenttype == TestType.whiteTest || currenttype == TestType.blackTest);
@@ -1941,7 +2107,8 @@ public class ManagerTesting : MonoBehaviour
             return questionVideoUrls[questionIndex];
         }
 
-        return videoPlayer != null ? videoPlayer.url : string.Empty;
+        VideoPlayer activePlayer = GetActiveVideoPlayer();
+        return activePlayer != null ? activePlayer.url : string.Empty;
     }
 
     private List<SmokeSchoolAppState.QuestionResult> GetIndividualFailingReadings()
@@ -2220,11 +2387,17 @@ public class ManagerTesting : MonoBehaviour
     // MODIFIED: Enable answers for first question when video starts
     public void OnVideoStarted(VideoPlayer vp)
     {
+        if (vp != GetActiveVideoPlayer())
+        {
+            return;
+        }
+
         // Clear the "waiting for video" flag — the spinner will now hide
         // in Update() on the next frame since isPlaying will be true.
         waitingForVideoStart = false;
 
         loadingImage.SetActive(false);
+        RequestSmokeVideoDirectDisplay();
 
         // NEW: Enable answers for the first question when its video starts playing
         if (isFirstQuestionLoaded && currentQuestionIndex == 0 && !reviewphase && !scratchMode)
@@ -2237,22 +2410,51 @@ public class ManagerTesting : MonoBehaviour
 
     private void OnVideoEnded(VideoPlayer vp)
     {
+        if (vp != GetActiveVideoPlayer())
+        {
+            return;
+        }
+
+        if (vp != null && vp.isLooping)
+        {
+            loadingImage.SetActive(false);
+            RequestSmokeVideoDirectDisplay();
+            return;
+        }
+
+        HideSmokeVideoDirectDisplay();
         loadingImage.SetActive(true);
     }
 
     private void OnVideoError(VideoPlayer vp, string message)
     {
+        if (vp != GetActiveVideoPlayer())
+        {
+            Debug.LogWarning("Inactive VideoPlayer error: " + message);
+            return;
+        }
+
+        HideSmokeVideoDirectDisplay();
         Debug.LogError("VideoPlayer error: " + message);
         loadingImage.SetActive(true);
     }
 
     private void OnDestroy()
     {
-        if (videoPlayer != null)
+        HideSmokeVideoDirectDisplay();
+
+        VideoPlayer activePlayer = GetActiveVideoPlayer();
+        if (activePlayer != null)
         {
-            videoPlayer.started -= OnVideoStarted;
-            videoPlayer.loopPointReached -= OnVideoEnded;
-            videoPlayer.errorReceived -= OnVideoError;
+            activePlayer.Stop();
+        }
+
+        if (registeredPlaybackPlayer != null)
+        {
+            registeredPlaybackPlayer.started -= OnVideoStarted;
+            registeredPlaybackPlayer.loopPointReached -= OnVideoEnded;
+            registeredPlaybackPlayer.errorReceived -= OnVideoError;
+            registeredPlaybackPlayer = null;
         }
 
         for (int i = 0; i < preloadBuffer.Count; i++)
@@ -2264,10 +2466,10 @@ public class ManagerTesting : MonoBehaviour
             }
 
             preloadPlayer.prepareCompleted -= OnPreloadVideoPrepared;
-            if (preloadPlayer.isPlaying || preloadPlayer.isPrepared)
-            {
-                preloadPlayer.Stop();
-            }
+            preloadPlayer.started -= OnVideoStarted;
+            preloadPlayer.loopPointReached -= OnVideoEnded;
+            preloadPlayer.errorReceived -= OnVideoError;
+            preloadPlayer.Stop();
         }
 
         preloadBuffer.Clear();
@@ -2287,6 +2489,7 @@ public class ManagerTesting : MonoBehaviour
         ScreenshotSender.didPass = (!hasIndividualFail && whitePassed && blackPassed);
         YourTotalScore.text = BuildTotalScoreText(hasIndividualFail);
         LogIndividualFailingReadings(individualFailingReadings, "OnEndTestButtonClicked");
+        HideSmokeVideoDirectDisplay();
 
         if (ScreenshotSender.didPass)
         {
