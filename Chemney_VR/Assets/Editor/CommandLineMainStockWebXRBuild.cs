@@ -10,6 +10,7 @@ public static class CommandLineMainStockWebXRBuild
     private const string TemplateName = "PROJECT:WebXR2020";
     private const string WebXRRuntimePath = "Library/PackageCache/com.de-panther.webxr@fab01af98209/Runtime/Plugins/WebGL/webxr.jspre";
     private const string WebXRTemplatePath = "Assets/WebGLTemplates/WebXR2020/index.html";
+    private const string AuthConfigPath = "Assets/WebGLTemplates/WebXR2020/auth-config.js";
     private static readonly string[] ExperimentalWebGLPluginPaths =
     {
         "Assets/Plugins/SmokeMediaLayer.jslib",
@@ -26,6 +27,7 @@ public static class CommandLineMainStockWebXRBuild
     {
         EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.WebGL, BuildTarget.WebGL);
         ValidateStockWebXRRuntime();
+        ValidateAuthenticationTemplate();
 
         string previousTemplate = PlayerSettings.WebGL.template;
         PlayerSettings.WebGL.template = TemplateName;
@@ -59,6 +61,7 @@ public static class CommandLineMainStockWebXRBuild
         }
 
         WriteNetlifyHeaders();
+        ValidateBuiltAuthenticationGate();
     }
 
     private static List<StubbedPlugin> StubExperimentalWebGLPlugins()
@@ -186,6 +189,38 @@ public static class CommandLineMainStockWebXRBuild
             {
                 throw new System.Exception("WebXR runtime still contains experimental media-layer/base-layer changes.");
             }
+        }
+    }
+
+    private static void ValidateAuthenticationTemplate()
+    {
+        if (!File.Exists(WebXRTemplatePath) || !File.Exists(AuthConfigPath))
+        {
+            throw new System.Exception("WebXR authentication template files are missing.");
+        }
+
+        string template = File.ReadAllText(WebXRTemplatePath);
+        if (!template.Contains("id=\"auth-form\"") ||
+            !template.Contains("CompleteApprovedLogin") ||
+            !template.Contains("SMOKE_SCHOOL_AUTH"))
+        {
+            throw new System.Exception("WebXR template does not contain the Smoke School authentication gate.");
+        }
+    }
+
+    private static void ValidateBuiltAuthenticationGate()
+    {
+        string builtIndex = Path.Combine(OutputPath, "index.html");
+        string builtConfig = Path.Combine(OutputPath, "auth-config.js");
+        if (!File.Exists(builtIndex) || !File.Exists(builtConfig))
+        {
+            throw new System.Exception("Built WebXR output is missing authentication files.");
+        }
+
+        string index = File.ReadAllText(builtIndex);
+        if (!index.Contains("CompleteApprovedLogin") || !index.Contains("id=\"auth-form\""))
+        {
+            throw new System.Exception("Built WebXR output does not contain the authentication gate.");
         }
     }
 
