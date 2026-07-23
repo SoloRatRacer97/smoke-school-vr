@@ -3,11 +3,12 @@
 ## Components
 
 - Dashboard API: `POST /api/vr/login`
-- WebXR auth UI: `Chemney_VR/Assets/WebGLTemplates/WebXR2020/index.html`
+- Unity auth UI: `LoginPanel` in `Chemney_VR/Assets/Scenes/ChimneyScene.unity`
+- WebGL keyboard bridge: `Chemney_VR/Assets/WebGLTemplates/WebXR2020/index.html`
 - Endpoint configuration: `Chemney_VR/Assets/WebGLTemplates/WebXR2020/auth-config.js`
-- Unity approval receiver: `LoginPanel.CompleteApprovedLogin`
+- Unity authentication component: `DataInput_Fields`
 
-Unity does not begin downloading until the dashboard approves the email and password. The password is cleared immediately after each request and is never sent to Unity or stored in `PlayerPrefs`.
+Unity loads immediately and its C# `DataInput_Fields` component authenticates with the dashboard. The WebGL overlay only supplies browser keyboard input to the in-scene controls. Passwords are cleared after each request and are never stored in `PlayerPrefs`.
 
 ## Configure A Dev Dashboard
 
@@ -42,14 +43,28 @@ Verify the generated output:
 node scripts/verify-auth-source.mjs "Chemney_VR/VR Smoke School Stock WebXR"
 ```
 
+Run the full drift regression, including clear-video source hashes, card labels,
+authentication behavior, Cloudinary mappings, Brotli build integrity, and
+Netlify headers:
+
+```bash
+node scripts/test-vr-regressions.mjs "Chemney_VR/VR Smoke School Stock WebXR"
+```
+
+Optionally verify every mapped Cloudinary URL over the network:
+
+```bash
+node scripts/test-vr-regressions.mjs "Chemney_VR/VR Smoke School Stock WebXR" --network
+```
+
 ## End-To-End Cases
 
-1. Correct email/password loads Unity and displays the canonical dashboard profile.
-2. Wrong password leaves Unity unloaded and displays a generic error.
+1. Correct email/password advances the Unity scene and displays the canonical dashboard profile.
+2. Wrong password keeps the Unity login panel visible and displays a generic error.
 3. Expired access displays an expiration message.
 4. Revoked/inactive access displays an inactive message.
 5. The sixth failed attempt returns the dashboard throttle message and honors `Retry-After`.
-6. Refresh requires authentication again; no password persists.
+6. Refresh returns to the Unity login panel; no password persists.
 7. The Quest browser enters WebXR and clear-video playback remains unchanged.
 
-The HTML gate is the dev MVP. Before a production security release, protect build/video delivery with a short-lived signed grant at the hosting edge.
+The Unity login is the development MVP. Before a production security release, protect build/video delivery with a short-lived signed grant at the hosting edge.
