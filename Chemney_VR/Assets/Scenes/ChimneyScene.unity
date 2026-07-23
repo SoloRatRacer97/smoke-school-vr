@@ -25561,7 +25561,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Video Tutorials
+  m_text: Emission Testing
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f675742eaf9c20a4f909d78ee7a14fed, type: 2}
   m_sharedMaterial: {fileID: 4687939059374929122, guid: f675742eaf9c20a4f909d78ee7a14fed, type: 2}
@@ -29248,7 +29248,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1339834710781379199, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Text
-      value: User ID..
+      value: Password
       objectReference: {fileID: 0}
     - target: {fileID: 1339834710781379199, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Color.b
@@ -29368,7 +29368,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4727522418468997121, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Name
-      value: Username Input
+      value: Password Input
       objectReference: {fileID: 0}
     - target: {fileID: 4727522418468997121, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_IsActive
@@ -32638,7 +32638,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1339834710781379199, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Text
-      value: Email ID..
+      value: Email
       objectReference: {fileID: 0}
     - target: {fileID: 1339834710781379199, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Color.b
@@ -93059,7 +93059,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Emission Testing
+  m_text: Video Tutorials
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f675742eaf9c20a4f909d78ee7a14fed, type: 2}
   m_sharedMaterial: {fileID: 4687939059374929122, guid: f675742eaf9c20a4f909d78ee7a14fed, type: 2}
