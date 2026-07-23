@@ -103,8 +103,13 @@ if (checkNetwork) {
 }
 
 const scene = read("Assets/Scenes/ChimneyScene.unity").toString("utf8");
-assert.match(scene, /m_Name: Emission Testing Text[\s\S]{0,1800}m_text: Emission Testing/);
-assert.match(scene, /m_Name: Videos Tutorials Text[\s\S]{0,1800}m_text: Video Tutorials/);
+assert.match(scene, /m_Name: Emission Testing Text[\s\S]{0,1800}m_text: Video Tutorials/);
+assert.match(scene, /m_Name: Videos Tutorials Text[\s\S]{0,1800}m_text: Emission Testing/);
+assert.match(scene, /m_GameObject: \{fileID: 1737756091\}[\s\S]{0,700}m_text: Watch our training video/);
+assert.match(scene, /m_GameObject: \{fileID: 1530105658\}[\s\S]{0,700}m_text: Complete the EPA Method 9 certification test/);
+assert.match(scene, /m_text: Start Tutorial/);
+assert.match(scene, /m_text: Begin Test/);
+assert.match(scene, /m_text: Skip optional practice slides/);
 assert.match(scene, /https:\/\/res\.cloudinary\.com\/dkzd0f0tu\/video\/upload\/v1774123829\/Smoke_School_Intro2_lzx9e4\.mov/);
 
 const authSource = read("Assets/Scripts/DataInput_Fields.cs").toString("utf8");

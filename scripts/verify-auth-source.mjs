@@ -47,11 +47,11 @@ requireText(authPluginPath, [
 ]);
 const scene = requireText(scenePath, [[/m_Name: LoginPanel/, "the LoginPanel GameObject"]]);
 if (!/value: Password/.test(scene)) throw new Error("ChimneyScene login field is not labeled Password.");
-if (!/m_Name: Emission Testing Text[\s\S]{0,1800}m_text: Emission Testing/.test(scene)) {
-  throw new Error("Emission Testing card title is incorrect.");
+if (!/m_Name: Emission Testing Text[\s\S]{0,1800}m_text: Video Tutorials/.test(scene)) {
+  throw new Error("Left card title is not Video Tutorials.");
 }
-if (!/m_Name: Videos Tutorials Text[\s\S]{0,1800}m_text: Video Tutorials/.test(scene)) {
-  throw new Error("Video Tutorials card title is incorrect.");
+if (!/m_Name: Videos Tutorials Text[\s\S]{0,1800}m_text: Emission Testing/.test(scene)) {
+  throw new Error("Right card title is not Emission Testing.");
 }
 requireText(builderPath, [
   [/ValidateUnityAuthentication/, "source auth validation"],
