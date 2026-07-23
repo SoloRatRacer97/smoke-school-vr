@@ -9,7 +9,8 @@ const root = process.cwd();
 const project = path.join(root, "Chemney_VR");
 const argumentsList = process.argv.slice(2);
 const checkNetwork = argumentsList.includes("--network");
-const outputArgument = argumentsList.find((value) => value !== "--network");
+const sourceOnly = argumentsList.includes("--source-only");
+const outputArgument = argumentsList.find((value) => !value.startsWith("--"));
 const output = outputArgument
   ? path.resolve(outputArgument)
   : path.join(project, "VR Smoke School Stock WebXR");
@@ -108,10 +109,66 @@ assert.match(scene, /m_Name: Videos Tutorials Text[\s\S]{0,1800}m_text: Video Tu
 assert.match(scene, /https:\/\/res\.cloudinary\.com\/dkzd0f0tu\/video\/upload\/v1774123829\/Smoke_School_Intro2_lzx9e4\.mov/);
 
 const authSource = read("Assets/Scripts/DataInput_Fields.cs").toString("utf8");
-assert.match(authSource, /UnityWebRequest/);
-assert.match(authSource, /SetAuthenticationLoading\(true\)/);
-assert.match(authSource, /inputStudentID\.text = string\.Empty/);
-assert.doesNotMatch(authSource, /warningText\.text = "Checking access/);
+assert.match(authSource, /class ApprovedPayload/);
+assert.match(authSource, /public bool approved/);
+assert.match(authSource, /public string sessionReference/);
+assert.match(authSource, /public string userId/);
+assert.match(authSource, /public static string approvedUserId/);
+assert.match(authSource, /public static string approvedSessionReference/);
+assert.match(authSource, /public void CompleteApprovedLogin/);
+assert.doesNotMatch(authSource, /UnityWebRequest|UnityEngine\.Networking/);
+assert.doesNotMatch(authSource, /PlayerPrefs/);
+assert.doesNotMatch(authSource, /password/i);
+
+const template = read("Assets/WebGLTemplates/WebXR2020/index.html").toString("utf8");
+assert.match(template, /id="unity-login-overlay"/);
+assert.match(template, /id="unity-login-spinner"/);
+assert.match(template, /fetch\(apiUrl,\s*\{[\s\S]*?method: "POST"/);
+assert.match(template, /cache: "no-store"/);
+assert.match(template, /passwordInput\.value = ""/);
+assert.match(template, /if \(approvedPayload\) \{[\s\S]{0,220}startUnity\(approvedPayload\)/);
+assert.match(template, /SendMessage\("LoginPanel", "CompleteApprovedLogin", JSON\.stringify\(approvedPayload\)\)/);
+assert.match(template, /sessionReference: result\.sessionReference/);
+assert.match(template, /userId: result\.student\.userId/);
+for (const reason of ["invalid_credentials", "access_revoked", "access_inactive", "access_expired", "rate_limited"]) {
+  assert.match(template, new RegExp(reason), `missing browser denial mapping: ${reason}`);
+}
+assert.match(template, /Authentication is temporarily unavailable/);
+assert.match(template, /Could not reach the authentication service/);
+assert.doesNotMatch(template, /localStorage|sessionStorage/);
+assert.doesNotMatch(template, /ReceiveBrowserLogin/);
+const startUnityIndex = template.indexOf("function startUnity(approvedPayload)");
+const startUnityEnd = template.indexOf('document.getElementById("unity-login-overlay").addEventListener', startUnityIndex);
+assert.ok(startUnityIndex >= 0, "missing approved Unity startup function");
+assert.ok(startUnityEnd > startUnityIndex, "approved Unity startup function boundary is missing");
+assert.ok(template.indexOf("createUnityInstance(") > startUnityIndex && template.indexOf("createUnityInstance(") < startUnityEnd, "Unity starts outside the approved startup function");
+const loaderAppendIndexes = [...template.matchAll(/document\.body\.appendChild\(script\)/g)].map((match) => match.index);
+assert.deepEqual(loaderAppendIndexes.length, 1, "Unity loader must be appended exactly once in source");
+assert.ok(loaderAppendIndexes[0] > startUnityIndex && loaderAppendIndexes[0] < startUnityEnd, "Unity loader is appended outside approved startup");
+const sendCalls = template.match(/SendMessage\([^;\n]+/g) || [];
+assert.equal(sendCalls.length, 1, "expected exactly one Unity SendMessage bridge");
+assert.doesNotMatch(sendCalls[0], /password/i, "raw credentials cross the Unity bridge");
+
+const sourceAuthConfig = read("Assets/WebGLTemplates/WebXR2020/auth-config.js").toString("utf8");
+const sourceApiMatch = sourceAuthConfig.match(/apiUrl:\s*"([^"]+)"/);
+assert.ok(sourceApiMatch, "source auth-config.js is missing apiUrl");
+const sourceAuthUrl = new URL(sourceApiMatch[1]);
+assert.equal(sourceAuthUrl.protocol, "https:");
+assert.equal(sourceAuthUrl.pathname, "/api/vr/login");
+
+if (sourceOnly) {
+  console.log(JSON.stringify({
+    ok: true,
+    sourceOnly: true,
+    lockedSourceFiles: lockedSourceHashes.size,
+    cloudinaryVideoUrls: videoUrls.length,
+    whiteSmokeMappings: whiteMappings.length,
+    whiteMappingDigest: sha256(Buffer.from(whiteMappings.join("\n"))),
+    networkChecked: checkNetwork,
+    authEndpoint: sourceAuthUrl.origin + sourceAuthUrl.pathname,
+  }, null, 2));
+  process.exit(0);
+}
 
 const indexPath = path.join(output, "index.html");
 const authConfigPath = path.join(output, "auth-config.js");
@@ -125,17 +182,18 @@ assert.match(index, /id="unity-canvas"/);
 assert.match(index, /id="unity-login-overlay"/);
 assert.match(index, /id="unity-login-spinner"/);
 assert.match(index, /createUnityInstance/);
-assert.match(index, /ReceiveBrowserLogin/);
+assert.match(index, /fetch\(apiUrl/);
+assert.match(index, /CompleteApprovedLogin/);
 assert.match(index, /passwordInput\.value = ""/);
-assert.doesNotMatch(index, /id="auth-form"/);
-assert.doesNotMatch(index, />Checking access</);
+assert.doesNotMatch(index, /ReceiveBrowserLogin/);
+assert.doesNotMatch(index, /localStorage|sessionStorage/);
 
 const authConfig = readFileSync(authConfigPath, "utf8");
 const apiMatch = authConfig.match(/apiUrl:\s*"([^"]+)"/);
 assert.ok(apiMatch, "auth-config.js is missing apiUrl");
-const authUrl = new URL(apiMatch[1]);
-assert.equal(authUrl.protocol, "https:");
-assert.equal(authUrl.pathname, "/api/vr/login");
+const builtAuthUrl = new URL(apiMatch[1]);
+assert.equal(builtAuthUrl.protocol, "https:");
+assert.equal(builtAuthUrl.pathname, "/api/vr/login");
 
 const buildNames = {
   data: "VR Smoke School Stock WebXR.data.br",
@@ -169,6 +227,6 @@ console.log(JSON.stringify({
   whiteSmokeMappings: whiteMappings.length,
   whiteMappingDigest: sha256(Buffer.from(whiteMappings.join("\n"))),
   networkChecked: checkNetwork,
-  authEndpoint: authUrl.origin + authUrl.pathname,
+  authEndpoint: builtAuthUrl.origin + builtAuthUrl.pathname,
   decompressedSizes,
 }, null, 2));

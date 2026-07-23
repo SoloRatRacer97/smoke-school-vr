@@ -12,7 +12,6 @@ public static class CommandLineMainStockWebXRBuild
     private const string WebXRTemplatePath = "Assets/WebGLTemplates/WebXR2020/index.html";
     private const string AuthConfigPath = "Assets/WebGLTemplates/WebXR2020/auth-config.js";
     private const string AuthScriptPath = "Assets/Scripts/DataInput_Fields.cs";
-    private const string AuthPluginPath = "Assets/Plugins/WebGL/SmokeSchoolAuth.jslib";
     private static readonly string[] ExperimentalWebGLPluginPaths =
     {
         "Assets/Plugins/SmokeMediaLayer.jslib",
@@ -29,7 +28,7 @@ public static class CommandLineMainStockWebXRBuild
     {
         EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.WebGL, BuildTarget.WebGL);
         ValidateStockWebXRRuntime();
-        ValidateUnityAuthentication();
+        ValidateBrowserFirstAuthentication();
 
         string previousTemplate = PlayerSettings.WebGL.template;
         PlayerSettings.WebGL.template = TemplateName;
@@ -63,7 +62,7 @@ public static class CommandLineMainStockWebXRBuild
         }
 
         WriteNetlifyHeaders();
-        ValidateBuiltUnityAuthentication();
+        ValidateBuiltBrowserFirstAuthentication();
     }
 
     private static List<StubbedPlugin> StubExperimentalWebGLPlugins()
@@ -194,44 +193,56 @@ public static class CommandLineMainStockWebXRBuild
         }
     }
 
-    private static void ValidateUnityAuthentication()
+    private static void ValidateBrowserFirstAuthentication()
     {
-        if (!File.Exists(WebXRTemplatePath) || !File.Exists(AuthConfigPath) ||
-            !File.Exists(AuthScriptPath) || !File.Exists(AuthPluginPath))
+        if (!File.Exists(WebXRTemplatePath) || !File.Exists(AuthConfigPath) || !File.Exists(AuthScriptPath))
         {
-            throw new System.Exception("Unity authentication source files are missing.");
+            throw new System.Exception("Browser-first authentication source files are missing.");
         }
 
         string template = File.ReadAllText(WebXRTemplatePath);
         string script = File.ReadAllText(AuthScriptPath);
-        string plugin = File.ReadAllText(AuthPluginPath);
         if (!template.Contains("auth-config.js") ||
+            !template.Contains("id=\"unity-login-overlay\"") ||
+            !template.Contains("fetch(apiUrl") ||
+            !template.Contains("sanitizeApprovedResponse") ||
+            !template.Contains("startUnity(approvedPayload)") ||
+            !template.Contains("CompleteApprovedLogin") ||
             !template.Contains("createUnityInstance") ||
-            template.Contains("id=\"auth-form\"") ||
-            !script.Contains("UnityWebRequest") ||
-            !script.Contains("SmokeSchoolGetAuthApi") ||
-            !script.Contains("goButton.onClick.AddListener(OnGoButtonClicked)") ||
-            !plugin.Contains("SMOKE_SCHOOL_AUTH"))
+            !template.Contains("document.body.appendChild(script)") ||
+            template.Contains("localStorage") ||
+            template.Contains("sessionStorage") ||
+            template.Contains("ReceiveBrowserLogin") ||
+            !script.Contains("sessionReference") ||
+            !script.Contains("userId") ||
+            script.Contains("UnityWebRequest") ||
+            script.Contains("PlayerPrefs") ||
+            script.Contains("password"))
         {
-            throw new System.Exception("Unity-native dashboard authentication is not configured correctly.");
+            throw new System.Exception("Browser-first signed authentication is not configured correctly.");
         }
     }
 
-    private static void ValidateBuiltUnityAuthentication()
+    private static void ValidateBuiltBrowserFirstAuthentication()
     {
         string builtIndex = Path.Combine(OutputPath, "index.html");
         string builtConfig = Path.Combine(OutputPath, "auth-config.js");
         if (!File.Exists(builtIndex) || !File.Exists(builtConfig))
         {
-            throw new System.Exception("Built WebXR output is missing Unity authentication configuration.");
+            throw new System.Exception("Built WebXR output is missing browser authentication configuration.");
         }
 
         string index = File.ReadAllText(builtIndex);
-        if (!index.Contains("createUnityInstance") ||
-            !index.Contains("auth-config.js") ||
-            index.Contains("id=\"auth-form\""))
+        if (!index.Contains("id=\"unity-login-overlay\"") ||
+            !index.Contains("fetch(apiUrl") ||
+            !index.Contains("startUnity(approvedPayload)") ||
+            !index.Contains("CompleteApprovedLogin") ||
+            !index.Contains("document.body.appendChild(script)") ||
+            index.Contains("ReceiveBrowserLogin") ||
+            index.Contains("localStorage") ||
+            index.Contains("sessionStorage"))
         {
-            throw new System.Exception("Built WebXR output is not using the Unity-native login flow.");
+            throw new System.Exception("Built WebXR output is not using the browser-first authentication gate.");
         }
     }
 

@@ -1,20 +1,20 @@
 [build]
-  publish = "Chemney_VR/VR Smoke School"
+  publish = "Chemney_VR/VR Smoke School Stock WebXR"
 
 [[headers]]
-  for = "/Build/VR Smoke School.wasm.br"
+  for = "/Build/VR Smoke School Stock WebXR.wasm.br"
   [headers.values]
     "Content-Type" = "application/wasm"
     "Content-Encoding" = "br"
 
 [[headers]]
-  for = "/Build/VR Smoke School.framework.js.br"
+  for = "/Build/VR Smoke School Stock WebXR.framework.js.br"
   [headers.values]
     "Content-Type" = "application/javascript"
     "Content-Encoding" = "br"
 
 [[headers]]
-  for = "/Build/VR Smoke School.data.br"
+  for = "/Build/VR Smoke School Stock WebXR.data.br"
   [headers.values]
     "Content-Type" = "application/octet-stream"
     "Content-Encoding" = "br"

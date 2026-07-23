@@ -1,33 +1,23 @@
 using System;
-using System.Collections;
-using System.Net.Mail;
-using System.Runtime.InteropServices;
-using System.Text;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class DataInput_Fields : MonoBehaviour
 {
     [Serializable]
-    private class LoginRequest
-    {
-        public string email;
-        public string password;
-    }
-
-    [Serializable]
-    private class LoginResponse
+    private class ApprovedPayload
     {
         public bool approved;
         public string reason;
+        public string sessionReference;
         public ApprovedProfile student;
     }
 
     [Serializable]
     private class ApprovedProfile
     {
+        public string userId;
         public string email;
         public string displayName;
         public string company;
@@ -37,6 +27,8 @@ public class DataInput_Fields : MonoBehaviour
     [Header("Input Fields")]
     public static string playerEmail;
     public static string studentname;
+    public static string approvedUserId;
+    public static string approvedSessionReference;
     public InputField inputStudentID;
     public InputField inputEmailID;
 
@@ -57,236 +49,67 @@ public class DataInput_Fields : MonoBehaviour
 
     public static int checkSceneReload;
 
-    private const string EMAIL_KEY = "PLAYER_EMAIL";
-    private const string NAME_KEY = "STUDENT_NAME";
-    private const string FALLBACK_AUTH_URL = "https://smokeschool-dashboard.vercel.app/api/vr/login";
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-    [DllImport("__Internal")]
-    private static extern string SmokeSchoolGetAuthApi();
-
-    [DllImport("__Internal")]
-    private static extern void SmokeSchoolSetLoginOverlayVisible(bool visible);
-
-    [DllImport("__Internal")]
-    private static extern void SmokeSchoolSetAuthenticationLoading(bool loading);
-#endif
-
     void Start()
     {
-        welcomePannel.SetActive(false);
-        LoginPannel.SetActive(true);
-        goButton.gameObject.SetActive(true);
-        goButton.onClick.AddListener(OnGoButtonClicked);
-
-        inputStudentID.contentType = InputField.ContentType.Password;
-        inputStudentID.ForceLabelUpdate();
-        inputEmailID.contentType = InputField.ContentType.EmailAddress;
-        inputEmailID.ForceLabelUpdate();
         warningText.gameObject.SetActive(false);
+        goButton.gameObject.SetActive(false);
 
-        inputStudentID.onValueChanged.AddListener(delegate { HideWarningIfValid(); });
-        inputEmailID.onValueChanged.AddListener(delegate { HideWarningIfValid(); });
+        bool hasInMemoryApproval = checkSceneReload == 1 &&
+            !string.IsNullOrWhiteSpace(playerEmail) &&
+            !string.IsNullOrWhiteSpace(approvedUserId) &&
+            !string.IsNullOrWhiteSpace(approvedSessionReference);
 
-        playerEmail = PlayerPrefs.GetString(EMAIL_KEY);
-        studentname = PlayerPrefs.GetString(NAME_KEY);
-        if (checkSceneReload == 1)
+        LoginPannel.SetActive(!hasInMemoryApproval);
+        welcomePannel.SetActive(hasInMemoryApproval);
+        if (hasInMemoryApproval)
         {
-            Emailsent.text = playerEmail;
-            Username.text = studentname;
-            EmailsentF.text = playerEmail;
-            UsernameF.text = studentname;
-            LoginPannel.SetActive(false);
-            welcomePannel.SetActive(true);
-            SetBrowserLoginVisible(false);
-        }
-        else
-        {
-            SetBrowserLoginVisible(true);
+            ApplyApprovedIdentityToUi();
         }
     }
 
-    void HideWarningIfValid()
+    // Called by the WebGL template only after the browser receives signed approval.
+    public void CompleteApprovedLogin(string approvedJson)
     {
-        if (!string.IsNullOrEmpty(inputStudentID.text) && !string.IsNullOrEmpty(inputEmailID.text))
-        {
-            warningText.gameObject.SetActive(false);
-        }
-    }
-
-    void OnGoButtonClicked()
-    {
-        string password = inputStudentID.text;
-        string email = inputEmailID.text.Trim();
-
-        if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(email))
-        {
-            ShowLoginError("Email and password are required.");
-            return;
-        }
-
-        if (!IsValidEmail(email))
-        {
-            ShowLoginError("Enter a valid email address.");
-            return;
-        }
-
-        StartCoroutine(Authenticate(email, password));
-    }
-
-    public void ReceiveBrowserLogin(string loginJson)
-    {
-        LoginRequest login;
+        ApprovedPayload payload;
         try
         {
-            login = JsonUtility.FromJson<LoginRequest>(loginJson);
+            payload = JsonUtility.FromJson<ApprovedPayload>(approvedJson);
         }
         catch (Exception)
         {
-            ShowLoginError("Login details could not be read.");
+            ShowLoginError("Approved access details could not be loaded.");
             return;
         }
 
-        if (login == null)
+        if (payload == null || !payload.approved || payload.reason != null || payload.student == null ||
+            string.IsNullOrWhiteSpace(payload.sessionReference) ||
+            string.IsNullOrWhiteSpace(payload.student.userId) ||
+            string.IsNullOrWhiteSpace(payload.student.email))
         {
-            ShowLoginError("Email and password are required.");
+            ShowLoginError("Approved access details are incomplete.");
             return;
         }
 
-        inputStudentID.text = login.password;
-        inputEmailID.text = login.email;
-        OnGoButtonClicked();
-    }
+        playerEmail = payload.student.email.Trim();
+        studentname = string.IsNullOrWhiteSpace(payload.student.displayName)
+            ? playerEmail
+            : payload.student.displayName.Trim();
+        approvedUserId = payload.student.userId.Trim();
+        approvedSessionReference = payload.sessionReference.Trim();
 
-    private IEnumerator Authenticate(string email, string password)
-    {
-        string authUrl = GetAuthenticationUrl();
-        if (string.IsNullOrWhiteSpace(authUrl))
-        {
-            inputStudentID.text = string.Empty;
-            ShowLoginError("Authentication service is not configured.");
-            yield break;
-        }
-
-        goButton.interactable = false;
+        ApplyApprovedIdentityToUi();
         warningText.gameObject.SetActive(false);
-        SetAuthenticationLoading(true);
-
-        string json = JsonUtility.ToJson(new LoginRequest { email = email, password = password });
-        using (UnityWebRequest request = new UnityWebRequest(authUrl, UnityWebRequest.kHttpVerbPOST))
-        {
-            request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-            yield return request.SendWebRequest();
-
-            inputStudentID.text = string.Empty;
-            goButton.interactable = true;
-            SetAuthenticationLoading(false);
-
-            LoginResponse response = null;
-            try
-            {
-                response = JsonUtility.FromJson<LoginResponse>(request.downloadHandler.text);
-            }
-            catch (Exception)
-            {
-                // The status-specific fallback below handles invalid service responses.
-            }
-
-            if (request.responseCode >= 200 && request.responseCode < 300 && response != null && response.approved && response.student != null)
-            {
-                CompleteApprovedLogin(JsonUtility.ToJson(response.student));
-                yield break;
-            }
-
-            if (request.responseCode == 429)
-            {
-                ShowLoginError("Too many attempts. Try again later.");
-            }
-            else if (response != null && response.reason == "access_expired")
-            {
-                ShowLoginError("This training access has expired.");
-            }
-            else if (response != null && response.reason == "access_inactive")
-            {
-                ShowLoginError("This training access is inactive.");
-            }
-            else if (request.responseCode == 401)
-            {
-                ShowLoginError("The email or password is incorrect.");
-            }
-            else
-            {
-                ShowLoginError("Authentication is temporarily unavailable.");
-            }
-        }
+        LoginPannel.SetActive(false);
+        welcomePannel.SetActive(true);
     }
 
-    private string GetAuthenticationUrl()
+    private void ApplyApprovedIdentityToUi()
     {
-#if UNITY_WEBGL && !UNITY_EDITOR
-        try
-        {
-            string configuredUrl = SmokeSchoolGetAuthApi();
-            if (!string.IsNullOrWhiteSpace(configuredUrl))
-            {
-                return configuredUrl;
-            }
-        }
-        catch (Exception)
-        {
-            // Fall through to the production default.
-        }
-#endif
-        return FALLBACK_AUTH_URL;
-    }
-
-    public void CompleteApprovedLogin(string profileJson)
-    {
-        ApprovedProfile profile;
-        try
-        {
-            profile = JsonUtility.FromJson<ApprovedProfile>(profileJson);
-        }
-        catch (Exception)
-        {
-            ShowLoginError("Approved profile could not be loaded.");
-            return;
-        }
-
-        if (profile == null || string.IsNullOrWhiteSpace(profile.email))
-        {
-            ShowLoginError("Approved profile is missing an email address.");
-            return;
-        }
-
-        string approvedName = string.IsNullOrWhiteSpace(profile.displayName)
-            ? profile.email
-            : profile.displayName.Trim();
-        CompleteLogin(approvedName, profile.email.Trim());
-    }
-
-    private void CompleteLogin(string approvedName, string approvedEmail)
-    {
-        playerEmail = approvedEmail;
-        studentname = approvedName;
-
-        PlayerPrefs.SetString(EMAIL_KEY, playerEmail);
-        PlayerPrefs.SetString(NAME_KEY, studentname);
-        PlayerPrefs.Save();
-
         Emailsent.text = playerEmail;
         Username.text = studentname;
         EmailsentF.text = playerEmail;
         UsernameF.text = studentname;
         ScreenshotSender.messageToSend = $"Student: {studentname}\nEmail: {playerEmail}";
-
-        warningText.gameObject.SetActive(false);
-        LoginPannel.SetActive(false);
-        welcomePannel.SetActive(true);
-        SetAuthenticationLoading(false);
-        SetBrowserLoginVisible(false);
     }
 
     private void ShowLoginError(string message)
@@ -295,48 +118,5 @@ public class DataInput_Fields : MonoBehaviour
         warningText.gameObject.SetActive(true);
         LoginPannel.SetActive(true);
         welcomePannel.SetActive(false);
-        SetAuthenticationLoading(false);
-        SetBrowserLoginVisible(true);
-    }
-
-    private void SetBrowserLoginVisible(bool visible)
-    {
-#if UNITY_WEBGL && !UNITY_EDITOR
-        try
-        {
-            SmokeSchoolSetLoginOverlayVisible(visible);
-        }
-        catch (Exception)
-        {
-            // Unity remains usable if the optional browser input bridge is unavailable.
-        }
-#endif
-    }
-
-    private void SetAuthenticationLoading(bool loading)
-    {
-#if UNITY_WEBGL && !UNITY_EDITOR
-        try
-        {
-            SmokeSchoolSetAuthenticationLoading(loading);
-        }
-        catch (Exception)
-        {
-            // The disabled Unity button still prevents duplicate requests.
-        }
-#endif
-    }
-
-    bool IsValidEmail(string email)
-    {
-        try
-        {
-            MailAddress mailAddress = new MailAddress(email);
-            return mailAddress.Address == email;
-        }
-        catch
-        {
-            return false;
-        }
     }
 }

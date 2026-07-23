@@ -9,29 +9,41 @@
     <link rel="stylesheet" href="TemplateData/style.css">
     <script src="auth-config.js"></script>
     <style>
-      #unity-canvas-container { position: relative; }
-      #unity-login-overlay { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
-      #unity-login-overlay input,
-      #unity-login-overlay button { position: absolute; box-sizing: border-box; pointer-events: auto; }
-      #unity-login-overlay input { left: 31.67%; width: 36.56%; border: 0; padding: 0 18px; background: rgba(255, 255, 255, .96); color: #292329; font: 18px Arial, sans-serif; text-align: center; outline: 0; }
-      #unity-login-overlay input:focus { box-shadow: inset 0 0 0 3px rgba(32, 102, 72, .65); }
-      #unity-login-password { top: 0; height: 8.2%; }
-      #unity-login-email { top: 18.5%; height: 8.7%; }
-      #unity-login-submit { left: 40%; top: 35.3%; width: 20%; height: 9.5%; border: 0; background: transparent; color: transparent; cursor: pointer; }
-      #unity-login-spinner { position: absolute; top: 2.15%; right: 32.8%; width: 20px; height: 20px; box-sizing: border-box; border: 3px solid rgba(32, 102, 72, .22); border-top-color: #206648; border-radius: 50%; animation: unity-login-spin .7s linear infinite; pointer-events: none; }
+      :root { color-scheme: dark; font-family: Arial, Helvetica, sans-serif; }
+      body { margin: 0; background: #160509; }
+      #unity-container { display: none; }
+      #auth-gate { min-height: 100vh; display: grid; place-items: center; box-sizing: border-box; padding: 24px; background: radial-gradient(circle at 70% 15%, #7d1021, transparent 420px), linear-gradient(145deg, #5d0916, #190509 76%); }
+      #unity-login-overlay { width: min(100%, 440px); box-sizing: border-box; border: 1px solid rgba(255,255,255,.15); border-radius: 14px; padding: 34px; background: rgba(255,255,255,.97); color: #201417; box-shadow: 0 28px 80px rgba(0,0,0,.35); }
+      .auth-brand { margin: 0 0 8px; color: #700718; font-family: Georgia, serif; font-size: 30px; text-transform: uppercase; }
+      #unity-login-overlay h1 { margin: 24px 0 8px; color: #3b0a12; font-family: Georgia, serif; font-size: 28px; }
+      #unity-login-overlay p { margin: 0 0 22px; color: #6f6064; line-height: 1.45; }
+      #unity-login-overlay label { display: grid; gap: 8px; margin-top: 16px; color: #201417; font-size: 13px; font-weight: 700; }
+      #unity-login-overlay input { min-height: 46px; box-sizing: border-box; border: 1px solid #d9ced0; border-radius: 7px; padding: 0 13px; background: #fff; color: #201417; font: 16px Arial, sans-serif; }
+      #unity-login-overlay input:focus { outline: 3px solid rgba(32, 102, 72, .45); }
+      #unity-login-submit { width: 100%; min-height: 48px; margin-top: 22px; border: 0; border-radius: 7px; background: #790819; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+      #unity-login-submit:disabled { cursor: wait; opacity: .65; }
+      #auth-status { min-height: 20px; margin: 15px 0 0; color: #a00518; font-size: 13px; font-weight: 700; }
+      #auth-status.success { color: #1b6a35; }
+      #unity-login-spinner { display: inline-block; width: 16px; height: 16px; margin-right: 8px; box-sizing: border-box; border: 3px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: unity-login-spin .7s linear infinite; vertical-align: -3px; }
+      #unity-login-spinner[hidden] { display: none; }
       @keyframes unity-login-spin { to { transform: rotate(360deg); } }
     </style>
   </head>
   <body>
+    <main id="auth-gate">
+      <form id="unity-login-overlay" autocomplete="on">
+        <div class="auth-brand">Smoke School</div>
+        <p>VR training access</p>
+        <h1>Sign in to begin.</h1>
+        <label>Email<input id="unity-login-email" name="email" type="email" autocomplete="username" inputmode="email" required></label>
+        <label>Password<input id="unity-login-password" name="password" type="password" autocomplete="current-password" required></label>
+        <button id="unity-login-submit" type="submit"><span id="unity-login-spinner" role="status" aria-label="Signing in" hidden></span><span id="auth-submit-label">Sign In</span></button>
+        <p id="auth-status" role="alert" aria-live="polite"></p>
+      </form>
+    </main>
     <div id="unity-container">
       <div id="unity-canvas-container">
         <canvas id="unity-canvas" style="width: 100%; height: 100%;"></canvas>
-        <form id="unity-login-overlay" autocomplete="on">
-          <input id="unity-login-password" type="password" autocomplete="current-password" aria-label="Password" placeholder="Password" required>
-          <span id="unity-login-spinner" role="status" aria-label="Signing in" hidden></span>
-          <input id="unity-login-email" type="email" autocomplete="username" aria-label="User Email" placeholder="Email" required>
-          <button id="unity-login-submit" type="submit" aria-label="Submit login">Submit</button>
-        </form>
       </div>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
@@ -41,8 +53,8 @@
       </div>
       <div id="unity-footer">
         <div id="unity-webgl-logo"></div>
-        <button id="entervr" value="Enter VR" disabled>VR</button>
-        <button id="enterar" value="Enter AR" disabled>AR</button>
+        <button id="entervr" value="Enter VR" disabled hidden>VR</button>
+        <button id="enterar" value="Enter AR" disabled hidden>AR</button>
         <div id="unity-webxr-link">Using <a href="https://github.com/De-Panther/unity-webxr-export" target="_blank" title="WebXR Export">WebXR Export</a></div>
         <div id="unity-build-title">{{{ PRODUCT_NAME }}}</div>
       </div>
@@ -72,7 +84,15 @@
       var loadingBar = document.querySelector("#unity-loading-bar");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var submitButton = document.querySelector("#unity-login-submit");
+      var spinner = document.querySelector("#unity-login-spinner");
+      var submitLabel = document.querySelector("#auth-submit-label");
+      var enterARButton = document.getElementById("enterar");
+      var enterVRButton = document.getElementById("entervr");
       var unityInstance = null;
+      var unityStarted = false;
+      var arSupported = false;
+      var vrSupported = false;
       {{{ WEBXR_POLYFILL_CONFIG }}}
 
       canvasContainer.style.width = "{{{ WIDTH }}}px";
@@ -80,56 +100,164 @@
 #if BACKGROUND_FILENAME
       canvas.style.background = "url('" + buildUrl + "/{{{ BACKGROUND_FILENAME.replace(/'/g, '%27') }}}') center / cover";
 #endif
-      loadingBar.style.display = "block";
+      function configuredAuthApi() {
+        var queryOverride = new URLSearchParams(window.location.search).get("authApi");
+        return queryOverride || (window.SMOKE_SCHOOL_AUTH && window.SMOKE_SCHOOL_AUTH.apiUrl) || "";
+      }
 
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
-        }).then((instance) => {
-          unityInstance = instance;
-          loadingBar.style.display = "none";
-          document.getElementById("unity-login-overlay").style.display = "block";
-          if (fullscreenButton)
-          {
-            fullscreenButton.onclick = () => {
-              unityInstance.SetFullscreen(1);
-            };
-          }
-        }).catch((message) => {
-          alert(message);
-        });
-      };
-      document.body.appendChild(script);
+      function showAuthStatus(message, success) {
+        var status = document.getElementById("auth-status");
+        status.textContent = message;
+        status.classList.toggle("success", Boolean(success));
+      }
 
-      document.getElementById("unity-login-overlay").addEventListener("submit", function (event) {
+      function setAuthenticationLoading(loading) {
+        submitButton.disabled = loading;
+        spinner.hidden = !loading;
+        submitLabel.textContent = loading ? "Checking Access" : "Sign In";
+        document.getElementById("unity-login-overlay").setAttribute("aria-busy", loading ? "true" : "false");
+      }
+
+      function denialMessage(reason, response) {
+        var messages = {
+          invalid_credentials: "The email or password is incorrect.",
+          access_revoked: "This training access has been revoked. Please contact Smoke School.",
+          access_inactive: "This training access is inactive. Please contact Smoke School.",
+          access_expired: "This training access has expired. Please contact Smoke School.",
+          rate_limited: "Too many sign-in attempts. Please wait and try again.",
+        };
+        if (reason === "rate_limited" || response.status === 429) {
+          var retryAfter = Number(response.headers.get("Retry-After"));
+          return Number.isFinite(retryAfter) && retryAfter > 0
+            ? "Too many sign-in attempts. Try again in " + Math.ceil(retryAfter / 60) + " minutes."
+            : messages.rate_limited;
+        }
+        return messages[reason] || "Authentication is temporarily unavailable. Please try again.";
+      }
+
+      function sanitizeApprovedResponse(result) {
+        if (!result || result.approved !== true || result.reason !== null ||
+            typeof result.sessionReference !== "string" || !result.sessionReference ||
+            !result.student || typeof result.student.userId !== "string" || !result.student.userId ||
+            typeof result.student.email !== "string" || !result.student.email ||
+            typeof result.student.displayName !== "string" ||
+            typeof result.student.company !== "string" ||
+            typeof result.student.expiresAt !== "string") {
+          return null;
+        }
+        return {
+          approved: true,
+          reason: null,
+          sessionReference: result.sessionReference,
+          student: {
+            userId: result.student.userId,
+            email: result.student.email,
+            displayName: result.student.displayName,
+            company: result.student.company,
+            expiresAt: result.student.expiresAt,
+          },
+        };
+      }
+
+      function updateXRButtons() {
+        var ready = Boolean(unityInstance);
+        enterARButton.hidden = !ready;
+        enterVRButton.hidden = !ready;
+        enterARButton.disabled = !ready || !arSupported;
+        enterVRButton.disabled = !ready || !vrSupported;
+      }
+
+      function showUnityLoadFailure(message) {
+        unityStarted = false;
+        container.style.display = "none";
+        document.getElementById("auth-gate").style.display = "grid";
+        setAuthenticationLoading(false);
+        showAuthStatus(message, false);
+      }
+
+      function startUnity(approvedPayload) {
+        unityStarted = true;
+        container.style.display = "block";
+        loadingBar.style.display = "block";
+
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+          createUnityInstance(canvas, config, (progress) => {
+            progressBarFull.style.width = 100 * progress + "%";
+          }).then((instance) => {
+            unityInstance = instance;
+            unityInstance.SendMessage("LoginPanel", "CompleteApprovedLogin", JSON.stringify(approvedPayload));
+            approvedPayload = null;
+            loadingBar.style.display = "none";
+            document.getElementById("auth-gate").style.display = "none";
+            updateXRButtons();
+            if (fullscreenButton) {
+              fullscreenButton.onclick = () => unityInstance.SetFullscreen(1);
+            }
+          }).catch(() => {
+            script.remove();
+            showUnityLoadFailure("The VR application could not be loaded. Please try again.");
+          });
+        };
+        script.onerror = () => {
+          script.remove();
+          showUnityLoadFailure("The VR application loader is unavailable. Please try again.");
+        };
+        document.body.appendChild(script);
+      }
+
+      document.getElementById("unity-login-overlay").addEventListener("submit", async (event) => {
         event.preventDefault();
-        if (!unityInstance) return;
-        var passwordInput = document.getElementById("unity-login-password");
+        if (unityStarted) return;
+
         var emailInput = document.getElementById("unity-login-email");
-        unityInstance.SendMessage("LoginPanel", "ReceiveBrowserLogin", JSON.stringify({
-          email: emailInput.value.trim(),
-          password: passwordInput.value
-        }));
-        passwordInput.value = "";
+        var passwordInput = document.getElementById("unity-login-password");
+        var apiUrl = configuredAuthApi();
+        if (!apiUrl) {
+          showAuthStatus("Authentication service is not configured. Please try again later.", false);
+          return;
+        }
+
+        setAuthenticationLoading(true);
+        showAuthStatus("Checking access...", true);
+        try {
+          var response = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: emailInput.value.trim(), password: passwordInput.value }),
+            cache: "no-store",
+          });
+          var result = await response.json().catch(() => null);
+          var approvedPayload = response.ok ? sanitizeApprovedResponse(result) : null;
+          if (approvedPayload) {
+            showAuthStatus("Access approved. Loading VR training...", true);
+            startUnity(approvedPayload);
+            return;
+          }
+          showAuthStatus(denialMessage(result && result.reason, response), false);
+        } catch (error) {
+          showAuthStatus("Could not reach the authentication service. Please try again.", false);
+        } finally {
+          passwordInput.value = "";
+          if (!unityStarted) setAuthenticationLoading(false);
+        }
       });
 
-      let enterARButton = document.getElementById('enterar');
-      let enterVRButton = document.getElementById('entervr');
+      document.addEventListener("onARSupportedCheck", function (event) {
+        arSupported = Boolean(event.detail.supported);
+        updateXRButtons();
+      }, false);
+      document.addEventListener("onVRSupportedCheck", function (event) {
+        vrSupported = Boolean(event.detail.supported);
+        updateXRButtons();
+      }, false);
 
-      document.addEventListener('onARSupportedCheck', function (event) {
-        enterARButton.disabled = !event.detail.supported;
+      enterARButton.addEventListener("click", function () {
+        if (unityInstance && !enterARButton.disabled) unityInstance.Module.WebXR.toggleAR();
       }, false);
-      document.addEventListener('onVRSupportedCheck', function (event) {
-        enterVRButton.disabled = !event.detail.supported;
-      }, false);
-
-      enterARButton.addEventListener('click', function (event) {
-        unityInstance.Module.WebXR.toggleAR();
-      }, false);
-      enterVRButton.addEventListener('click', function (event) {
-        unityInstance.Module.WebXR.toggleVR();
+      enterVRButton.addEventListener("click", function () {
+        if (unityInstance && !enterVRButton.disabled) unityInstance.Module.WebXR.toggleVR();
       }, false);
     </script>
   </body>
