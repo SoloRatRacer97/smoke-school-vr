@@ -9,13 +9,14 @@ const root = process.cwd();
 const project = path.join(root, "Chemney_VR");
 const argumentsList = process.argv.slice(2);
 const checkNetwork = argumentsList.includes("--network");
-const outputArgument = argumentsList.find((value) => value !== "--network");
+const sourceOnly = argumentsList.includes("--source-only");
+const outputArgument = argumentsList.find((value) => !value.startsWith("--"));
 const output = outputArgument
   ? path.resolve(outputArgument)
   : path.join(project, "VR Smoke School Stock WebXR");
 
 const lockedSourceHashes = new Map([
-  ["Assets/ManagerTesting.cs", "83d4b582263aa8a3bb1db2a30df4950a586742b659c87b2632e6ea50cfaa934d"],
+  ["Assets/ManagerTesting.cs", "4aab8e16f60b5f741624eba7985e20ebb7999b0a047b9d6e1f310dae847d8735"],
   ["Assets/Scripts/SmokeVideoDirectDisplay.cs", "543c44b967a491de1bc15620d145641fa88e07c0e7fdba88b14abd7066378039"],
   ["Assets/Scripts/SmokeVideoURLData.asset", "487c110665ef4e4e3c7a840df5c0d7e06b6f5c829d87f47976265a1f875d6161"],
   ["Assets/Scripts/SmokeTestManager.cs", "df0e1fc0b13d008292cd32e13d09503f5716639135c8673d262c72e1f4308b5a"],
@@ -41,7 +42,7 @@ for (const [relativePath, expectedHash] of lockedSourceHashes) {
 
 const videoCatalog = read("Assets/Scripts/SmokeVideoURLData.asset").toString("utf8");
 const videoUrls = [...videoCatalog.matchAll(/https:\/\/[^\s]+/g)].map((match) => match[0]);
-assert.ok(videoUrls.length >= 100, "the Cloudinary smoke-video catalog is unexpectedly small");
+assert.equal(videoUrls.length, 620, "the Cloudinary smoke-video mapping count drifted");
 for (const value of videoUrls) {
   const url = new URL(value);
   assert.equal(url.hostname, "res.cloudinary.com", `unexpected video host: ${url.hostname}`);
@@ -117,6 +118,57 @@ assert.match(authSource, /UnityWebRequest/);
 assert.match(authSource, /SetAuthenticationLoading\(true\)/);
 assert.match(authSource, /inputStudentID\.text = string\.Empty/);
 assert.doesNotMatch(authSource, /warningText\.text = "Checking access/);
+assert.match(authSource, /public static string approvedCertificationNumber/);
+assert.match(authSource, /public static string approvedSessionReference/);
+assert.match(authSource, /public static string approvedResultToken/);
+assert.match(authSource, /student\.certificationNumber[\s\S]{0,120}student\.userId/);
+assert.match(authSource, /Uri\.TryCreate\(approvedAuthenticationUrl, UriKind\.Absolute/);
+assert.match(authSource, /Uri\.UriSchemeHttps[\s\S]{0,120}Uri\.UriSchemeHttp/);
+assert.match(authSource, /AbsolutePath != "\/api\/vr\/login"[\s\S]{0,120}AbsolutePath != "\/api\/vr\/login\/"/);
+assert.match(authSource, /new UriBuilder\(authenticationUri\)[\s\S]{0,180}Path = "\/api\/vr\/certification-attempts"[\s\S]{0,120}Query = string\.Empty[\s\S]{0,120}Fragment = string\.Empty/);
+assert.doesNotMatch(authSource, /approvedAuthenticationUrl\.Replace/);
+assert.doesNotMatch(authSource, /PlayerPrefs\.SetString\([^\n]*(resultToken|sessionReference)/);
+
+const resultReporter = read("Assets/Scripts/CertificationResultReporter.cs").toString("utf8");
+assert.match(resultReporter, /ExpectedReadingCount = 50/);
+assert.match(resultReporter, /if \(hasSucceeded \|\| isSubmitting\)/);
+assert.match(resultReporter, /Guid\.NewGuid\(\)/);
+assert.match(resultReporter, /resultToken[\s\S]*attemptId[\s\S]*runNumber[\s\S]*startedAt[\s\S]*completedAt[\s\S]*rulesVersion[\s\S]*clientVersion[\s\S]*readings/);
+assert.match(resultReporter, /section[\s\S]*questionNumber[\s\S]*videoId[\s\S]*actualOpacity[\s\S]*studentOpacity/);
+assert.match(resultReporter, /epa-method-9-v1/);
+assert.match(resultReporter, /white\.questionNumber != i \+ 1[\s\S]*black\.questionNumber != i \+ 1/);
+assert.match(resultReporter, /authoritative\.whiteReadingCount != ExpectedSectionReadingCount[\s\S]{0,160}authoritative\.blackReadingCount != ExpectedSectionReadingCount/);
+assert.match(resultReporter, /authoritative\.whiteScore != localWhiteScore[\s\S]{0,120}authoritative\.blackScore != localBlackScore/);
+assert.match(resultReporter, /result\.deviation > IndividualFailureThreshold/);
+assert.match(resultReporter, /authoritative\.individualFailureCount != localIndividualFailureCount/);
+assert.match(resultReporter, /authoritative\.passed != localPassed/);
+assert.match(resultReporter, /requiredFields[\s\S]{0,500}required result field/);
+assert.match(resultReporter, /Certification result response mismatch/);
+
+const managerSource = read("Assets/ManagerTesting.cs").toString("utf8");
+assert.match(managerSource, /CertificationResultReporter\.BeginNewRun\(\)/);
+assert.match(managerSource, /ScreenshotSender\.didPass = didPass;[\s\S]{0,120}CertificationResultReporter\.Submit\(testRunNumber\)/);
+assert.match(managerSource, /bool hasCompleteCertification = CertificationResultReporter\.HasCompleteReadings/);
+assert.match(managerSource, /if \(!answeredAny \|\| !hasCompleteCertification\)/);
+assert.match(managerSource, /ScreenshotSender\.didPass = hasCompleteCertification && !hasIndividualFail && whitePassed && blackPassed/);
+assert.match(managerSource, /while \(CertificationResultReporter\.IsSubmitting\)/);
+
+const templateSource = read("Assets/WebGLTemplates/WebXR2020/index.html").toString("utf8");
+assert.match(templateSource, /<button id="entervr" value="Enter VR" disabled>VR<\/button>/);
+assert.match(templateSource, /ReceiveBrowserLogin/);
+
+if (sourceOnly) {
+  console.log(JSON.stringify({
+    ok: true,
+    sourceOnly: true,
+    lockedSourceFiles: lockedSourceHashes.size,
+    cloudinaryVideoUrls: videoUrls.length,
+    whiteSmokeMappings: whiteMappings.length,
+    whiteMappingDigest: sha256(Buffer.from(whiteMappings.join("\n"))),
+    networkChecked: checkNetwork,
+  }, null, 2));
+  process.exit(0);
+}
 
 const indexPath = path.join(output, "index.html");
 const authConfigPath = path.join(output, "auth-config.js");

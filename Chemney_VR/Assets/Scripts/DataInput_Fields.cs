@@ -22,12 +22,16 @@ public class DataInput_Fields : MonoBehaviour
     {
         public bool approved;
         public string reason;
+        public string sessionReference;
+        public string resultToken;
         public ApprovedProfile student;
     }
 
     [Serializable]
     private class ApprovedProfile
     {
+        public string certificationNumber;
+        public string userId;
         public string email;
         public string displayName;
         public string company;
@@ -37,6 +41,10 @@ public class DataInput_Fields : MonoBehaviour
     [Header("Input Fields")]
     public static string playerEmail;
     public static string studentname;
+    public static string approvedCertificationNumber;
+    public static string approvedSessionReference;
+    public static string approvedResultToken;
+    private static string approvedAuthenticationUrl;
     public InputField inputStudentID;
     public InputField inputEmailID;
 
@@ -196,6 +204,12 @@ public class DataInput_Fields : MonoBehaviour
 
             if (request.responseCode >= 200 && request.responseCode < 300 && response != null && response.approved && response.student != null)
             {
+                approvedCertificationNumber = string.IsNullOrWhiteSpace(response.student.certificationNumber)
+                    ? response.student.userId
+                    : response.student.certificationNumber;
+                approvedSessionReference = response.sessionReference;
+                approvedResultToken = response.resultToken;
+                approvedAuthenticationUrl = authUrl;
                 CompleteApprovedLogin(JsonUtility.ToJson(response.student));
                 yield break;
             }
@@ -242,6 +256,25 @@ public class DataInput_Fields : MonoBehaviour
         return FALLBACK_AUTH_URL;
     }
 
+    public static string GetCertificationResultUrl()
+    {
+        if (string.IsNullOrWhiteSpace(approvedAuthenticationUrl) ||
+            !Uri.TryCreate(approvedAuthenticationUrl, UriKind.Absolute, out Uri authenticationUri) ||
+            (authenticationUri.Scheme != Uri.UriSchemeHttps && authenticationUri.Scheme != Uri.UriSchemeHttp) ||
+            (authenticationUri.AbsolutePath != "/api/vr/login" && authenticationUri.AbsolutePath != "/api/vr/login/"))
+        {
+            return string.Empty;
+        }
+
+        UriBuilder resultUri = new UriBuilder(authenticationUri)
+        {
+            Path = "/api/vr/certification-attempts",
+            Query = string.Empty,
+            Fragment = string.Empty
+        };
+        return resultUri.Uri.AbsoluteUri;
+    }
+
     public void CompleteApprovedLogin(string profileJson)
     {
         ApprovedProfile profile;
@@ -260,6 +293,10 @@ public class DataInput_Fields : MonoBehaviour
             ShowLoginError("Approved profile is missing an email address.");
             return;
         }
+
+        approvedCertificationNumber = string.IsNullOrWhiteSpace(profile.certificationNumber)
+            ? profile.userId
+            : profile.certificationNumber;
 
         string approvedName = string.IsNullOrWhiteSpace(profile.displayName)
             ? profile.email

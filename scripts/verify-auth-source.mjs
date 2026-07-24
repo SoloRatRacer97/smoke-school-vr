@@ -7,6 +7,8 @@ const project = path.join(root, "Chemney_VR");
 const templatePath = path.join(project, "Assets/WebGLTemplates/WebXR2020/index.html");
 const configPath = path.join(project, "Assets/WebGLTemplates/WebXR2020/auth-config.js");
 const dataInputPath = path.join(project, "Assets/Scripts/DataInput_Fields.cs");
+const resultReporterPath = path.join(project, "Assets/Scripts/CertificationResultReporter.cs");
+const testManagerPath = path.join(project, "Assets/ManagerTesting.cs");
 const authPluginPath = path.join(project, "Assets/Plugins/WebGL/SmokeSchoolAuth.jslib");
 const scenePath = path.join(project, "Assets/Scenes/ChimneyScene.unity");
 const builderPath = path.join(project, "Assets/Editor/CommandLineMainStockWebXRBuild.cs");
@@ -39,6 +41,35 @@ requireText(dataInputPath, [
   [/public void CompleteApprovedLogin/, "the approved login entry point"],
   [/public void ReceiveBrowserLogin/, "the Unity browser-input entry point"],
   [/goButton\.onClick\.AddListener\(OnGoButtonClicked\)/, "the Unity login button callback"],
+  [/public static string approvedCertificationNumber/, "approved certification retention"],
+  [/public static string approvedSessionReference/, "approved session retention"],
+  [/public static string approvedResultToken/, "approved result-token retention"],
+  [/student\.certificationNumber[\s\S]{0,120}student\.userId/, "certification-number compatibility fallback"],
+  [/Uri\.TryCreate\(approvedAuthenticationUrl, UriKind\.Absolute/, "absolute authentication URL parsing"],
+  [/Uri\.UriSchemeHttps[\s\S]{0,120}Uri\.UriSchemeHttp/, "HTTP(S) endpoint restriction"],
+  [/AbsolutePath != "\/api\/vr\/login"[\s\S]{0,120}AbsolutePath != "\/api\/vr\/login\/"/, "the exact login endpoint path"],
+  [/new UriBuilder\(authenticationUri\)[\s\S]{0,180}Path = "\/api\/vr\/certification-attempts"[\s\S]{0,120}Query = string\.Empty[\s\S]{0,120}Fragment = string\.Empty/, "path-only certification endpoint derivation"],
+]);
+requireText(resultReporterPath, [
+  [/ExpectedReadingCount = 50/, "the exact reading count"],
+  [/if \(hasSucceeded \|\| isSubmitting\)/, "the exactly-once submission guard"],
+  [/Guid\.NewGuid\(\)/, "the stable per-run attempt ID"],
+  [/resultToken[\s\S]*attemptId[\s\S]*runNumber[\s\S]*startedAt[\s\S]*completedAt[\s\S]*rulesVersion[\s\S]*clientVersion[\s\S]*readings/, "all certification request fields"],
+  [/section[\s\S]*questionNumber[\s\S]*videoId[\s\S]*actualOpacity[\s\S]*studentOpacity/, "all reading fields"],
+  [/epa-method-9-v1/, "the EPA Method 9 rules version"],
+  [/white\.questionNumber != i \+ 1[\s\S]*black\.questionNumber != i \+ 1/, "25 ordered readings per section"],
+  [/authoritative\.whiteReadingCount != ExpectedSectionReadingCount[\s\S]{0,160}authoritative\.blackReadingCount != ExpectedSectionReadingCount/, "authoritative 25-reading section counts"],
+  [/authoritative\.whiteScore != localWhiteScore[\s\S]{0,120}authoritative\.blackScore != localBlackScore/, "authoritative score validation"],
+  [/result\.deviation > IndividualFailureThreshold/, "authoritative individual-failure calculation"],
+  [/authoritative\.individualFailureCount != localIndividualFailureCount/, "authoritative individual-failure validation"],
+  [/authoritative\.passed != localPassed/, "authoritative pass validation"],
+  [/requiredFields[\s\S]{0,500}required result field/, "missing authoritative result-field rejection"],
+]);
+requireText(testManagerPath, [
+  [/CertificationResultReporter\.BeginNewRun\(\)/, "new-run attempt reset"],
+  [/ScreenshotSender\.didPass = didPass;[\s\S]{0,120}CertificationResultReporter\.Submit\(testRunNumber\)/, "result submission after final pass/fail calculation"],
+  [/ScreenshotSender\.didPass = hasCompleteCertification && !hasIndividualFail && whitePassed && blackPassed/, "complete-reading end-test pass guard"],
+  [/while \(CertificationResultReporter\.IsSubmitting\)/, "reload persistence wait"],
 ]);
 requireText(authPluginPath, [
   [/SMOKE_SCHOOL_AUTH/, "the browser auth configuration bridge"],
@@ -52,6 +83,9 @@ if (!/m_Name: Emission Testing Text[\s\S]{0,1800}m_text: Video Tutorials/.test(s
 }
 if (!/m_Name: Videos Tutorials Text[\s\S]{0,1800}m_text: Emission Testing/.test(scene)) {
   throw new Error("Right card title is not Emission Testing.");
+}
+if (!/m_text: Start Tutorial/.test(scene) || !/m_text: Begin Test/.test(scene)) {
+  throw new Error("Final card button mappings changed.");
 }
 requireText(builderPath, [
   [/ValidateUnityAuthentication/, "source auth validation"],

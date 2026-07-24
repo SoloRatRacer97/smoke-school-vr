@@ -172,6 +172,7 @@ public class ManagerTesting : MonoBehaviour
     int blackTestScore = 0;
     const int CertificationScoreThreshold = 37;
     const int IndividualFailureThreshold = 3;
+    private bool endTestFlowStarted;
 
     // NEW: Flag to track if first question has been loaded
     private bool isFirstQuestionLoaded = false;
@@ -538,6 +539,7 @@ public class ManagerTesting : MonoBehaviour
     void Start()
     {
         SmokeSchoolAppState.ResetCertificationState();
+        CertificationResultReporter.BeginNewRun();
         Debug.Log($"ManagerTesting Start - current test run #{testRunNumber}");
         if (blackScreen != null) blackScreen.SetActive(false);
 
@@ -2325,19 +2327,21 @@ public class ManagerTesting : MonoBehaviour
         RefreshCertificationResultRows();
         SyncCertificationScoresFromState();
 
-        // Check if user answered any question
+        // A certification result is valid only when both 25-reading sections are complete.
         bool answeredAny = DidUserAnswerAnyQuestion();
+        bool hasCompleteCertification = CertificationResultReporter.HasCompleteReadings;
 
-        if (!answeredAny)
+        if (!answeredAny || !hasCompleteCertification)
         {
-            // User didn't answer any question
             NotPassedPanel.SetActive(true);
             QualifiedPanel.SetActive(false);
             ScreenshotSender.didPass = false;
 
-            YourTotalScore.text = "No scored answers recorded";
+            YourTotalScore.text = answeredAny
+                ? "Certification readings are incomplete"
+                : "No scored answers recorded";
             endTestButtonText.text = "Retake Test";
-            Debug.Log($"User failed because no answers were selected on run #{testRunNumber}");
+            Debug.Log($"User failed because certification readings were incomplete on run #{testRunNumber}");
             return;
         }
 
@@ -2349,6 +2353,7 @@ public class ManagerTesting : MonoBehaviour
 
         YourTotalScore.text = BuildTotalScoreText(hasIndividualFail);
         ScreenshotSender.didPass = didPass;
+        StartCoroutine(CertificationResultReporter.Submit(testRunNumber));
 
         LogIndividualFailingReadings(individualFailingReadings, "ShowingFinalResult");
 
@@ -2477,6 +2482,11 @@ public class ManagerTesting : MonoBehaviour
 
     public void OnEndTestButtonClicked()
     {
+        if (endTestFlowStarted)
+        {
+            return;
+        }
+
         RefreshCertificationResultRows();
         SyncCertificationScoresFromState();
 
@@ -2484,12 +2494,35 @@ public class ManagerTesting : MonoBehaviour
         bool hasIndividualFail = individualFailingReadings.Count > 0;
         bool whitePassed = whiteTestScore <= CertificationScoreThreshold;
         bool blackPassed = blackTestScore <= CertificationScoreThreshold;
+        bool hasCompleteCertification = CertificationResultReporter.HasCompleteReadings;
         int completedRunNumber = testRunNumber;
         DataInput_Fields.checkSceneReload = 1;
-        ScreenshotSender.didPass = (!hasIndividualFail && whitePassed && blackPassed);
+        ScreenshotSender.didPass = hasCompleteCertification && !hasIndividualFail && whitePassed && blackPassed;
         YourTotalScore.text = BuildTotalScoreText(hasIndividualFail);
         LogIndividualFailingReadings(individualFailingReadings, "OnEndTestButtonClicked");
         HideSmokeVideoDirectDisplay();
+        StartCoroutine(CompleteEndTest(completedRunNumber));
+    }
+
+    private IEnumerator CompleteEndTest(int completedRunNumber)
+    {
+        endTestFlowStarted = true;
+
+        if (CertificationResultReporter.HasCompleteReadings)
+        {
+            yield return CertificationResultReporter.Submit(completedRunNumber);
+            while (CertificationResultReporter.IsSubmitting)
+            {
+                yield return null;
+            }
+
+            if (!CertificationResultReporter.HasSucceeded)
+            {
+                Debug.LogError("Certification result was not persisted. Select the end-test button to retry.");
+                endTestFlowStarted = false;
+                yield break;
+            }
+        }
 
         if (ScreenshotSender.didPass)
         {

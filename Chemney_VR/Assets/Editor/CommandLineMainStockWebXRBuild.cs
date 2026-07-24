@@ -12,6 +12,8 @@ public static class CommandLineMainStockWebXRBuild
     private const string WebXRTemplatePath = "Assets/WebGLTemplates/WebXR2020/index.html";
     private const string AuthConfigPath = "Assets/WebGLTemplates/WebXR2020/auth-config.js";
     private const string AuthScriptPath = "Assets/Scripts/DataInput_Fields.cs";
+    private const string ResultReporterPath = "Assets/Scripts/CertificationResultReporter.cs";
+    private const string TestManagerPath = "Assets/ManagerTesting.cs";
     private const string AuthPluginPath = "Assets/Plugins/WebGL/SmokeSchoolAuth.jslib";
     private static readonly string[] ExperimentalWebGLPluginPaths =
     {
@@ -197,13 +199,16 @@ public static class CommandLineMainStockWebXRBuild
     private static void ValidateUnityAuthentication()
     {
         if (!File.Exists(WebXRTemplatePath) || !File.Exists(AuthConfigPath) ||
-            !File.Exists(AuthScriptPath) || !File.Exists(AuthPluginPath))
+            !File.Exists(AuthScriptPath) || !File.Exists(AuthPluginPath) ||
+            !File.Exists(ResultReporterPath) || !File.Exists(TestManagerPath))
         {
             throw new System.Exception("Unity authentication source files are missing.");
         }
 
         string template = File.ReadAllText(WebXRTemplatePath);
         string script = File.ReadAllText(AuthScriptPath);
+        string resultReporter = File.ReadAllText(ResultReporterPath);
+        string testManager = File.ReadAllText(TestManagerPath);
         string plugin = File.ReadAllText(AuthPluginPath);
         if (!template.Contains("auth-config.js") ||
             !template.Contains("createUnityInstance") ||
@@ -211,6 +216,17 @@ public static class CommandLineMainStockWebXRBuild
             !script.Contains("UnityWebRequest") ||
             !script.Contains("SmokeSchoolGetAuthApi") ||
             !script.Contains("goButton.onClick.AddListener(OnGoButtonClicked)") ||
+            !script.Contains("approvedCertificationNumber") ||
+            !script.Contains("approvedSessionReference") ||
+            !script.Contains("approvedResultToken") ||
+            !script.Contains("/api/vr/certification-attempts") ||
+            !resultReporter.Contains("epa-method-9-v1") ||
+            !resultReporter.Contains("if (hasSucceeded || isSubmitting)") ||
+            !resultReporter.Contains("ExpectedReadingCount = 50") ||
+            !resultReporter.Contains("public string resultToken") ||
+            !resultReporter.Contains("public string attemptId") ||
+            !resultReporter.Contains("public List<CertificationReading> readings") ||
+            !testManager.Contains("CertificationResultReporter.Submit(testRunNumber)") ||
             !plugin.Contains("SMOKE_SCHOOL_AUTH"))
         {
             throw new System.Exception("Unity-native dashboard authentication is not configured correctly.");
@@ -227,9 +243,11 @@ public static class CommandLineMainStockWebXRBuild
         }
 
         string index = File.ReadAllText(builtIndex);
+        string config = File.ReadAllText(builtConfig);
         if (!index.Contains("createUnityInstance") ||
             !index.Contains("auth-config.js") ||
-            index.Contains("id=\"auth-form\""))
+            index.Contains("id=\"auth-form\"") ||
+            !config.Contains("/api/vr/login"))
         {
             throw new System.Exception("Built WebXR output is not using the Unity-native login flow.");
         }

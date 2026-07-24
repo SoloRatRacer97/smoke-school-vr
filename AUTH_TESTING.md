@@ -3,6 +3,7 @@
 ## Components
 
 - Dashboard API: `POST /api/vr/login`
+- Certification result API: `POST /api/vr/certification-attempts`
 - Unity auth UI: `LoginPanel` in `Chemney_VR/Assets/Scenes/ChimneyScene.unity`
 - WebGL keyboard bridge: `Chemney_VR/Assets/WebGLTemplates/WebXR2020/index.html`
 - Endpoint configuration: `Chemney_VR/Assets/WebGLTemplates/WebXR2020/auth-config.js`
@@ -24,6 +25,7 @@ https://YOUR-VR-SITE.netlify.app/?authApi=https%3A%2F%2FYOUR-DASHBOARD%2Fapi%2Fv
 
 ```bash
 node scripts/verify-auth-source.mjs
+node scripts/test-vr-regressions.mjs --source-only
 ```
 
 ## Build
@@ -66,5 +68,14 @@ node scripts/test-vr-regressions.mjs "Chemney_VR/VR Smoke School Stock WebXR" --
 5. The sixth failed attempt returns the dashboard throttle message and honors `Retry-After`.
 6. Refresh returns to the Unity login panel; no password persists.
 7. The Quest browser enters WebXR and clear-video playback remains unchanged.
+8. An approved login retains `certificationNumber`, `sessionReference`, and `resultToken` in memory; `userId` is used only when `certificationNumber` is absent.
+9. Completing a certification submits one attempt containing the login `resultToken`, a UUID attempt ID, run/timestamps/version fields, `epa-method-9-v1`, and exactly 25 ordered White plus 25 ordered Black readings.
+10. Each submitted reading contains its 1-based question number, assigned video filename, actual opacity, and selected opacity matching the final Unity result tables.
+11. A pass and a threshold/individual-reading failure both persist the dashboard-calculated result without changing the Unity result shown to the student.
+12. Reopening the final result or pressing End Test while a request is active does not create a simultaneous second request.
+13. Force the first result request to fail, then restore the API and press End Test again; the retry uses the same `attemptId`, succeeds, and only then reloads the scene.
+14. Return `{ok:true, duplicate:true}` for the retry and confirm Unity accepts it when the response `attemptId` matches.
+15. Start a retake after a failed run and confirm the new run receives a new `attemptId` while the approved in-memory login remains available.
+16. Confirm neither `resultToken` nor `sessionReference` appears in `PlayerPrefs`, and a full page refresh requires login again.
 
 The Unity login is the development MVP. Before a production security release, protect build/video delivery with a short-lived signed grant at the hosting edge.
