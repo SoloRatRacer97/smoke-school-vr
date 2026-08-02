@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
@@ -60,6 +61,7 @@ namespace SmokeSchool.Tests
             AssertObjectArray(serialized, "btn_points", 21);
             AssertObjectArray(serialized, "btn_questions", 25);
             Assert.That(manager.transform.localScale, Is.EqualTo(Vector3.one));
+            Assert.That(((RectTransform)manager.transform).anchoredPosition.y, Is.EqualTo(-100f).Within(0.001f));
         }
 
         [Test]
@@ -93,8 +95,10 @@ namespace SmokeSchool.Tests
             Transform manager = managerComponent.transform;
             RectTransform practicePanel = (RectTransform)FindChild(manager, "Practice Panel");
             RectTransform videoImage = (RectTransform)FindChild(practicePanel, "Videoplayer");
-            RectTransform questionNumber = (RectTransform)FindChild(videoImage, "Question Number");
-            RectTransform testType = (RectTransform)FindChild(videoImage, "Test Type");
+            RectTransform indicatorOverlay = (RectTransform)FindChild(practicePanel, "Testing Video Indicators Overlay");
+            RectTransform questionNumber = (RectTransform)FindChild(indicatorOverlay, "Question Number");
+            RectTransform testType = (RectTransform)FindChild(indicatorOverlay, "Test Type");
+            Canvas videoOverlayCanvas = indicatorOverlay.GetComponent<Canvas>();
             SerializedObject managerData = new SerializedObject(managerComponent);
             GameObject remarksPanel = (GameObject)managerData.FindProperty("RemarksPannel").objectReferenceValue;
             GameObject testingCompletePanel = (GameObject)managerData.FindProperty("TestingCompletePannel").objectReferenceValue;
@@ -103,6 +107,8 @@ namespace SmokeSchool.Tests
             GameObject blackTestButton = (GameObject)managerData.FindProperty("BlackTestButton").objectReferenceValue;
             GameObject submissionButton = (GameObject)managerData.FindProperty("SubmissionButton").objectReferenceValue;
             Button openResultsButton = (Button)managerData.FindProperty("openresultPannelButton").objectReferenceValue;
+            Button skipButton = (Button)managerData.FindProperty("btn_SkipPracticeTest").objectReferenceValue;
+            Button scratchButton = (Button)managerData.FindProperty("btn_Scratch").objectReferenceValue;
 
             Assert.That(manager.GetComponent<Image>().color.a, Is.EqualTo(0f));
             Assert.That(practicePanel.GetComponent<Image>().color.a, Is.EqualTo(0f));
@@ -118,19 +124,96 @@ namespace SmokeSchool.Tests
             Assert.That(videoImage.anchorMin.y, Is.EqualTo(0f).Within(0.001f));
             Assert.That(videoImage.anchorMax.x, Is.EqualTo(1f).Within(0.001f));
             Assert.That(videoImage.anchorMax.y, Is.EqualTo(1f).Within(0.001f));
+            Assert.That(videoImage.GetComponent<Canvas>(), Is.Null,
+                "The direct/preloaded video target must not contain a nested Canvas.");
+            Assert.That(indicatorOverlay.anchorMin, Is.EqualTo(Vector2.zero));
+            Assert.That(indicatorOverlay.anchorMax, Is.EqualTo(Vector2.one));
+            Assert.That(indicatorOverlay.anchoredPosition, Is.EqualTo(Vector2.zero));
+            Assert.That(indicatorOverlay.sizeDelta, Is.EqualTo(Vector2.zero));
+            Assert.That(indicatorOverlay.localPosition.z, Is.EqualTo(0f).Within(0.001f));
+            Assert.That(indicatorOverlay.GetSiblingIndex(), Is.GreaterThan(videoImage.GetSiblingIndex()));
+            Assert.That(videoOverlayCanvas, Is.Not.Null);
+            Assert.That(videoOverlayCanvas.overrideSorting, Is.True);
+            Assert.That(videoOverlayCanvas.sortingOrder, Is.EqualTo(10));
             Assert.That(questionNumber.gameObject.activeSelf, Is.True);
-            Assert.That(questionNumber.anchoredPosition.x, Is.EqualTo(16.799988f).Within(0.001f));
-            Assert.That(questionNumber.anchoredPosition.y, Is.EqualTo(-16.100006f).Within(0.001f));
+            Assert.That(questionNumber.anchorMin.x, Is.EqualTo(0.010876359f).Within(0.001f));
+            Assert.That(questionNumber.anchorMin.y, Is.EqualTo(0.9293039f).Within(0.001f));
+            Assert.That(questionNumber.anchorMax.x, Is.EqualTo(0.1703963f).Within(0.001f));
+            Assert.That(questionNumber.anchorMax.y, Is.EqualTo(0.9836855f).Within(0.001f));
+            Assert.That(questionNumber.anchoredPosition, Is.EqualTo(Vector2.zero));
+            Assert.That(questionNumber.sizeDelta, Is.EqualTo(Vector2.zero));
+            Assert.That(questionNumber.localPosition.z, Is.EqualTo(0f).Within(0.001f));
             Assert.That(testType.gameObject.activeSelf, Is.True);
-            Assert.That(testType.anchoredPosition.x, Is.EqualTo(-16f).Within(0.001f));
-            Assert.That(testType.anchoredPosition.y, Is.EqualTo(-13f).Within(0.001f));
+            Assert.That(testType.anchorMin.x, Is.EqualTo(0.8296037f).Within(0.001f));
+            Assert.That(testType.anchorMin.y, Is.EqualTo(0.9293039f).Within(0.001f));
+            Assert.That(testType.anchorMax.x, Is.EqualTo(0.98912364f).Within(0.001f));
+            Assert.That(testType.anchorMax.y, Is.EqualTo(0.9836855f).Within(0.001f));
+            Assert.That(testType.anchoredPosition, Is.EqualTo(Vector2.zero));
+            Assert.That(testType.sizeDelta, Is.EqualTo(Vector2.zero));
+            Assert.That(testType.localPosition.z, Is.EqualTo(0f).Within(0.001f));
+            Assert.That(questionNumber.GetSiblingIndex(), Is.EqualTo(0));
+            Assert.That(testType.GetSiblingIndex(), Is.EqualTo(1));
             Assert.That(((RectTransform)remarksPanel.transform).anchoredPosition.y, Is.EqualTo(165f).Within(0.001f));
             Assert.That(((RectTransform)testingCompletePanel.transform).anchoredPosition.y, Is.EqualTo(165f).Within(0.001f));
-            AssertTransitionButton(whiteTestButton, 0.07944743f, 0.32f, 300f);
+            AssertTransitionButton(whiteTestButton, 0.07944743f, 0.32f, 300f, -265f);
             AssertTransitionButton(blackPracticeButton, 0.07944743f, 0.32f, 300f);
             AssertTransitionButton(blackTestButton, 0.07944743f, 0.32f, 300f);
             AssertTransitionButton(submissionButton, 0.42430055f, 0.66485312f, 300f);
             AssertTransitionButton(openResultsButton.gameObject, 0.35f, 0.49501812f, 200f);
+            Assert.That(skipButton.gameObject.activeSelf, Is.True);
+            AssertSameVerticalPlacement(skipButton, scratchButton);
+
+            manager.gameObject.SetActive(true);
+            testingCompletePanel.SetActive(true);
+            whiteTestButton.SetActive(true);
+            skipButton.gameObject.SetActive(true);
+            Canvas.ForceUpdateCanvases();
+            Vector3 skipCenter = manager.InverseTransformPoint(GetRectCenter((RectTransform)skipButton.transform));
+            Vector3 continueCenter = manager.InverseTransformPoint(GetRectCenter((RectTransform)whiteTestButton.transform));
+            Assert.That(continueCenter.y, Is.EqualTo(skipCenter.y).Within(0.01f));
+            Assert.That(continueCenter.z, Is.EqualTo(skipCenter.z).Within(0.01f));
+        }
+
+        [Test]
+        public void Manager_AllPreparedVideosUseTheSameDirectDisplayPath()
+        {
+            string managerSource = File.ReadAllText(Path.Combine(Application.dataPath, "ManagerTesting.cs"));
+
+            Assert.That(managerSource, Does.Match(
+                @"private bool TryUsePreparedVideo[\s\S]*SetActivePlaybackPlayer\(preparedPlayer\);[\s\S]*preparedPlayer\.Play\(\);"),
+                "Prepared White and Black videos must enter playback through the shared active-player path.");
+            Assert.That(managerSource, Does.Match(
+                @"private void SetActivePlaybackPlayer[\s\S]*smokeVideoDirectDisplay\.SetVideoPlayer\(activeVideoPlayer\);"),
+                "Every active main or preloaded player must be bound to the direct display renderer.");
+            Assert.That(managerSource, Does.Match(
+                @"void StartPreloadSlot[\s\S]*slot\.player\.renderMode = VideoRenderMode\.APIOnly;[\s\S]*slot\.player\.Prepare\(\);"),
+                "All preloaded videos must use the same API-only pre-render algorithm.");
+            Assert.That(managerSource, Does.Match(
+                @"private bool TryUsePreparedVideo[\s\S]*BeginVideoPlayback\(true\);[\s\S]*RequestSmokeVideoDirectDisplay\(\);"),
+                "Prepared playback must suppress loading and display the queued texture immediately.");
+            Assert.That(managerSource, Does.Match(
+                @"private bool LoadQuestionVideo[\s\S]*BeginVideoPlayback\(false\);"),
+                "Only videos not ready in the queue should enter the loading state.");
+        }
+
+        [Test]
+        public void Manager_PreparedPlaybackNeverActivatesTheSpinner()
+        {
+            MonoBehaviour manager = SceneBehaviours().Single(component => component.GetType().Name == "ManagerTesting");
+            GameObject loadingImage = (GameObject)new SerializedObject(manager)
+                .FindProperty("loadingImage")
+                .objectReferenceValue;
+
+            loadingImage.SetActive(true);
+            TestReflection.Invoke(manager, "BeginVideoPlayback", true);
+            Assert.That(loadingImage.activeSelf, Is.False);
+            Assert.That(TestReflection.GetField(manager, "waitingForVideoStart"), Is.False);
+            Assert.That(TestReflection.GetField(manager, "suppressLoadingForPreparedVideo"), Is.True);
+
+            TestReflection.Invoke(manager, "BeginVideoPlayback", false);
+            Assert.That(loadingImage.activeSelf, Is.True);
+            Assert.That(TestReflection.GetField(manager, "waitingForVideoStart"), Is.True);
+            Assert.That(TestReflection.GetField(manager, "suppressLoadingForPreparedVideo"), Is.False);
         }
 
         [Test]
@@ -180,6 +263,149 @@ namespace SmokeSchool.Tests
                 {
                     Assert.That(managerActivationIndex, Is.LessThan(phaseStartIndex),
                         $"{GetPath(button.transform)} must activate the manager before starting phase playback and preloading.");
+                }
+            }
+        }
+
+        [Test]
+        public void Scene_RestoresPhaseSkipAndTutorialHomeNavigation()
+        {
+            MonoBehaviour manager = SceneBehaviours().Single(component => component.GetType().Name == "ManagerTesting");
+            Button skipButton = (Button)new SerializedObject(manager)
+                .FindProperty("btn_SkipPracticeTest").objectReferenceValue;
+            Assert.That(skipButton.gameObject.activeSelf, Is.True);
+            Assert.That(skipButton.onClick.GetPersistentEventCount(), Is.EqualTo(0),
+                "The shared Skip button is intentionally wired to OnSkipPractice at runtime.");
+
+            string managerSource = File.ReadAllText("Assets/ManagerTesting.cs");
+            Assert.That(managerSource, Does.Contain("manageWhitePracticeTest.GoToWhiteTutorial();"));
+            Assert.That(managerSource, Does.Contain("SkipToTest(TestType.blackPractice);"));
+            Assert.That(managerSource, Does.Contain("mangerBlackPractice.GoToblackTutorial();"));
+            Assert.That(managerSource, Does.Contain("ShowingFinalResult();\n            OpenSignaturePanel();"));
+            Assert.That(managerSource, Does.Contain("Skip to White Smoke Test"));
+            Assert.That(managerSource, Does.Contain("Skip to Black Smoke Practice"));
+            Assert.That(managerSource, Does.Contain("Skip to Black Smoke Test"));
+            Assert.That(managerSource, Does.Contain("Skip to Signature"));
+            Assert.That(managerSource, Does.Contain("CertificationResultReporter.HasCompleteReadings"),
+                "Skipped certification sections must remain incomplete and ineligible to pass.");
+            Assert.That(managerSource, Does.Contain("SetVideoIndicatorsVisible(true);"));
+            Assert.That(managerSource, Does.Contain("SetVideoIndicatorsVisible(false);"));
+
+            GameObject welcomePanel = FindSceneObject("WelcomePanel");
+            string[] tutorialPanelNames =
+            {
+                "Begin Practice Panel",
+                "Begin Practice Panel After Practice",
+                "Begin Practice PanelBlack",
+                "Begin Practice PanelBlack Aftedr Practice"
+            };
+            foreach (string panelName in tutorialPanelNames)
+            {
+                GameObject panel = FindSceneObject(panelName);
+                Button home = FindChild(panel.transform, "Back to Home").GetComponent<Button>();
+                Button start = FindChild(panel.transform, "Start Test Btn").GetComponent<Button>();
+                Assert.That(home.gameObject.activeSelf, Is.True, $"{panelName} Home button is disabled.");
+                AssertBottomNavigationButton(home.gameObject, 0.07944743f, 0.30060008f);
+                AssertBottomNavigationButton(start.gameObject, 0.69857436f, 0.919727f);
+
+                SerializedProperty homeCalls = GetPersistentCalls(home);
+                AssertSetActiveCall(homeCalls, welcomePanel, true);
+                AssertSetActiveCall(homeCalls, panel, false);
+            }
+        }
+
+        [Test]
+        public void Scene_TestingEnvironmentHasPersistentReturnHomeButton()
+        {
+            GameObject manager = FindSceneObject("White Practice Test Panel");
+            GameObject returnHome = FindSceneObject("Shared Return to Home Button");
+            Assert.That(returnHome.transform.parent, Is.EqualTo(manager.transform));
+            Assert.That(returnHome.activeSelf, Is.True);
+            Assert.That(GetText(FindChild(returnHome.transform, "Text (TMP)").gameObject), Is.EqualTo("Return to Home"));
+
+            RectTransform rect = (RectTransform)returnHome.transform;
+            Assert.That(rect.anchorMin.x, Is.EqualTo(0.37f).Within(0.001f));
+            Assert.That(rect.anchorMin.y, Is.EqualTo(0.095f).Within(0.001f));
+            Assert.That(rect.anchorMax.x, Is.EqualTo(0.63f).Within(0.001f));
+            Assert.That(rect.anchorMax.y, Is.EqualTo(0.155f).Within(0.001f));
+            Assert.That(rect.anchoredPosition, Is.EqualTo(new Vector2(0f, -185f)));
+
+            Image background = returnHome.GetComponent<Image>();
+            Assert.That(background.color.r, Is.EqualTo(0.14509805f).Within(0.001f));
+            Assert.That(background.color.g, Is.EqualTo(0.7921569f).Within(0.001f));
+            Assert.That(background.color.b, Is.EqualTo(0f).Within(0.001f));
+            Assert.That(returnHome.GetComponents<MonoBehaviour>()
+                .Any(component => component.GetType().Name == "SmokeSchoolReturnHome"), Is.True);
+            Assert.That(returnHome.GetComponent<Button>().onClick.GetPersistentEventCount(), Is.EqualTo(0));
+
+            string returnHomeSource = File.ReadAllText("Assets/Scripts/SmokeSchoolReturnHome.cs");
+            Assert.That(returnHomeSource, Does.Contain("SmokeSchoolAppState.ResetCertificationState();"));
+            Assert.That(returnHomeSource, Does.Contain("DataInput_Fields.checkSceneReload = 1;"));
+            Assert.That(returnHomeSource, Does.Contain("SceneManager.LoadScene"));
+        }
+
+        [Test]
+        public void Scene_HomeCardsAndVisibleCopyMatchTheirActions()
+        {
+            Assert.That(GetText(FindSceneObject("Emission Testing Text")), Is.EqualTo("Video Tutorials"));
+            Assert.That(GetText(FindSceneObject("Videos Tutorials Text")), Is.EqualTo("Emission Testing"));
+
+            string sceneSource = File.ReadAllText(ScenePath);
+            string[] expectedCopy =
+            {
+                "m_text: Start Tutorial",
+                "m_text: Begin Test",
+                "m_text: Skip optional practice slides",
+                "m_text: Password",
+                "m_text: Sign In",
+                "m_text: Open Results",
+                "m_text: A signature is required.",
+                "m_text: Continue to White Smoke Test",
+                "m_text: Continue to Black Smoke Practice",
+                "m_text: Continue to Black Smoke Test",
+                "m_text: Continue to Signature"
+            };
+            foreach (string expected in expectedCopy)
+            {
+                Assert.That(sceneSource, Does.Contain(expected));
+            }
+
+            string[] forbiddenCopy =
+            {
+                "\\x03",
+                "User ID",
+                "User Email",
+                "Open Result Pannel",
+                "Signature are required",
+                "Continue To",
+                "Smoke Testing",
+                "White smoke practice",
+                "Maximum allowable Score",
+                "Your Reading :",
+                "We have sent a certification"
+            };
+            foreach (string forbidden in forbiddenCopy)
+            {
+                Assert.That(sceneSource, Does.Not.Contain(forbidden));
+            }
+        }
+
+        [Test]
+        public void Scene_PersistentButtonEventsHaveValidTargetsAndMethods()
+        {
+            Button[] buttons = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<Button>(true))
+                .ToArray();
+            foreach (Button button in buttons)
+            {
+                SerializedProperty calls = GetPersistentCalls(button);
+                for (int index = 0; index < calls.arraySize; index++)
+                {
+                    SerializedProperty call = calls.GetArrayElementAtIndex(index);
+                    Assert.That(call.FindPropertyRelative("m_Target").objectReferenceValue, Is.Not.Null,
+                        $"{GetPath(button.transform)} has a persistent event with no target.");
+                    Assert.That(call.FindPropertyRelative("m_MethodName").stringValue, Is.Not.Empty,
+                        $"{GetPath(button.transform)} has a persistent event with no method.");
                 }
             }
         }
@@ -312,7 +538,12 @@ namespace SmokeSchool.Tests
             }
         }
 
-        private static void AssertTransitionButton(GameObject button, float anchorMinX, float anchorMaxX, float textWidth)
+        private static void AssertTransitionButton(
+            GameObject button,
+            float anchorMinX,
+            float anchorMaxX,
+            float textWidth,
+            float anchoredY = -180f)
         {
             RectTransform buttonRect = (RectTransform)button.transform;
             RectTransform buttonText = (RectTransform)FindChild(buttonRect, "Text (TMP)");
@@ -320,8 +551,42 @@ namespace SmokeSchool.Tests
             Assert.That(buttonRect.anchorMin.y, Is.EqualTo(0.021441802f).Within(0.001f));
             Assert.That(buttonRect.anchorMax.x, Is.EqualTo(anchorMaxX).Within(0.001f));
             Assert.That(buttonRect.anchorMax.y, Is.EqualTo(0.07582342f).Within(0.001f));
-            Assert.That(buttonRect.anchoredPosition.y, Is.EqualTo(-180f).Within(0.001f));
+            Assert.That(buttonRect.anchoredPosition.y, Is.EqualTo(anchoredY).Within(0.001f));
             Assert.That(buttonText.sizeDelta.x, Is.EqualTo(textWidth).Within(0.001f));
+        }
+
+        private static void AssertBottomNavigationButton(GameObject button, float anchorMinX, float anchorMaxX)
+        {
+            RectTransform buttonRect = (RectTransform)button.transform;
+            Assert.That(buttonRect.anchorMin.x, Is.EqualTo(anchorMinX).Within(0.001f));
+            Assert.That(buttonRect.anchorMin.y, Is.EqualTo(0.021441802f).Within(0.001f));
+            Assert.That(buttonRect.anchorMax.x, Is.EqualTo(anchorMaxX).Within(0.001f));
+            Assert.That(buttonRect.anchorMax.y, Is.EqualTo(0.07582342f).Within(0.001f));
+            Assert.That(buttonRect.anchoredPosition.y, Is.EqualTo(-230f).Within(0.001f));
+        }
+
+        private static void AssertSameVerticalPlacement(Button first, Button second)
+        {
+            RectTransform firstRect = (RectTransform)first.transform;
+            RectTransform secondRect = (RectTransform)second.transform;
+            Assert.That(firstRect.anchorMin.y, Is.EqualTo(secondRect.anchorMin.y).Within(0.001f));
+            Assert.That(firstRect.anchorMax.y, Is.EqualTo(secondRect.anchorMax.y).Within(0.001f));
+            Assert.That(firstRect.anchoredPosition.y, Is.EqualTo(secondRect.anchoredPosition.y).Within(0.001f));
+            Assert.That(firstRect.pivot.y, Is.EqualTo(secondRect.pivot.y).Within(0.001f));
+        }
+
+        private static string GetText(GameObject gameObject)
+        {
+            Component text = gameObject.GetComponents<Component>()
+                .Single(component => component.GetType().Name == "TextMeshProUGUI");
+            return new SerializedObject(text).FindProperty("m_text").stringValue;
+        }
+
+        private static Vector3 GetRectCenter(RectTransform rect)
+        {
+            Vector3[] corners = new Vector3[4];
+            rect.GetWorldCorners(corners);
+            return (corners[0] + corners[2]) * 0.5f;
         }
 
         private static Transform FindChild(Transform root, string objectName)

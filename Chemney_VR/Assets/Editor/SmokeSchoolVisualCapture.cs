@@ -6,27 +6,114 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public static class SmokeSchoolVisualCapture
 {
+    public static void EnsureTestingVideoOverlayCanvas()
+    {
+        Scene scene = EditorSceneManager.OpenScene("Assets/Scenes/ChimneyScene.unity", OpenSceneMode.Single);
+        Transform manager = Resources.FindObjectsOfTypeAll<Transform>()
+            .First(item => item != null && item.gameObject.scene == scene && item.name == "White Practice Test Panel");
+        Transform practice = RequireChild(manager, "Practice Panel");
+        Transform video = RequireChild(practice, "Videoplayer");
+        Canvas videoCanvas = video.GetComponent<Canvas>();
+        if (videoCanvas != null)
+        {
+            UnityEngine.Object.DestroyImmediate(videoCanvas);
+        }
+
+        Transform overlay = practice.Find("Testing Video Indicators Overlay");
+        if (overlay == null)
+        {
+            GameObject overlayObject = new GameObject(
+                "Testing Video Indicators Overlay",
+                typeof(RectTransform),
+                typeof(Canvas));
+            overlayObject.layer = video.gameObject.layer;
+            overlay = overlayObject.transform;
+            overlay.SetParent(practice, false);
+        }
+
+        RectTransform overlayRect = (RectTransform)overlay;
+        overlayRect.anchorMin = Vector2.zero;
+        overlayRect.anchorMax = Vector2.one;
+        overlayRect.anchoredPosition = Vector2.zero;
+        overlayRect.sizeDelta = Vector2.zero;
+        overlayRect.localPosition = new Vector3(overlayRect.localPosition.x, overlayRect.localPosition.y, 0f);
+        overlay.SetSiblingIndex(video.GetSiblingIndex() + 1);
+
+        RequireChild(video, "Question Number").SetParent(overlay, false);
+        RequireChild(video, "Test Type").SetParent(overlay, false);
+
+        Canvas overlayCanvas = overlay.GetComponent<Canvas>();
+        if (overlayCanvas == null)
+        {
+            overlayCanvas = overlay.gameObject.AddComponent<Canvas>();
+        }
+
+        overlayCanvas.overrideSorting = true;
+        overlayCanvas.sortingOrder = 10;
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+    }
+
+    public static void RestoreTestingReturnHomeButton()
+    {
+        Scene scene = EditorSceneManager.OpenScene("Assets/Scenes/ChimneyScene.unity", OpenSceneMode.Single);
+        Transform[] transforms = Resources.FindObjectsOfTypeAll<Transform>()
+            .Where(item => item != null && item.gameObject.scene == scene)
+            .ToArray();
+        if (transforms.Any(item => item.name == "Shared Return to Home Button"))
+        {
+            return;
+        }
+
+        Transform scratch = RequireTransform(transforms, "Scratch_Btn");
+        GameObject returnHome = UnityEngine.Object.Instantiate(scratch.gameObject, scratch.parent);
+        returnHome.name = "Shared Return to Home Button";
+
+        RectTransform rect = (RectTransform)returnHome.transform;
+        rect.anchorMin = new Vector2(0.37f, 0.095f);
+        rect.anchorMax = new Vector2(0.63f, 0.155f);
+        rect.anchoredPosition = new Vector2(0f, -185f);
+        rect.sizeDelta = Vector2.zero;
+        rect.pivot = new Vector2(0.5f, 0.5f);
+
+        Button button = returnHome.GetComponent<Button>();
+        button.onClick = new Button.ButtonClickedEvent();
+        returnHome.GetComponent<Image>().color = new Color(0.14509805f, 0.7921569f, 0f, 1f);
+        returnHome.GetComponentInChildren<TMP_Text>(true).text = "Return to Home";
+        returnHome.AddComponent<SmokeSchoolReturnHome>();
+
+        Transform mockup = returnHome.transform.Find("Mockup");
+        if (mockup != null)
+        {
+            UnityEngine.Object.DestroyImmediate(mockup.gameObject);
+        }
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+    }
+
     public static void CaptureWhitePracticeCompletion()
     {
-        CaptureCompletion("White Smoke Practice Complete", "Continue to WhiteTest", "Continue To White Testing");
+        CaptureCompletion("White Smoke Practice Complete", "Continue to WhiteTest", "Continue to White Smoke Test");
     }
 
     public static void CaptureWhiteTestCompletion()
     {
-        CaptureCompletion("White Smoke Testing Complete", "Continue to Black Practice", "Continue To Black Practice", "Open Result Panel Button");
+        CaptureCompletion("White Smoke Test Complete", "Continue to Black Practice", "Continue to Black Smoke Practice", "Open Result Panel Button");
     }
 
     public static void CaptureBlackPracticeCompletion()
     {
-        CaptureCompletion("Black Smoke Practice Complete", "Continue to BlackTest", "Continue To Black Testing");
+        CaptureCompletion("Black Smoke Practice Complete", "Continue to BlackTest", "Continue to Black Smoke Test");
     }
 
     public static void CaptureBlackTestCompletion()
     {
-        CaptureCompletion("Black Smoke Testing Complete", "Continue to Submission", "Continue To Submission");
+        CaptureCompletion("Black Smoke Test Complete", "Continue to Submission", "Continue to Signature");
     }
 
     private static void CaptureCompletion(string heading, string primaryButtonName, string primaryButtonText, params string[] additionalButtons)
@@ -116,4 +203,16 @@ public static class SmokeSchoolVisualCapture
         }
         return match;
     }
+
+    private static Transform RequireChild(Transform root, string objectName)
+    {
+        Transform match = root.GetComponentsInChildren<Transform>(true)
+            .FirstOrDefault(item => item.name == objectName);
+        if (match == null)
+        {
+            throw new InvalidOperationException("Missing child object: " + objectName);
+        }
+        return match;
+    }
+
 }

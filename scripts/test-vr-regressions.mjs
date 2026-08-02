@@ -16,9 +16,10 @@ const output = outputArgument
   : path.join(project, "VR Smoke School Stock WebXR");
 
 const lockedSourceHashes = new Map([
-  ["Assets/ManagerTesting.cs", "01ec1fcb5391f03e559b72efea97fc603b2cfd26f844cb09fb72725fccacc39b"],
-  ["Assets/Scenes/ChimneyScene.unity", "49cf1d19b370f79f88a11bca929b45cab3b24446c1e9cd98d961a5cc1a9f4f08"],
+  ["Assets/ManagerTesting.cs", "a38e47c81bce77147d92e322cb326f1a502863862ae9d2085400138af1e6848c"],
+  ["Assets/Scenes/ChimneyScene.unity", "72e1cb184beb2fb8d00d0c3955f14ba2f35ab59fc5533d4dddcd059aa7059f87"],
   ["Assets/Scripts/SmokeVideoDirectDisplay.cs", "dcff79f489dd5d9cbf0051dc1f92950700eff563ecfd75012189b1a13b0dc2a3"],
+  ["Assets/Scripts/SmokeSchoolReturnHome.cs", "bb4e7bd268a5c961185ff9d87f38535725c4bf3fbffe0c28e9514438d89cb24a"],
   ["Assets/Scripts/SmokeVideoURLData.asset", "48b68c7a5835a2374ade71fce0b7d1f5036bef4ed33566a5cd27fe6c716aa8a3"],
   ["Assets/Scripts/SmokeTestManager.cs", "df0e1fc0b13d008292cd32e13d09503f5716639135c8673d262c72e1f4308b5a"],
   ["Assets/Scripts/PracticeTestManager.cs", "57a5d9ce5fe06e9782aa05766e2bb375de8d9db287671919605c294bfdeeb46e"],
@@ -138,6 +139,18 @@ assert.match(scene, /m_GameObject: \{fileID: 1530105658\}[\s\S]{0,700}m_text: Co
 assert.match(scene, /m_text: Start Tutorial/);
 assert.match(scene, /m_text: Begin Test/);
 assert.match(scene, /m_text: Skip optional practice slides/);
+assert.match(scene, /m_text: Video Tutorials/);
+assert.match(scene, /m_text: Emission Testing/);
+assert.match(scene, /m_text: Skip to White Smoke Test/);
+assert.match(scene, /m_Name: Shared Return to Home Button/);
+assert.match(scene, /m_text: Return to Home/);
+assert.match(scene, /m_text: Open Results/);
+assert.match(scene, /m_text: Continue to Signature/);
+assert.match(scene, /m_Name: Testing Video Indicators Overlay[\s\S]{0,2500}m_OverrideSorting: 1[\s\S]{0,300}m_SortingOrder: 10/);
+assert.doesNotMatch(scene, /\\x03/);
+assert.doesNotMatch(scene, /m_MethodName:\s*\n/);
+assert.doesNotMatch(scene, /m_Target: \{fileID: 0\}/);
+assert.doesNotMatch(scene, /Open Result Pannel|Signature are required|Continue To|Smoke Testing|User ID|User Email/);
 assert.match(scene, /https:\/\/res\.cloudinary\.com\/dkzd0f0tu\/video\/upload\/v1774123829\/Smoke_School_Intro2_lzx9e4\.mov/);
 
 const authSource = read("Assets/Scripts/DataInput_Fields.cs").toString("utf8");
@@ -182,12 +195,34 @@ assert.match(managerSource, /if \(!answeredAny \|\| !hasCompleteCertification\)/
 assert.match(managerSource, /ScreenshotSender\.didPass = hasCompleteCertification && !hasIndividualFail && whitePassed && blackPassed/);
 assert.match(managerSource, /while \(CertificationResultReporter\.IsSubmitting\)/);
 assert.match(managerSource, /private bool IsQuestionVideoCoveredByOverlay\(\)/);
+assert.match(managerSource, /private void SetVideoIndicatorsVisible\(bool isVisible\)/);
+assert.match(managerSource, /private bool TryUsePreparedVideo[\s\S]*SetActivePlaybackPlayer\(preparedPlayer\);[\s\S]*preparedPlayer\.Play\(\);/);
+assert.match(managerSource, /private bool TryUsePreparedVideo[\s\S]*BeginVideoPlayback\(true\);[\s\S]*RequestSmokeVideoDirectDisplay\(\);/);
+assert.match(managerSource, /private bool LoadQuestionVideo[\s\S]*BeginVideoPlayback\(false\);/);
+assert.match(managerSource, /if \(suppressLoadingForPreparedVideo\)[\s\S]{0,120}loadingImage\.SetActive\(false\);/);
+assert.match(managerSource, /private void SetActivePlaybackPlayer[\s\S]*smokeVideoDirectDisplay\.SetVideoPlayer\(activeVideoPlayer\);/);
+assert.match(managerSource, /void StartPreloadSlot[\s\S]*slot\.player\.renderMode = VideoRenderMode\.APIOnly;[\s\S]*slot\.player\.Prepare\(\);/);
+assert.match(managerSource, /private void StartCurrentPhaseAtFirstQuestion\(\)[\s\S]{0,700}SetVideoIndicatorsVisible\(true\)/);
+assert.match(managerSource, /private void ShowTestCompletePanel\(\)[\s\S]{0,180}SetVideoIndicatorsVisible\(false\)/);
 assert.match(managerSource, /if \(player != null\)[\s\S]{0,80}player\.Stop\(\);[\s\S]{0,80}waitingForVideoStart = false;/);
 assert.match(managerSource, /private void ShowTestCompletePanel\(\)[\s\S]{0,120}StopActiveVideoPlayer\(\);[\s\S]{0,120}TestingCompletePannel\.SetActive\(true\)/);
 assert.match(managerSource, /private void ShowRemarksForQuestion[\s\S]{0,800}StopActiveVideoPlayer\(\);[\s\S]{0,120}RemarksPannel\.SetActive\(true\)/);
 assert.match(managerSource, /private void StartCurrentPhaseAtFirstQuestion\(\)[\s\S]{0,500}RemarksPannel\.SetActive\(false\)[\s\S]{0,200}TestingCompletePannel\.SetActive\(false\)[\s\S]{0,200}SignaturePannel\.SetActive\(false\)/);
 assert.match(managerSource, /else if \(currenttype == TestType\.TestComplete\)[\s\S]{0,120}OpenSignaturePanel\(\);[\s\S]{0,40}return;/);
 assert.match(managerSource, /else if \(currenttype == TestType\.blackTest\)[\s\S]{0,240}SubmissionButton\.SetActive\(true\)[\s\S]{0,180}openresultPannelButton\.gameObject\.SetActive\(false\)/);
+assert.match(managerSource, /if \(currenttype == TestType\.whitePractice\)[\s\S]{0,120}manageWhitePracticeTest\.GoToWhiteTutorial\(\)/);
+assert.match(managerSource, /else if \(currenttype == TestType\.whiteTest\)[\s\S]{0,120}SkipToTest\(TestType\.blackPractice\)/);
+assert.match(managerSource, /else if \(currenttype == TestType\.blackPractice\)[\s\S]{0,120}mangerBlackPractice\.GoToblackTutorial\(\)/);
+assert.match(managerSource, /else if \(currenttype == TestType\.blackTest\)[\s\S]{0,180}ShowingFinalResult\(\);[\s\S]{0,80}OpenSignaturePanel\(\)/);
+assert.match(managerSource, /Skip to White Smoke Test/);
+assert.match(managerSource, /Skip to Black Smoke Practice/);
+assert.match(managerSource, /Skip to Black Smoke Test/);
+assert.match(managerSource, /Skip to Signature/);
+
+const returnHomeSource = read("Assets/Scripts/SmokeSchoolReturnHome.cs").toString("utf8");
+assert.match(returnHomeSource, /SmokeSchoolAppState\.ResetCertificationState\(\)/);
+assert.match(returnHomeSource, /DataInput_Fields\.checkSceneReload = 1/);
+assert.match(returnHomeSource, /SceneManager\.LoadScene\(SceneManager\.GetActiveScene\(\)\.buildIndex\)/);
 
 const directDisplaySource = read("Assets/Scripts/SmokeVideoDirectDisplay.cs").toString("utf8");
 assert.match(directDisplaySource, /displayTarget\.GetWorldCorners\(corners\)/);

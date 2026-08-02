@@ -49,7 +49,7 @@ public class SignatureRequired : MonoBehaviour
         // Show "required" message when fake button is clicked
         if (errorText)
         {
-            errorText.text = "This field is required.";
+            errorText.text = "A signature is required.";
             errorText.gameObject.SetActive(true);
         }
     }
@@ -63,7 +63,7 @@ public class SignatureRequired : MonoBehaviour
             // ❌ Invalid: show error and keep fake button visible
             if (errorText)
             {
-                errorText.text = "This field is required.";
+                errorText.text = "A signature is required.";
                 errorText.gameObject.SetActive(true);
             }
             UpdateFakeButton();

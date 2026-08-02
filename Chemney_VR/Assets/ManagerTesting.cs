@@ -57,12 +57,10 @@ public class ManagerTesting : MonoBehaviour
     public float autoAdvanceDelay = 0.5f;
     private bool isAutoAdvancing = false;
 
-    // Flag to keep the loading spinner visible until the video actually
-    // starts playing. Without this, Update() hides the spinner as soon as
-    // VideoPlayer.Play() is called (isPlaying = true) even though the video
-    // hasn't rendered its first frame yet, causing the spinner to flash
-    // briefly then disappear while a stale frozen frame stays on screen.
+    // Unprepared videos keep the spinner visible until playback starts;
+    // prepared queue entries bypass it and display their buffered texture.
     private bool waitingForVideoStart = false;
+    private bool suppressLoadingForPreparedVideo = false;
 
     [Header("Next Button")]
     [Tooltip("Button that user clicks to advance to next question")]
@@ -263,6 +261,18 @@ public class ManagerTesting : MonoBehaviour
                (SignaturePannel != null && SignaturePannel.activeSelf);
     }
 
+    private void SetVideoIndicatorsVisible(bool isVisible)
+    {
+        if (questionNmbr_text != null && questionNmbr_text.transform.parent != null)
+        {
+            questionNmbr_text.transform.parent.gameObject.SetActive(isVisible);
+        }
+        if (CurrentTest_txt != null && CurrentTest_txt.transform.parent != null)
+        {
+            CurrentTest_txt.transform.parent.gameObject.SetActive(isVisible);
+        }
+    }
+
     private void ConfigureQuestionVideoPlayer(VideoPlayer player)
     {
         if (player == null)
@@ -366,11 +376,22 @@ public class ManagerTesting : MonoBehaviour
             player.Stop();
         }
         waitingForVideoStart = false;
+        suppressLoadingForPreparedVideo = false;
 
         ReleaseActivePreloadSlot();
         if (videoPlayer != null)
         {
             SetActivePlaybackPlayer(videoPlayer);
+        }
+    }
+
+    private void BeginVideoPlayback(bool isPrepared)
+    {
+        suppressLoadingForPreparedVideo = isPrepared;
+        waitingForVideoStart = !isPrepared;
+        if (loadingImage != null)
+        {
+            loadingImage.SetActive(!isPrepared);
         }
     }
 
@@ -424,6 +445,17 @@ public class ManagerTesting : MonoBehaviour
         if (btn_SkipPracticeTest != null)
         {
             btn_SkipPracticeTest.gameObject.SetActive(isActive);
+            if (isActive)
+            {
+                TMP_Text label = btn_SkipPracticeTest.GetComponentInChildren<TMP_Text>(true);
+                if (label != null)
+                {
+                    if (currenttype == TestType.whitePractice) label.text = "Skip to White Smoke Test";
+                    else if (currenttype == TestType.whiteTest) label.text = "Skip to Black Smoke Practice";
+                    else if (currenttype == TestType.blackPractice) label.text = "Skip to Black Smoke Test";
+                    else if (currenttype == TestType.blackTest) label.text = "Skip to Signature";
+                }
+            }
         }
     }
 
@@ -593,18 +625,12 @@ public class ManagerTesting : MonoBehaviour
         InitializePreloadVideoPlayers();
         InitializeSmokeVideoDirectDisplay();
 
-        // Keep skip button visible at all times
-        // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-        // btn_SkipPracticeTest.gameObject.SetActive(true);
-
         // Handle test type logic
         if (currenttype == TestType.whitePractice)
         {
             Txt_currentCompleteTest.text = "White Smoke Practice Complete";
-            Txt_ContinueText.text = "Continue To White Testing";
-            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-            // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Practice";
-            SetSkipButtonActive(false);
+            Txt_ContinueText.text = "Continue to White Smoke Test";
+            SetSkipButtonActive(true);
             Debug.Log("White Practice Running");
             reviewphase = false;
             currentQuestionIndex = 0;
@@ -614,10 +640,8 @@ public class ManagerTesting : MonoBehaviour
         else if (currenttype == TestType.whiteTest)
         {
             Txt_currentCompleteTest.text = "White Smoke Test";
-            Txt_ContinueText.text = "Continue To Black Practice";
-            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-            // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Smoke Test";
-            SetSkipButtonActive(false);
+            Txt_ContinueText.text = "Continue to Black Smoke Practice";
+            SetSkipButtonActive(true);
             Debug.Log("White Test Running");
             reviewphase = false;
             currentQuestionIndex = 0;
@@ -626,10 +650,8 @@ public class ManagerTesting : MonoBehaviour
         else if (currenttype == TestType.blackPractice)
         {
             Txt_currentCompleteTest.text = "Black Smoke Practice";
-            Txt_ContinueText.text = "Continue To Black Testing";
-            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-            // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Practice";
-            SetSkipButtonActive(false);
+            Txt_ContinueText.text = "Continue to Black Smoke Test";
+            SetSkipButtonActive(true);
             Debug.Log("Black Practice Running");
             reviewphase = false;
             currentQuestionIndex = 0;
@@ -638,10 +660,8 @@ public class ManagerTesting : MonoBehaviour
         else if (currenttype == TestType.blackTest)
         {
             Txt_currentCompleteTest.text = "Black Smoke Test";
-            Txt_ContinueText.text = "Continue To Submission";
-            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-            // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Smoke Test";
-            SetSkipButtonActive(false);
+            Txt_ContinueText.text = "Continue to Signature";
+            SetSkipButtonActive(true);
             Debug.Log("Black Test Running");
             reviewphase = false;
             currentQuestionIndex = 0;
@@ -772,6 +792,7 @@ public class ManagerTesting : MonoBehaviour
         {
             SignaturePannel.SetActive(false);
         }
+        SetVideoIndicatorsVisible(true);
 
         reviewphase = false;
         scratchMode = false;
@@ -907,9 +928,7 @@ public class ManagerTesting : MonoBehaviour
 
             StopActiveVideoPlayer();
 
-            // Same as LoadQuestionVideo — flag that the spinner should
-            // stay visible until OnVideoStarted fires.
-            waitingForVideoStart = true;
+            BeginVideoPlayback(true);
             HideSmokeVideoDirectDisplay();
 
             VideoPlayer preparedPlayer = slot.player;
@@ -917,6 +936,7 @@ public class ManagerTesting : MonoBehaviour
             SetActivePlaybackPlayer(preparedPlayer);
             preparedPlayer.isLooping = true;
             preparedPlayer.Play();
+            RequestSmokeVideoDirectDisplay();
 
             // Fill more slots now that one was consumed
             FillPreloadBuffer();
@@ -966,10 +986,7 @@ public class ManagerTesting : MonoBehaviour
 
         StopActiveVideoPlayer();
 
-        // Flag that we're waiting for the new video to actually start
-        // playing (render its first frame).  Update() will keep the
-        // spinner visible until OnVideoStarted clears this flag.
-        waitingForVideoStart = true;
+        BeginVideoPlayback(false);
         HideSmokeVideoDirectDisplay();
 
         SetActivePlaybackPlayer(videoPlayer);
@@ -1169,9 +1186,26 @@ public class ManagerTesting : MonoBehaviour
     // Skip Practice/Test Button
     public void OnSkipPractice()
     {
-        // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-        Debug.Log("Skip button pressed, but skip navigation is disabled.");
-        SetSkipButtonActive(false);
+        Debug.Log("Skip button pressed for " + currenttype);
+
+        if (currenttype == TestType.whitePractice)
+        {
+            manageWhitePracticeTest.GoToWhiteTutorial();
+        }
+        else if (currenttype == TestType.whiteTest)
+        {
+            SkipToTest(TestType.blackPractice);
+        }
+        else if (currenttype == TestType.blackPractice)
+        {
+            mangerBlackPractice.GoToblackTutorial();
+        }
+        else if (currenttype == TestType.blackTest)
+        {
+            currenttype = TestType.TestComplete;
+            ShowingFinalResult();
+            OpenSignaturePanel();
+        }
     }
 
     public void WhiteTestStart()
@@ -1212,11 +1246,9 @@ public class ManagerTesting : MonoBehaviour
             currentSmokeType = "white";
             currentQuestionValues = questionvalues_test_white;
             Txt_currentCompleteTest.text = "White Smoke Test";
-            Txt_ContinueText.text = "Continue To Black Practice";
-            CurrentTest_txt.text = "White Smoke Testing";
-            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-            // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip White Smoke Test";
-            SetSkipButtonActive(false);
+            Txt_ContinueText.text = "Continue to Black Smoke Practice";
+            CurrentTest_txt.text = "White Smoke Test";
+            SetSkipButtonActive(true);
 
         }
         else if (testType == TestType.blackPractice)
@@ -1224,22 +1256,18 @@ public class ManagerTesting : MonoBehaviour
             currentSmokeType = "black";
             currentQuestionValues = questionvalues_practice_black;
             Txt_currentCompleteTest.text = "Black Smoke Practice";
-            Txt_ContinueText.text = "Continue To Black Testing";
+            Txt_ContinueText.text = "Continue to Black Smoke Test";
             CurrentTest_txt.text = "Black Smoke Practice";
-            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-            // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Practice";
-            SetSkipButtonActive(false);
+            SetSkipButtonActive(true);
         }
         else if (testType == TestType.blackTest)
         {
             currentSmokeType = "black";
             currentQuestionValues = questionvalues_test_black;
             Txt_currentCompleteTest.text = "Black Smoke Test";
-            Txt_ContinueText.text = "Continue To Submission";
-            CurrentTest_txt.text = "Black Smoke Testing";
-            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-            // btn_SkipPracticeTest.GetComponentInChildren<TMPro.TMP_Text>().text = "Skip Black Smoke Test";
-            SetSkipButtonActive(false);
+            Txt_ContinueText.text = "Continue to Signature";
+            CurrentTest_txt.text = "Black Smoke Test";
+            SetSkipButtonActive(true);
         }
 
         LoadCurrentQuestion();
@@ -1307,7 +1335,11 @@ public class ManagerTesting : MonoBehaviour
         // stays visible throughout the buffering period even though
         // VideoPlayer.isPlaying may briefly flip to true before the first
         // frame renders.
-        if (waitingForVideoStart)
+        if (suppressLoadingForPreparedVideo)
+        {
+            loadingImage.SetActive(false);
+        }
+        else if (waitingForVideoStart)
         {
             HideSmokeVideoDirectDisplay();
             loadingImage.SetActive(true);
@@ -1323,10 +1355,6 @@ public class ManagerTesting : MonoBehaviour
             loadingImage.SetActive(false);
         }
 
-        // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-        // The skip button text used to update every frame based on current phase.
-        // This is now deactivated. Keeping the frame check for skip in TestComplete
-        // so the button stays hidden at the end.
         if (currenttype == TestType.TestComplete && btn_SkipPracticeTest != null)
         {
             SetSkipButtonActive(false);
@@ -1442,27 +1470,21 @@ public class ManagerTesting : MonoBehaviour
             currentSmokeType = "White";
             currentQuestionValues = questionvalues_test_white;
             currenttype = TestType.whiteTest;
-            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-            // btn_SkipPracticeTest.gameObject.SetActive(true);
-            SetSkipButtonActive(false);
+            SetSkipButtonActive(true);
         }
         else if (currenttype == TestType.whiteTest)
         {
             currentSmokeType = "White";
             currentQuestionValues = questionvalues_practice_black;
             currenttype = TestType.blackPractice;
-            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-            // btn_SkipPracticeTest.gameObject.SetActive(true);
-            SetSkipButtonActive(false);
+            SetSkipButtonActive(true);
         }
         else if (currenttype == TestType.blackPractice)
         {
             currentSmokeType = "Black";
-            // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-            // btn_SkipPracticeTest.gameObject.SetActive(true);
-            SetSkipButtonActive(false);
             currentQuestionValues = questionvalues_test_black;
             currenttype = TestType.blackTest;
+            SetSkipButtonActive(true);
         }
         else if (currenttype == TestType.blackTest)
         {
@@ -1602,6 +1624,7 @@ public class ManagerTesting : MonoBehaviour
 
     void OnQuestion(int i)
     {
+        SetVideoIndicatorsVisible(true);
         if (scratchMode)
         {
             Debug.Log(" In scratch Phase");
@@ -1648,9 +1671,9 @@ public class ManagerTesting : MonoBehaviour
         }
 
         if (currenttype == TestType.whitePractice) { CurrentTest_txt.text = "White Smoke Practice"; }
-        if (currenttype == TestType.whiteTest) { CurrentTest_txt.text = "White Smoke Testing"; }
+        if (currenttype == TestType.whiteTest) { CurrentTest_txt.text = "White Smoke Test"; }
         if (currenttype == TestType.blackPractice) { CurrentTest_txt.text = "Black Smoke Practice"; }
-        if (currenttype == TestType.blackTest) { CurrentTest_txt.text = "Black Smoke Testing"; }
+        if (currenttype == TestType.blackTest) { CurrentTest_txt.text = "Black Smoke Test"; }
     }
 
     private void SetQuestionButtonLabel(int index)
@@ -1814,9 +1837,7 @@ public class ManagerTesting : MonoBehaviour
                 answerSelected = true;
                 currentQuestionIndex = Mathf.Min(nextIndex, btn_questions.Length - 1);
                 ShowRemarksForQuestion(scratchQuestionIndex);
-                // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-                // btn_SkipPracticeTest.gameObject.SetActive(true);
-                SetSkipButtonActive(false);
+                SetSkipButtonActive(true);
                 ApplyScratchAndRefreshButtonState();
 
                 if (hasNextQuestion)
@@ -1941,9 +1962,7 @@ public class ManagerTesting : MonoBehaviour
                 if (isPractice)
                 {
                     OpenRemarksPannel();
-                    // DISABLED: Skip buttons temporarily removed — client request 2026-04-16
-                    // btn_SkipPracticeTest.gameObject.SetActive(true);
-                    SetSkipButtonActive(false);
+                    SetSkipButtonActive(true);
                     ApplyScratchAndRefreshButtonState();
 
                     if (btn_Next != null)
@@ -1995,6 +2014,7 @@ public class ManagerTesting : MonoBehaviour
     {
         StopActiveVideoPlayer();
         loadingImage.SetActive(false);
+        SetVideoIndicatorsVisible(false);
         TestingCompletePannel.SetActive(true);
 
         if (currenttype == TestType.whitePractice)
@@ -2002,20 +2022,20 @@ public class ManagerTesting : MonoBehaviour
             WhiteTestButton.SetActive(true);
 
 
-            Txt_ContinueText.text = "Continue To White Testing";
+            Txt_ContinueText.text = "Continue to White Smoke Test";
             Txt_currentCompleteTest.text = "White Smoke Practice Complete";
             Debug.Log("White pratice complete");
         }
         else if (currenttype == TestType.whiteTest)
         {
-            Txt_ContinueText.text = "Continue To Black Practice";
-            Txt_currentCompleteTest.text = "White Smoke Testing Complete";
+            Txt_ContinueText.text = "Continue to Black Smoke Practice";
+            Txt_currentCompleteTest.text = "White Smoke Test Complete";
             openresultPannelButton.gameObject.SetActive(true);
             BlackPracticeButton.SetActive(true);
         }
         else if (currenttype == TestType.blackPractice)
         {
-            Txt_ContinueText.text = "Continue To Black Testing";
+            Txt_ContinueText.text = "Continue to Black Smoke Test";
             Txt_currentCompleteTest.text = "Black Smoke Practice Complete";
             BlackTestButton.SetActive(true);
             Btn_Submission.gameObject.SetActive(false);
@@ -2027,8 +2047,7 @@ public class ManagerTesting : MonoBehaviour
             SubmissionButton.SetActive(true);
             Btn_Submission.gameObject.SetActive(false);
             openresultPannelButton.gameObject.SetActive(false);
-            //Txt_ContinueText.text = "Continue To Submission";
-            Txt_currentCompleteTest.text = "Black Smoke Testing Complete";
+            Txt_currentCompleteTest.text = "Black Smoke Test Complete";
             currenttype = TestType.TestComplete;
             // ShowingFinalResult();
         }
@@ -2046,6 +2065,7 @@ public class ManagerTesting : MonoBehaviour
 
     void ReOpenTestCompletePannel()
     {
+        SetVideoIndicatorsVisible(false);
         TestingCompletePannel.SetActive(true);
         ApplyScratchAndRefreshButtonState();
     }
@@ -2087,17 +2107,17 @@ public class ManagerTesting : MonoBehaviour
 
         if (ansvalue == ogvalue)
         {
-            resultSummaryText.text = "Your Value was Perfect";
+            resultSummaryText.text = "Your value was perfect.";
         }
         else if (ansvalue > ogvalue)
         {
             int x = ansvalue - ogvalue;
-            resultSummaryText.text = "Your Value was " + x + "% too high";
+            resultSummaryText.text = "Your value was " + x + "% too high.";
         }
         else
         {
             int x = ogvalue - ansvalue;
-            resultSummaryText.text = "Your Value was " + x + "% too low";
+            resultSummaryText.text = "Your value was " + x + "% too low.";
         }
     }
 
@@ -2435,6 +2455,7 @@ public class ManagerTesting : MonoBehaviour
         {
             vp.Stop();
             waitingForVideoStart = false;
+            suppressLoadingForPreparedVideo = false;
             HideSmokeVideoDirectDisplay();
             loadingImage.SetActive(false);
             return;
@@ -2443,6 +2464,7 @@ public class ManagerTesting : MonoBehaviour
         // Clear the "waiting for video" flag — the spinner will now hide
         // in Update() on the next frame since isPlaying will be true.
         waitingForVideoStart = false;
+        suppressLoadingForPreparedVideo = false;
 
         loadingImage.SetActive(false);
         RequestSmokeVideoDirectDisplay();
@@ -2497,6 +2519,7 @@ public class ManagerTesting : MonoBehaviour
         }
 
         HideSmokeVideoDirectDisplay();
+        suppressLoadingForPreparedVideo = false;
         Debug.LogError("VideoPlayer error: " + message);
         loadingImage.SetActive(true);
     }
