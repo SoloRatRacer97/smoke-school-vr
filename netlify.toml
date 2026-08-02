@@ -1,23 +1,5 @@
 [build]
-  publish = "Chemney_VR/VR Smoke School"
-
-[[headers]]
-  for = "/Build/VR Smoke School.wasm.br"
-  [headers.values]
-    "Content-Type" = "application/wasm"
-    "Content-Encoding" = "br"
-
-[[headers]]
-  for = "/Build/VR Smoke School.framework.js.br"
-  [headers.values]
-    "Content-Type" = "application/javascript"
-    "Content-Encoding" = "br"
-
-[[headers]]
-  for = "/Build/VR Smoke School.data.br"
-  [headers.values]
-    "Content-Type" = "application/octet-stream"
-    "Content-Encoding" = "br"
+  publish = "Chemney_VR/VR Smoke School Stock WebXR"
 
 [[headers]]
   for = "/Build/*.wasm.br"

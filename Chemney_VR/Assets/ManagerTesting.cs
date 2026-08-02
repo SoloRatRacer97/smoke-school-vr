@@ -226,7 +226,7 @@ public class ManagerTesting : MonoBehaviour
             smokeVideoDirectDisplay = videoPlayer.gameObject.AddComponent<SmokeVideoDirectDisplay>();
         }
 
-        smokeVideoDirectDisplay.Initialize(videoPlayer);
+        smokeVideoDirectDisplay.Initialize(videoPlayer, videoPlayer.transform as RectTransform);
     }
 
     private void HideSmokeVideoDirectDisplay()
@@ -254,6 +254,13 @@ public class ManagerTesting : MonoBehaviour
     {
         VideoPlayer player = GetActiveVideoPlayer();
         return player != null && player.isPlaying;
+    }
+
+    private bool IsQuestionVideoCoveredByOverlay()
+    {
+        return (RemarksPannel != null && RemarksPannel.activeSelf) ||
+               (TestingCompletePannel != null && TestingCompletePannel.activeSelf) ||
+               (SignaturePannel != null && SignaturePannel.activeSelf);
     }
 
     private void ConfigureQuestionVideoPlayer(VideoPlayer player)
@@ -354,10 +361,11 @@ public class ManagerTesting : MonoBehaviour
         HideSmokeVideoDirectDisplay();
 
         VideoPlayer player = GetActiveVideoPlayer();
-        if (player != null && (player.isPlaying || player.isPrepared))
+        if (player != null)
         {
             player.Stop();
         }
+        waitingForVideoStart = false;
 
         ReleaseActivePreloadSlot();
         if (videoPlayer != null)
@@ -497,15 +505,15 @@ public class ManagerTesting : MonoBehaviour
     {
         bool isValid = true;
 
-        if (btn_questions == null || btn_questions.Length == 0)
+        if (btn_questions == null || btn_questions.Length != 25)
         {
-            Debug.LogError("ManagerTesting requires at least one question button.");
+            Debug.LogError("ManagerTesting requires exactly 25 ordered question buttons.");
             isValid = false;
         }
 
-        if (btn_points == null || btn_points.Length == 0)
+        if (btn_points == null || btn_points.Length != answersValue.Length)
         {
-            Debug.LogError("ManagerTesting requires answer buttons in btn_points.");
+            Debug.LogError("ManagerTesting requires 21 ordered answer buttons from 0 through 100.");
             isValid = false;
         }
 
@@ -747,9 +755,22 @@ public class ManagerTesting : MonoBehaviour
 
     private void StartCurrentPhaseAtFirstQuestion()
     {
-        if (btn_questions == null || btn_questions.Length == 0)
+        if (currenttype == TestType.TestComplete || btn_questions == null || btn_questions.Length == 0)
         {
             return;
+        }
+
+        if (RemarksPannel != null)
+        {
+            RemarksPannel.SetActive(false);
+        }
+        if (TestingCompletePannel != null)
+        {
+            TestingCompletePannel.SetActive(false);
+        }
+        if (SignaturePannel != null)
+        {
+            SignaturePannel.SetActive(false);
         }
 
         reviewphase = false;
@@ -1271,6 +1292,14 @@ public class ManagerTesting : MonoBehaviour
 
     private void Update()
     {
+        if (IsQuestionVideoCoveredByOverlay())
+        {
+            waitingForVideoStart = false;
+            HideSmokeVideoDirectDisplay();
+            loadingImage.SetActive(false);
+            return;
+        }
+
         // Show loading spinner while we're waiting for the next video to
         // actually start playing.  The "waitingForVideoStart" flag is set
         // whenever we kick off a new question video (OnAnswer, scratch-mode
@@ -1444,6 +1473,7 @@ public class ManagerTesting : MonoBehaviour
         else if (currenttype == TestType.TestComplete)
         {
             OpenSignaturePanel();
+            return;
         }
 
         ResetQuestionVideoState();
@@ -1963,6 +1993,8 @@ public class ManagerTesting : MonoBehaviour
     // Extracted function to handle TestComplete panel logic
     private void ShowTestCompletePanel()
     {
+        StopActiveVideoPlayer();
+        loadingImage.SetActive(false);
         TestingCompletePannel.SetActive(true);
 
         if (currenttype == TestType.whitePractice)
@@ -2047,6 +2079,8 @@ public class ManagerTesting : MonoBehaviour
         }
 
         int ogvalue = GetActualOpacityForQuestion(questionIndex);
+        StopActiveVideoPlayer();
+        loadingImage.SetActive(false);
         RemarksPannel.SetActive(true);
         targetOpacityText.text = "" + ogvalue;
         yourReadingText.text = "" + ansvalue;
@@ -2397,6 +2431,15 @@ public class ManagerTesting : MonoBehaviour
             return;
         }
 
+        if (IsQuestionVideoCoveredByOverlay())
+        {
+            vp.Stop();
+            waitingForVideoStart = false;
+            HideSmokeVideoDirectDisplay();
+            loadingImage.SetActive(false);
+            return;
+        }
+
         // Clear the "waiting for video" flag — the spinner will now hide
         // in Update() on the next frame since isPlaying will be true.
         waitingForVideoStart = false;
@@ -2420,6 +2463,13 @@ public class ManagerTesting : MonoBehaviour
             return;
         }
 
+        if (IsQuestionVideoCoveredByOverlay())
+        {
+            HideSmokeVideoDirectDisplay();
+            loadingImage.SetActive(false);
+            return;
+        }
+
         if (vp != null && vp.isLooping)
         {
             loadingImage.SetActive(false);
@@ -2436,6 +2486,13 @@ public class ManagerTesting : MonoBehaviour
         if (vp != GetActiveVideoPlayer())
         {
             Debug.LogWarning("Inactive VideoPlayer error: " + message);
+            return;
+        }
+
+        if (IsQuestionVideoCoveredByOverlay())
+        {
+            HideSmokeVideoDirectDisplay();
+            loadingImage.SetActive(false);
             return;
         }
 

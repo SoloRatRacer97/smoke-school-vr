@@ -19,9 +19,8 @@ public sealed class SmokeVideoDirectDisplay : MonoBehaviour
     }
 
     [SerializeField] private VideoPlayer videoPlayer;
-    [SerializeField] private float distanceFromCamera = 3.0f;
-    [SerializeField] private float surfaceWidth = 4.2f;
-    [SerializeField] private float centerForSeconds = 5.0f;
+    [SerializeField] private RectTransform displayTarget;
+    [SerializeField] private float surfaceDepthOffset = 0.03f;
 
     private readonly List<GraphicState> legacyVideoGraphics = new List<GraphicState>();
     private Camera mainCamera;
@@ -29,11 +28,11 @@ public sealed class SmokeVideoDirectDisplay : MonoBehaviour
     private MeshRenderer videoRenderer;
     private Material videoMaterial;
     private bool requestedVisible;
-    private float requestedAt;
 
-    public void Initialize(VideoPlayer player)
+    public void Initialize(VideoPlayer player, RectTransform target)
     {
         videoPlayer = player;
+        displayTarget = target;
         mainCamera = FindPlaybackCamera();
         CaptureLegacyVideoGraphics(player);
         EnsureWorldSurface();
@@ -45,24 +44,22 @@ public sealed class SmokeVideoDirectDisplay : MonoBehaviour
     {
         videoPlayer = player;
         ConfigureVideoPlayerForDirectTexture();
-        requestedAt = Time.realtimeSinceStartup;
 
         if (videoMaterial != null)
         {
             SetWorldTexture(null);
         }
 
-        PlaceInFrontOfCamera();
+        PlaceOnDisplayTarget();
         ApplyVideoTexture();
     }
 
     public void RequestShow()
     {
         requestedVisible = true;
-        requestedAt = Time.realtimeSinceStartup;
         SetLegacyVideoGraphicsVisible(false);
         SetSurfaceVisible(true);
-        PlaceInFrontOfCamera();
+        PlaceOnDisplayTarget();
         ApplyVideoTexture();
     }
 
@@ -85,11 +82,7 @@ public sealed class SmokeVideoDirectDisplay : MonoBehaviour
             return;
         }
 
-        if (Time.realtimeSinceStartup - requestedAt <= centerForSeconds)
-        {
-            PlaceInFrontOfCamera();
-        }
-
+        PlaceOnDisplayTarget();
         ApplyVideoTexture();
     }
 
@@ -311,21 +304,28 @@ public sealed class SmokeVideoDirectDisplay : MonoBehaviour
         }
     }
 
-    private void PlaceInFrontOfCamera()
+    private void PlaceOnDisplayTarget()
     {
         if (mainCamera == null)
         {
             mainCamera = FindPlaybackCamera();
         }
-        if (mainCamera == null || videoSurface == null)
+        if (mainCamera == null || videoSurface == null || displayTarget == null)
         {
             return;
         }
 
-        float aspect = 4096f / 2160f;
-        videoSurface.position = mainCamera.transform.position + mainCamera.transform.forward * distanceFromCamera;
-        videoSurface.rotation = mainCamera.transform.rotation;
-        videoSurface.localScale = new Vector3(surfaceWidth, surfaceWidth / aspect, 1f);
+        Vector3[] corners = new Vector3[4];
+        displayTarget.GetWorldCorners(corners);
+
+        float availableWidth = Vector3.Distance(corners[0], corners[3]);
+        float availableHeight = Vector3.Distance(corners[0], corners[1]);
+
+        Vector3 center = (corners[0] + corners[2]) * 0.5f;
+        Vector3 awayFromCamera = (center - mainCamera.transform.position).normalized;
+        videoSurface.position = center + awayFromCamera * surfaceDepthOffset;
+        videoSurface.rotation = displayTarget.rotation;
+        videoSurface.localScale = new Vector3(availableWidth, availableHeight, 1f);
     }
 
     private static Camera FindPlaybackCamera()

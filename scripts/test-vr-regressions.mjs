@@ -16,9 +16,10 @@ const output = outputArgument
   : path.join(project, "VR Smoke School Stock WebXR");
 
 const lockedSourceHashes = new Map([
-  ["Assets/ManagerTesting.cs", "4aab8e16f60b5f741624eba7985e20ebb7999b0a047b9d6e1f310dae847d8735"],
-  ["Assets/Scripts/SmokeVideoDirectDisplay.cs", "543c44b967a491de1bc15620d145641fa88e07c0e7fdba88b14abd7066378039"],
-  ["Assets/Scripts/SmokeVideoURLData.asset", "487c110665ef4e4e3c7a840df5c0d7e06b6f5c829d87f47976265a1f875d6161"],
+  ["Assets/ManagerTesting.cs", "01ec1fcb5391f03e559b72efea97fc603b2cfd26f844cb09fb72725fccacc39b"],
+  ["Assets/Scenes/ChimneyScene.unity", "49cf1d19b370f79f88a11bca929b45cab3b24446c1e9cd98d961a5cc1a9f4f08"],
+  ["Assets/Scripts/SmokeVideoDirectDisplay.cs", "dcff79f489dd5d9cbf0051dc1f92950700eff563ecfd75012189b1a13b0dc2a3"],
+  ["Assets/Scripts/SmokeVideoURLData.asset", "48b68c7a5835a2374ade71fce0b7d1f5036bef4ed33566a5cd27fe6c716aa8a3"],
   ["Assets/Scripts/SmokeTestManager.cs", "df0e1fc0b13d008292cd32e13d09503f5716639135c8673d262c72e1f4308b5a"],
   ["Assets/Scripts/PracticeTestManager.cs", "57a5d9ce5fe06e9782aa05766e2bb375de8d9db287671919605c294bfdeeb46e"],
   ["Assets/XR/Settings/WebXRSettings.asset", "a27c566910ea2e7284c37c69a694f6af99afcc10ab24d7935550ee49fe421ab0"],
@@ -42,21 +43,20 @@ for (const [relativePath, expectedHash] of lockedSourceHashes) {
 
 const videoCatalog = read("Assets/Scripts/SmokeVideoURLData.asset").toString("utf8");
 const videoUrls = [...videoCatalog.matchAll(/https:\/\/[^\s]+/g)].map((match) => match[0]);
-assert.equal(videoUrls.length, 620, "the Cloudinary smoke-video mapping count drifted");
+assert.equal(videoUrls.length, 1260, "the Cloudinary smoke-video mapping count drifted");
 for (const value of videoUrls) {
   const url = new URL(value);
   assert.equal(url.hostname, "res.cloudinary.com", `unexpected video host: ${url.hostname}`);
   assert.equal(url.pathname.startsWith("/dkzd0f0tu/video/upload/"), true, `unexpected Cloudinary account or path: ${url.pathname}`);
 }
 
-const expectedWhiteCounts = {
-  0: 8, 5: 13, 10: 2, 15: 3, 20: 11, 25: 7, 30: 13,
-  35: 12, 40: 2, 45: 17, 50: 12, 55: 10, 60: 10, 65: 11,
-  70: 14, 75: 15, 80: 16, 85: 14, 90: 12, 95: 15, 100: 17,
-};
+const expectedWhiteCounts = Object.fromEntries(
+  Array.from({ length: 21 }, (_, index) => [index * 5, 30]),
+);
 let percentage = null;
 let smokeType = null;
 const whiteMappings = [];
+const blackMappings = [];
 const whiteCounts = {};
 for (const line of videoCatalog.split(/\r?\n/)) {
   const percentageMatch = line.match(/^  - percentage: (\d+)/);
@@ -74,29 +74,55 @@ for (const line of videoCatalog.split(/\r?\n/)) {
   if (urlMatch && smokeType === "White") {
     whiteCounts[percentage] = (whiteCounts[percentage] || 0) + 1;
     whiteMappings.push(`${percentage}|${urlMatch[1]}`);
+  } else if (urlMatch && smokeType === "Black") {
+    blackMappings.push(`${percentage}|${urlMatch[1]}`);
   }
 }
 assert.deepEqual(whiteCounts, expectedWhiteCounts, "white-smoke URL counts drifted by opacity level");
-assert.equal(whiteMappings.length, 234, "white-smoke mapping count drifted");
+assert.equal(whiteMappings.length, 630, "white-smoke mapping count drifted");
+assert.equal(new Set(whiteMappings).size, 630, "corrected white-smoke mappings must remain unique");
+for (const mapping of whiteMappings) {
+  assert.match(mapping, /\|https:\/\/res\.cloudinary\.com\/dkzd0f0tu\/video\/upload\/q_auto:best,f_mp4,vc_h264\/v\d+\/White(?:00|05|10|15|20|25|30|35|40|45|50|55|60|65|70|75|80|85|90|95|100)_V1-\d{4}_[^/]+\.mp4$/);
+}
 assert.equal(
   sha256(Buffer.from(whiteMappings.join("\n"))),
-  "80c8ac96e99ae771cfb1aa6e1bb5d95e932315c85d146c18ec7061adc88923d1",
+  "eeda7d07e85a3154a7ec0dfae7c7815ac8ef0312c83ef99e15f59c69a530cd51",
   "white-smoke URL order or opacity mapping drifted",
+);
+assert.equal(blackMappings.length, 630, "black-smoke mapping count drifted");
+assert.equal(new Set(blackMappings).size, 630, "integrated black-smoke mappings must remain unique");
+for (const mapping of blackMappings) {
+  assert.match(mapping, /\|https:\/\/res\.cloudinary\.com\/dkzd0f0tu\/video\/upload\/q_auto:best,f_mp4,vc_h264\/v\d+\/Black(?:00|05|10|15|20|25|30|35|40|45|50|55|60|65|70|75|80|85|90|95|100)_V2-\d{4}_[^/]+\.mp4$/);
+}
+assert.equal(
+  sha256(Buffer.from(blackMappings.join("\n"))),
+  "bd2faf2ca0bfff2d0a02509483c53293c606dc1e4f68c9022dfb0d80b1474a98",
+  "black-smoke URL order or opacity mapping drifted",
 );
 
 if (checkNetwork) {
   const uniqueUrls = [...new Set(videoUrls)];
   const failures = [];
   let nextIndex = 0;
+  async function checkUrl(url) {
+    let failure = null;
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      try {
+        const response = await fetch(url, { method: "HEAD", signal: AbortSignal.timeout(30_000) });
+        if (response.ok) return null;
+        failure = `${response.status} ${url}`;
+      } catch (error) {
+        failure = `${error.name} ${url}`;
+      }
+      if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, attempt * 500));
+    }
+    return failure;
+  }
   async function worker() {
     while (nextIndex < uniqueUrls.length) {
       const url = uniqueUrls[nextIndex++];
-      try {
-        const response = await fetch(url, { method: "HEAD", signal: AbortSignal.timeout(15_000) });
-        if (!response.ok) failures.push(`${response.status} ${url}`);
-      } catch (error) {
-        failures.push(`${error.name} ${url}`);
-      }
+      const failure = await checkUrl(url);
+      if (failure) failures.push(failure);
     }
   }
   await Promise.all(Array.from({ length: 8 }, worker));
@@ -104,6 +130,7 @@ if (checkNetwork) {
 }
 
 const scene = read("Assets/Scenes/ChimneyScene.unity").toString("utf8");
+assert.match(scene, /m_GameObject: \{fileID: 55496161\}[\s\S]{0,180}m_LocalScale: \{x: 1, y: 1, z: 1\}/);
 assert.match(scene, /m_Name: Emission Testing Text[\s\S]{0,1800}m_text: Video Tutorials/);
 assert.match(scene, /m_Name: Videos Tutorials Text[\s\S]{0,1800}m_text: Emission Testing/);
 assert.match(scene, /m_GameObject: \{fileID: 1737756091\}[\s\S]{0,700}m_text: Watch our training video/);
@@ -146,16 +173,32 @@ assert.match(resultReporter, /requiredFields[\s\S]{0,500}required result field/)
 assert.match(resultReporter, /Certification result response mismatch/);
 
 const managerSource = read("Assets/ManagerTesting.cs").toString("utf8");
+assert.doesNotMatch(managerSource, /SmokeSchoolTestLayout\.Apply/);
+assert.match(managerSource, /Initialize\(videoPlayer, videoPlayer\.transform as RectTransform\)/);
 assert.match(managerSource, /CertificationResultReporter\.BeginNewRun\(\)/);
 assert.match(managerSource, /ScreenshotSender\.didPass = didPass;[\s\S]{0,120}CertificationResultReporter\.Submit\(testRunNumber\)/);
 assert.match(managerSource, /bool hasCompleteCertification = CertificationResultReporter\.HasCompleteReadings/);
 assert.match(managerSource, /if \(!answeredAny \|\| !hasCompleteCertification\)/);
 assert.match(managerSource, /ScreenshotSender\.didPass = hasCompleteCertification && !hasIndividualFail && whitePassed && blackPassed/);
 assert.match(managerSource, /while \(CertificationResultReporter\.IsSubmitting\)/);
+assert.match(managerSource, /private bool IsQuestionVideoCoveredByOverlay\(\)/);
+assert.match(managerSource, /if \(player != null\)[\s\S]{0,80}player\.Stop\(\);[\s\S]{0,80}waitingForVideoStart = false;/);
+assert.match(managerSource, /private void ShowTestCompletePanel\(\)[\s\S]{0,120}StopActiveVideoPlayer\(\);[\s\S]{0,120}TestingCompletePannel\.SetActive\(true\)/);
+assert.match(managerSource, /private void ShowRemarksForQuestion[\s\S]{0,800}StopActiveVideoPlayer\(\);[\s\S]{0,120}RemarksPannel\.SetActive\(true\)/);
+assert.match(managerSource, /private void StartCurrentPhaseAtFirstQuestion\(\)[\s\S]{0,500}RemarksPannel\.SetActive\(false\)[\s\S]{0,200}TestingCompletePannel\.SetActive\(false\)[\s\S]{0,200}SignaturePannel\.SetActive\(false\)/);
+assert.match(managerSource, /else if \(currenttype == TestType\.TestComplete\)[\s\S]{0,120}OpenSignaturePanel\(\);[\s\S]{0,40}return;/);
+assert.match(managerSource, /else if \(currenttype == TestType\.blackTest\)[\s\S]{0,240}SubmissionButton\.SetActive\(true\)[\s\S]{0,180}openresultPannelButton\.gameObject\.SetActive\(false\)/);
+
+const directDisplaySource = read("Assets/Scripts/SmokeVideoDirectDisplay.cs").toString("utf8");
+assert.match(directDisplaySource, /displayTarget\.GetWorldCorners\(corners\)/);
+assert.match(directDisplaySource, /new Vector3\(availableWidth, availableHeight, 1f\)/);
+assert.doesNotMatch(directDisplaySource, /GetVideoAspect\(\)/);
+assert.doesNotMatch(directDisplaySource, /surfaceWidth = 4\.2f/);
 
 const templateSource = read("Assets/WebGLTemplates/WebXR2020/index.html").toString("utf8");
 assert.match(templateSource, /<button id="entervr" value="Enter VR" disabled>VR<\/button>/);
 assert.match(templateSource, /ReceiveBrowserLogin/);
+assert.match(templateSource, /#unity-login-overlay \{ display: none;/);
 
 if (sourceOnly) {
   console.log(JSON.stringify({
@@ -165,6 +208,8 @@ if (sourceOnly) {
     cloudinaryVideoUrls: videoUrls.length,
     whiteSmokeMappings: whiteMappings.length,
     whiteMappingDigest: sha256(Buffer.from(whiteMappings.join("\n"))),
+    blackSmokeMappings: blackMappings.length,
+    blackMappingDigest: sha256(Buffer.from(blackMappings.join("\n"))),
     networkChecked: checkNetwork,
   }, null, 2));
   process.exit(0);
@@ -225,6 +270,8 @@ console.log(JSON.stringify({
   cloudinaryVideoUrls: videoUrls.length,
   whiteSmokeMappings: whiteMappings.length,
   whiteMappingDigest: sha256(Buffer.from(whiteMappings.join("\n"))),
+  blackSmokeMappings: blackMappings.length,
+  blackMappingDigest: sha256(Buffer.from(blackMappings.join("\n"))),
   networkChecked: checkNetwork,
   authEndpoint: authUrl.origin + authUrl.pathname,
   decompressedSizes,

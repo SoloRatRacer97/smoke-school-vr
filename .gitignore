@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+
+# Unity-generated directories
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+# Unity and local build logs
+*.log
+
+# Generated WebXR output and deployment artifacts
+Chemney_VR/VR Smoke School Stock WebXR/
+*.zip
+
+# Generated validation captures
+*-validation-*.png
+webxr-authenticated-*.png

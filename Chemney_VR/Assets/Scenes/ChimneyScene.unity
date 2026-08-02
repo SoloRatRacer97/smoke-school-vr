@@ -2579,7 +2579,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument:
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!1 &49749514
@@ -2973,7 +2973,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3007,7 +3007,7 @@ RectTransform:
   m_GameObject: {fileID: 55496161}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.35, y: 1.35, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1916800228}
@@ -4768,7 +4768,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument:
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!1 &101795727
@@ -5281,7 +5281,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 1833972057}
@@ -5293,7 +5293,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument:
           m_BoolArgument: 1
         m_CallState: 2
       - m_Target: {fileID: 1833972059}
@@ -5305,7 +5305,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument:
           m_BoolArgument: 1
         m_CallState: 2
       - m_Target: {fileID: 55496161}
@@ -10694,7 +10694,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -10, y: -7}
+  m_AnchoredPosition: {x: -16, y: -13}
   m_SizeDelta: {x: 200, y: 45}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &227990859
@@ -13899,10 +13899,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   videoURLs:
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442461/Black25_V2-0024_skqcq7.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442691/Black50_V2-0011_hz3dmz.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442801/Black75_V2-0030_ultvut.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442949/Black100_V2-0030_mn5onr.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1785533225/Black25_V2-0001_cnaj0z.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1785536681/Black50_V2-0001_c9ik6h.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1785537743/Black75_V2-0001_xzx3jm.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1785538507/Black100_V2-0001_knoqzo.mp4
   videoPlayer: {fileID: 306105675}
   opacityText: {fileID: 1983426896}
   testTypeText: {fileID: 913789869}
@@ -14500,7 +14500,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -0.0014982, y: 0}
-  m_SizeDelta: {x: 200, y: 45}
+  m_SizeDelta: {x: 300, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &312353935
 MonoBehaviour:
@@ -22624,18 +22624,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 55496167}
-        m_TargetAssemblyTypeName: ManagerTesting, Assembly-CSharp
-        m_MethodName: WhiteTestStart
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 802954604}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
@@ -22659,6 +22647,18 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 55496167}
+        m_TargetAssemblyTypeName: ManagerTesting, Assembly-CSharp
+        m_MethodName: WhiteTestStart
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &510466717
 MonoBehaviour:
@@ -24236,7 +24236,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.0000001219281, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 165}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &546912265
@@ -37525,10 +37525,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   videoURLs:
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443026/White25_1_taihxu.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441948/White50_3_eta62k.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443164/White75_V1-0030_dj7yx7.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442236/White100_V1-0022_zquo4p.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782929658/White25_V1-0001_rymmk1.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782932934/White50_V1-0001_zjrtrb.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782924976/White75_V1-0001_xgv9if.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782927688/White100_V1-0001_pfuaav.mp4
   videoPlayer: {fileID: 802954607}
   opacityText: {fileID: 1465754530}
   testTypeText: {fileID: 222245948}
@@ -37666,10 +37666,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   videoURLs:
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443026/White25_1_taihxu.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769441948/White50_3_eta62k.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769443164/White75_V1-0030_dj7yx7.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442236/White100_V1-0022_zquo4p.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782929658/White25_V1-0001_rymmk1.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782932934/White50_V1-0001_zjrtrb.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782924976/White75_V1-0001_xgv9if.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1782927688/White100_V1-0001_pfuaav.mp4
   videoPlayer: {fileID: 807464815}
   opacityText: {fileID: 250853058}
   testTypeText: {fileID: 1519331897}
@@ -38463,9 +38463,9 @@ RectTransform:
   - {fileID: 312353934}
   m_Father: {fileID: 1116176846}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.07944743, y: 0.018722722}
-  m_AnchorMax: {x: 0.23896737, y: 0.0785425}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.07944743, y: 0.021441802}
+  m_AnchorMax: {x: 0.32, y: 0.07582342}
+  m_AnchoredPosition: {x: 0, y: -180}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &838251757
@@ -44293,8 +44293,8 @@ RectTransform:
   m_Father: {fileID: 1116176846}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.07944743, y: 0.021441802}
-  m_AnchorMax: {x: 0.23896734, y: 0.07582342}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.32, y: 0.07582342}
+  m_AnchoredPosition: {x: 0, y: -180}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1019044769
@@ -48884,7 +48884,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.0000001219281, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 165}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1121525477
@@ -50988,7 +50988,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -0.0014982, y: 0}
-  m_SizeDelta: {x: 200, y: 45}
+  m_SizeDelta: {x: 300, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1186583953
 MonoBehaviour:
@@ -51010,7 +51010,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Continue to Black Smoke Practice
+  m_text: Close Results
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -58362,9 +58362,9 @@ RectTransform:
   - {fileID: 1186583952}
   m_Father: {fileID: 1116176846}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.42430055, y: 0.021441802}
-  m_AnchorMax: {x: 0.58382046, y: 0.07582342}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.37972373, y: 0.021441802}
+  m_AnchorMax: {x: 0.6202763, y: 0.07582342}
+  m_AnchoredPosition: {x: 0, y: -180}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1349286829
@@ -58447,7 +58447,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1629600910}
+      - m_Target: {fileID: 2101759116}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
         m_Mode: 6
@@ -58457,6 +58457,54 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 835856468}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 511132182}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1648935977}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument:
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1629600910}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument:
           m_BoolArgument: 1
         m_CallState: 2
       - m_Target: {fileID: 694022966}
@@ -58468,10 +58516,10 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument:
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 55496161}
+      - m_Target: {fileID: 646683175}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
         m_Mode: 6
@@ -58480,13 +58528,13 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument:
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 55496167}
-        m_TargetAssemblyTypeName: ManagerTesting, Assembly-CSharp
-        m_MethodName: ContinueToNextPhase
-        m_Mode: 1
+      - m_Target: {fileID: 55496161}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -59449,7 +59497,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 8.799988, y: -8.100006}
+  m_AnchoredPosition: {x: 16.799988, y: -16.100006}
   m_SizeDelta: {x: 170, y: 40}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1372693334
@@ -65042,8 +65090,8 @@ RectTransform:
   m_Father: {fileID: 1116176846}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.42430055, y: 0.021441802}
-  m_AnchorMax: {x: 0.58382046, y: 0.07582342}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.66485312, y: 0.07582342}
+  m_AnchoredPosition: {x: 0, y: -180}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1480371169
@@ -70678,7 +70726,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -0.0014982, y: 0}
-  m_SizeDelta: {x: 200, y: 45}
+  m_SizeDelta: {x: 300, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1596695144
 MonoBehaviour:
@@ -71022,10 +71070,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1958279382}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000030517578, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -0.0014982, y: 0}
+  m_SizeDelta: {x: 300, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1612067666
 MonoBehaviour:
@@ -81035,10 +81083,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   videoURLs:
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442461/Black25_V2-0024_skqcq7.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442691/Black50_V2-0011_hz3dmz.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442801/Black75_V2-0030_ultvut.mp4
-  - https://res.cloudinary.com/dkzd0f0tu/video/upload/v1769442949/Black100_V2-0030_mn5onr.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1785533225/Black25_V2-0001_cnaj0z.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1785536681/Black50_V2-0001_c9ik6h.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1785537743/Black75_V2-0001_xzx3jm.mp4
+  - https://res.cloudinary.com/dkzd0f0tu/video/upload/q_auto:best,f_mp4,vc_h264/v1785538507/Black100_V2-0001_knoqzo.mp4
   videoPlayer: {fileID: 1833972060}
   opacityText: {fileID: 236611086}
   testTypeText: {fileID: 1525948037}
@@ -84905,7 +84953,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -84945,9 +84993,9 @@ RectTransform:
   - {fileID: 940127037}
   m_Father: {fileID: 55496166}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.08, y: 0.335}
-  m_AnchorMax: {x: 0.92, y: 0.925}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.0000001219281, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 300}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1916800229
@@ -86320,8 +86368,8 @@ RectTransform:
   m_Father: {fileID: 1116176846}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.07944743, y: 0.021441802}
-  m_AnchorMax: {x: 0.23896734, y: 0.07582342}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.32, y: 0.07582342}
+  m_AnchoredPosition: {x: 0, y: -180}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1959925580
@@ -86455,10 +86503,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1480371168}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0025024414}
-  m_SizeDelta: {x: 0, y: -0.0050335}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -0.0014982, y: 0}
+  m_SizeDelta: {x: 300, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1966027010
 GameObject:
@@ -92792,6 +92840,42 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 511132182}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument:
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 646683175}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument:
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1648935977}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument:
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2101759118
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -92845,9 +92929,9 @@ RectTransform:
   - {fileID: 1338308792}
   m_Father: {fileID: 1116176846}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.28754845, y: 0.024160884}
-  m_AnchorMax: {x: 0.43256658, y: 0.07310434}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.35, y: 0.021441802}
+  m_AnchorMax: {x: 0.49501812, y: 0.07582342}
+  m_AnchoredPosition: {x: 0, y: -180}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2110997242
