@@ -194,6 +194,14 @@ namespace SmokeSchool.Tests
             Assert.That(managerSource, Does.Match(
                 @"private bool LoadQuestionVideo[\s\S]*BeginVideoPlayback\(false\);"),
                 "Only videos not ready in the queue should enter the loading state.");
+            Assert.That(managerSource, Does.Not.Contain("waitingForVideoStart = true;"),
+                "Question navigation must not activate loading before checking the prepared queue.");
+            Assert.That(managerSource, Does.Not.Match(
+                @"private IEnumerator AutoAdvanceToNextQuestion\(\)[\s\S]{0,700}loadingImage\.SetActive\(true\)"));
+            Assert.That(managerSource, Does.Not.Match(
+                @"void OnNextButtonClicked\(\)[\s\S]{0,700}loadingImage\.SetActive\(true\)"));
+            Assert.That(managerSource, Does.Not.Match(
+                @"currentQuestionIndex = nextIndex;[\s\S]{0,220}loadingImage\.SetActive\(true\)"));
         }
 
         [Test]

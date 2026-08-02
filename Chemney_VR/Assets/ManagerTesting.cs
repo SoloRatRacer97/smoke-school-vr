@@ -1698,18 +1698,10 @@ public class ManagerTesting : MonoBehaviour
         }
     }
 
-    // MODIFIED: Auto-advance coroutine with preloading
-    // Shows the loading spinner IMMEDIATELY when answer is selected,
-    // so the user sees a clear "loading next question" state even on slow internet.
+    // Auto-advance without changing loading state before the queue lookup.
     private IEnumerator AutoAdvanceToNextQuestion()
     {
         isAutoAdvancing = true;
-
-        // Show the loading spinner immediately and keep it visible until
-        // OnVideoStarted fires — don't wait for the delay.
-        waitingForVideoStart = true;
-        if (loadingImage != null)
-            loadingImage.SetActive(true);
 
         // Wait for the specified delay
         yield return new WaitForSeconds(autoAdvanceDelay);
@@ -1741,11 +1733,6 @@ public class ManagerTesting : MonoBehaviour
 
         answerSelected = false;
 
-        // Show loading spinner immediately on next-button advance
-        // and keep it visible until OnVideoStarted fires.
-        waitingForVideoStart = true;
-        if (loadingImage != null)
-            loadingImage.SetActive(true);
         LoadCurrentQuestion();
         ApplyScratchAndRefreshButtonState();
 
@@ -1868,9 +1855,6 @@ public class ManagerTesting : MonoBehaviour
             {
                 currentQuestionIndex = nextIndex;
                 answerSelected = false;
-                waitingForVideoStart = true;
-                if (loadingImage != null)
-                    loadingImage.SetActive(true);
                 LoadCurrentQuestion();
                 ApplyScratchAndRefreshButtonState();
                 btn_questions[currentQuestionIndex].onClick.Invoke();

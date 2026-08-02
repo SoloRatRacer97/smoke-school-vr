@@ -16,7 +16,7 @@ const output = outputArgument
   : path.join(project, "VR Smoke School Stock WebXR");
 
 const lockedSourceHashes = new Map([
-  ["Assets/ManagerTesting.cs", "a38e47c81bce77147d92e322cb326f1a502863862ae9d2085400138af1e6848c"],
+  ["Assets/ManagerTesting.cs", "b9c2f2b0ab09e99dbc2871d7ac9a94da51d293eda976da7dfa87d11f34cda480"],
   ["Assets/Scenes/ChimneyScene.unity", "72e1cb184beb2fb8d00d0c3955f14ba2f35ab59fc5533d4dddcd059aa7059f87"],
   ["Assets/Scripts/SmokeVideoDirectDisplay.cs", "dcff79f489dd5d9cbf0051dc1f92950700eff563ecfd75012189b1a13b0dc2a3"],
   ["Assets/Scripts/SmokeSchoolReturnHome.cs", "bb4e7bd268a5c961185ff9d87f38535725c4bf3fbffe0c28e9514438d89cb24a"],
@@ -200,6 +200,10 @@ assert.match(managerSource, /private bool TryUsePreparedVideo[\s\S]*SetActivePla
 assert.match(managerSource, /private bool TryUsePreparedVideo[\s\S]*BeginVideoPlayback\(true\);[\s\S]*RequestSmokeVideoDirectDisplay\(\);/);
 assert.match(managerSource, /private bool LoadQuestionVideo[\s\S]*BeginVideoPlayback\(false\);/);
 assert.match(managerSource, /if \(suppressLoadingForPreparedVideo\)[\s\S]{0,120}loadingImage\.SetActive\(false\);/);
+assert.doesNotMatch(managerSource, /waitingForVideoStart = true;/);
+assert.doesNotMatch(managerSource, /private IEnumerator AutoAdvanceToNextQuestion\(\)[\s\S]{0,700}loadingImage\.SetActive\(true\)/);
+assert.doesNotMatch(managerSource, /void OnNextButtonClicked\(\)[\s\S]{0,700}loadingImage\.SetActive\(true\)/);
+assert.doesNotMatch(managerSource, /currentQuestionIndex = nextIndex;[\s\S]{0,220}loadingImage\.SetActive\(true\)/);
 assert.match(managerSource, /private void SetActivePlaybackPlayer[\s\S]*smokeVideoDirectDisplay\.SetVideoPlayer\(activeVideoPlayer\);/);
 assert.match(managerSource, /void StartPreloadSlot[\s\S]*slot\.player\.renderMode = VideoRenderMode\.APIOnly;[\s\S]*slot\.player\.Prepare\(\);/);
 assert.match(managerSource, /private void StartCurrentPhaseAtFirstQuestion\(\)[\s\S]{0,700}SetVideoIndicatorsVisible\(true\)/);
