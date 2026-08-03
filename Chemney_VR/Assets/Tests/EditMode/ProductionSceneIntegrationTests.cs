@@ -287,13 +287,11 @@ namespace SmokeSchool.Tests
 
             string managerSource = File.ReadAllText("Assets/ManagerTesting.cs");
             Assert.That(managerSource, Does.Contain("manageWhitePracticeTest.GoToWhiteTutorial();"));
-            Assert.That(managerSource, Does.Contain("SkipToTest(TestType.blackPractice);"));
             Assert.That(managerSource, Does.Contain("mangerBlackPractice.GoToblackTutorial();"));
-            Assert.That(managerSource, Does.Contain("ShowingFinalResult();\n            OpenSignaturePanel();"));
             Assert.That(managerSource, Does.Contain("Skip to White Smoke Test"));
-            Assert.That(managerSource, Does.Contain("Skip to Black Smoke Practice"));
             Assert.That(managerSource, Does.Contain("Skip to Black Smoke Test"));
-            Assert.That(managerSource, Does.Contain("Skip to Signature"));
+            Assert.That(managerSource, Does.Not.Contain("Skip to Black Smoke Practice"));
+            Assert.That(managerSource, Does.Not.Contain("Skip to Signature"));
             Assert.That(managerSource, Does.Contain("CertificationResultReporter.HasCompleteReadings"),
                 "Skipped certification sections must remain incomplete and ineligible to pass.");
             Assert.That(managerSource, Does.Contain("SetVideoIndicatorsVisible(true);"));
@@ -320,6 +318,90 @@ namespace SmokeSchool.Tests
                 AssertSetActiveCall(homeCalls, welcomePanel, true);
                 AssertSetActiveCall(homeCalls, panel, false);
             }
+        }
+
+        [Test]
+        public void Manager_ShowsSkipOnlyDuringPracticePhases()
+        {
+            MonoBehaviour manager = SceneBehaviours().Single(component => component.GetType().Name == "ManagerTesting");
+            Button skip = (Button)new SerializedObject(manager).FindProperty("btn_SkipPracticeTest").objectReferenceValue;
+            (string phase, bool expectedVisible)[] expectations =
+            {
+                ("whitePractice", true),
+                ("whiteTest", false),
+                ("blackPractice", true),
+                ("blackTest", false)
+            };
+
+            foreach ((string phase, bool expectedVisible) in expectations)
+            {
+                TestReflection.SetField(manager, "currenttype", TestReflection.EnumValue("ManagerTesting+TestType", phase));
+                TestReflection.Invoke(manager, "SetSkipButtonActive", true);
+                Assert.That(skip.gameObject.activeSelf, Is.EqualTo(expectedVisible), phase);
+            }
+        }
+
+        [Test]
+        public void Manager_TestCompletionShowsOnlyTheValidRouteAndReviewMessage()
+        {
+            MonoBehaviour manager = SceneBehaviours().Single(component => component.GetType().Name == "ManagerTesting");
+            SerializedObject data = new SerializedObject(manager);
+            Button skip = (Button)data.FindProperty("btn_SkipPracticeTest").objectReferenceValue;
+            Button openResults = (Button)data.FindProperty("openresultPannelButton").objectReferenceValue;
+            GameObject blackPractice = (GameObject)data.FindProperty("BlackPracticeButton").objectReferenceValue;
+            GameObject submission = (GameObject)data.FindProperty("SubmissionButton").objectReferenceValue;
+            Component message = (Component)data.FindProperty("completionReviewMessage").objectReferenceValue;
+
+            TestReflection.SetField(manager, "currenttype", TestReflection.EnumValue("ManagerTesting+TestType", "whiteTest"));
+            TestReflection.Invoke(manager, "ShowTestCompletePanel");
+            Assert.That(skip.gameObject.activeSelf, Is.False);
+            Assert.That(openResults.gameObject.activeSelf, Is.False);
+            Assert.That(blackPractice.activeSelf, Is.True);
+            Assert.That(message.gameObject.activeSelf, Is.True);
+            Assert.That(new SerializedObject(message).FindProperty("m_text").stringValue, Is.EqualTo(
+                "Feel free to review and change any answer before proceeding to Black Smoke Test."));
+
+            TestReflection.SetField(manager, "currenttype", TestReflection.EnumValue("ManagerTesting+TestType", "blackTest"));
+            TestReflection.Invoke(manager, "ShowTestCompletePanel");
+            Assert.That(skip.gameObject.activeSelf, Is.False);
+            Assert.That(openResults.gameObject.activeSelf, Is.False);
+            Assert.That(submission.activeSelf, Is.True);
+            Assert.That(message.gameObject.activeSelf, Is.True);
+            Assert.That(new SerializedObject(message).FindProperty("m_text").stringValue, Is.EqualTo(
+                "Feel free to review and change any answer before continuing to the results page."));
+        }
+
+        [Test]
+        public void ResultsRetakeRoutesToTheWhiteTestIntro()
+        {
+            MonoBehaviour manager = SceneBehaviours().Single(component => component.GetType().Name == "ManagerTesting");
+            MonoBehaviour login = SceneBehaviours().Single(component => component.GetType().Name == "DataInput_Fields");
+            SerializedObject loginData = new SerializedObject(login);
+            GameObject intro = (GameObject)loginData.FindProperty("whiteTestIntroPanel").objectReferenceValue;
+            GameObject testing = (GameObject)loginData.FindProperty("testingPanel").objectReferenceValue;
+            GameObject welcome = (GameObject)loginData.FindProperty("welcomePannel").objectReferenceValue;
+
+            intro.SetActive(false);
+            testing.SetActive(true);
+            welcome.SetActive(true);
+            TestReflection.SetStaticField("ManagerTesting", "restartAtWhiteTestIntro", true);
+            Assert.That(TestReflection.Invoke(login, "ApplyPostReloadPanelRoute"), Is.True);
+            Assert.That(intro.activeSelf, Is.True);
+            Assert.That(testing.activeSelf, Is.False);
+            Assert.That(welcome.activeSelf, Is.False);
+            Assert.That(TestReflection.GetStaticField("ManagerTesting", "restartAtWhiteTestIntro"), Is.False);
+
+            Button endTest = FindSceneObject("End Test Button").GetComponent<Button>();
+            SerializedProperty calls = GetPersistentCalls(endTest);
+            Assert.That(calls.arraySize, Is.EqualTo(1));
+            Assert.That(calls.GetArrayElementAtIndex(0).FindPropertyRelative("m_Target").objectReferenceValue,
+                Is.EqualTo(manager));
+            Assert.That(calls.GetArrayElementAtIndex(0).FindPropertyRelative("m_MethodName").stringValue,
+                Is.EqualTo("OnEndTestButtonClicked"));
+
+            string managerSource = File.ReadAllText("Assets/ManagerTesting.cs");
+            Assert.That(managerSource, Does.Match(
+                @"else[\s\S]{0,180}testRunNumber\+\+;[\s\S]{0,180}restartAtWhiteTestIntro = true;[\s\S]{0,260}SceneManager\.LoadScene"));
         }
 
         [Test]

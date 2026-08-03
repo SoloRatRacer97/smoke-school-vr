@@ -16,8 +16,9 @@ const output = outputArgument
   : path.join(project, "VR Smoke School Stock WebXR");
 
 const lockedSourceHashes = new Map([
-  ["Assets/ManagerTesting.cs", "b9c2f2b0ab09e99dbc2871d7ac9a94da51d293eda976da7dfa87d11f34cda480"],
-  ["Assets/Scenes/ChimneyScene.unity", "72e1cb184beb2fb8d00d0c3955f14ba2f35ab59fc5533d4dddcd059aa7059f87"],
+  ["Assets/ManagerTesting.cs", "f862c08f26434c22ca7d1a0cc1f7e8224e2aa5a6a75301bc44ba74be9a2b6e68"],
+  ["Assets/Scenes/ChimneyScene.unity", "d18198d516046b690b761e3dffab5789af035ebbaff9a825a8a7b337856f4415"],
+  ["Assets/Scripts/DataInput_Fields.cs", "4f80ca0346316b38f5d3b14cbcea3ff6fd60d92ccfc60bf509c3430e854c6c1a"],
   ["Assets/Scripts/SmokeVideoDirectDisplay.cs", "dcff79f489dd5d9cbf0051dc1f92950700eff563ecfd75012189b1a13b0dc2a3"],
   ["Assets/Scripts/SmokeSchoolReturnHome.cs", "bb4e7bd268a5c961185ff9d87f38535725c4bf3fbffe0c28e9514438d89cb24a"],
   ["Assets/Scripts/SmokeVideoURLData.asset", "48b68c7a5835a2374ade71fce0b7d1f5036bef4ed33566a5cd27fe6c716aa8a3"],
@@ -214,14 +215,20 @@ assert.match(managerSource, /private void ShowRemarksForQuestion[\s\S]{0,800}Sto
 assert.match(managerSource, /private void StartCurrentPhaseAtFirstQuestion\(\)[\s\S]{0,500}RemarksPannel\.SetActive\(false\)[\s\S]{0,200}TestingCompletePannel\.SetActive\(false\)[\s\S]{0,200}SignaturePannel\.SetActive\(false\)/);
 assert.match(managerSource, /else if \(currenttype == TestType\.TestComplete\)[\s\S]{0,120}OpenSignaturePanel\(\);[\s\S]{0,40}return;/);
 assert.match(managerSource, /else if \(currenttype == TestType\.blackTest\)[\s\S]{0,240}SubmissionButton\.SetActive\(true\)[\s\S]{0,180}openresultPannelButton\.gameObject\.SetActive\(false\)/);
+assert.match(managerSource, /bool showSkip = isActive && \(currenttype == TestType\.whitePractice \|\| currenttype == TestType\.blackPractice\)/);
 assert.match(managerSource, /if \(currenttype == TestType\.whitePractice\)[\s\S]{0,120}manageWhitePracticeTest\.GoToWhiteTutorial\(\)/);
-assert.match(managerSource, /else if \(currenttype == TestType\.whiteTest\)[\s\S]{0,120}SkipToTest\(TestType\.blackPractice\)/);
 assert.match(managerSource, /else if \(currenttype == TestType\.blackPractice\)[\s\S]{0,120}mangerBlackPractice\.GoToblackTutorial\(\)/);
-assert.match(managerSource, /else if \(currenttype == TestType\.blackTest\)[\s\S]{0,180}ShowingFinalResult\(\);[\s\S]{0,80}OpenSignaturePanel\(\)/);
 assert.match(managerSource, /Skip to White Smoke Test/);
-assert.match(managerSource, /Skip to Black Smoke Practice/);
 assert.match(managerSource, /Skip to Black Smoke Test/);
-assert.match(managerSource, /Skip to Signature/);
+assert.doesNotMatch(managerSource, /Skip to Black Smoke Practice|Skip to Signature/);
+assert.match(managerSource, /private void ShowTestCompletePanel\(\)[\s\S]{0,500}openresultPannelButton\.gameObject\.SetActive\(false\)/);
+assert.doesNotMatch(managerSource, /else if \(currenttype == TestType\.whiteTest\)[\s\S]{0,400}openresultPannelButton\.gameObject\.SetActive\(true\)/);
+assert.match(managerSource, /else if \(currenttype == TestType\.whiteTest\)[\s\S]{0,600}Feel free to review and change any answer before proceeding to Black Smoke Test\./);
+assert.match(managerSource, /else if \(currenttype == TestType\.blackTest\)[\s\S]{0,500}Feel free to review and change any answer before continuing to the results page\./);
+assert.match(managerSource, /testRunNumber\+\+;[\s\S]{0,180}restartAtWhiteTestIntro = true;[\s\S]{0,260}SceneManager\.LoadScene/);
+
+assert.match(authSource, /private bool ApplyPostReloadPanelRoute\(\)/);
+assert.match(authSource, /ManagerTesting\.restartAtWhiteTestIntro = false;[\s\S]{0,260}whiteTestIntroPanel\.SetActive\(true\)/);
 
 const returnHomeSource = read("Assets/Scripts/SmokeSchoolReturnHome.cs").toString("utf8");
 assert.match(returnHomeSource, /SmokeSchoolAppState\.ResetCertificationState\(\)/);

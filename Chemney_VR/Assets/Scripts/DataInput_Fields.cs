@@ -54,6 +54,8 @@ public class DataInput_Fields : MonoBehaviour
     [Header("Screens")]
     public GameObject LoginPannel;
     public GameObject welcomePannel;
+    [SerializeField] private GameObject whiteTestIntroPanel;
+    [SerializeField] private GameObject testingPanel;
 
     [Header("Warning Text")]
     public TextMeshProUGUI warningText;
@@ -112,6 +114,38 @@ public class DataInput_Fields : MonoBehaviour
         {
             SetBrowserLoginVisible(true);
         }
+
+        ApplyPostReloadRoute();
+    }
+
+    private void ApplyPostReloadRoute()
+    {
+        if (!ApplyPostReloadPanelRoute())
+        {
+            return;
+        }
+
+        SimpleVideoPlayer introPlayer = whiteTestIntroPanel.GetComponent<SimpleVideoPlayer>();
+        if (introPlayer != null)
+        {
+            introPlayer.playVideoURL(0);
+        }
+    }
+
+    private bool ApplyPostReloadPanelRoute()
+    {
+        if (!ManagerTesting.restartAtWhiteTestIntro)
+        {
+            return false;
+        }
+
+        ManagerTesting.restartAtWhiteTestIntro = false;
+        LoginPannel.SetActive(false);
+        welcomePannel.SetActive(false);
+        testingPanel.SetActive(false);
+        whiteTestIntroPanel.SetActive(true);
+        SetBrowserLoginVisible(false);
+        return true;
     }
 
     void HideWarningIfValid()

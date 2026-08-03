@@ -10,6 +10,54 @@ using UnityEngine.UI;
 
 public static class SmokeSchoolVisualCapture
 {
+    public static void EnsureTestingCompletionReviewMessage()
+    {
+        Scene scene = EditorSceneManager.OpenScene("Assets/Scenes/ChimneyScene.unity", OpenSceneMode.Single);
+        MonoBehaviour manager = Resources.FindObjectsOfTypeAll<MonoBehaviour>()
+            .First(item => item != null && item.gameObject.scene == scene && item.GetType().Name == "ManagerTesting");
+        Transform[] transforms = Resources.FindObjectsOfTypeAll<Transform>()
+            .Where(item => item != null && item.gameObject.scene == scene)
+            .ToArray();
+        Transform completion = RequireTransform(transforms, "TestingCompletePannel");
+        TMP_Text heading = RequireChild(completion, "White Testing Complete").GetComponent<TMP_Text>();
+        Transform messageTransform = heading.transform.parent.Find("Completion Review Message");
+        TMP_Text message;
+        if (messageTransform == null)
+        {
+            message = UnityEngine.Object.Instantiate(heading, heading.transform.parent);
+            message.gameObject.name = "Completion Review Message";
+        }
+        else
+        {
+            message = messageTransform.GetComponent<TMP_Text>();
+        }
+
+        RectTransform rect = (RectTransform)message.transform;
+        rect.anchorMin = new Vector2(0.08f, 0.40f);
+        rect.anchorMax = new Vector2(0.92f, 0.57f);
+        rect.anchoredPosition = Vector2.zero;
+        rect.sizeDelta = Vector2.zero;
+        message.fontSize = 24f;
+        message.fontStyle = FontStyles.Normal;
+        message.alignment = TextAlignmentOptions.Center;
+        message.enableWordWrapping = true;
+        message.text = string.Empty;
+        message.gameObject.SetActive(false);
+
+        SerializedObject managerData = new SerializedObject(manager);
+        managerData.FindProperty("completionReviewMessage").objectReferenceValue = message;
+        managerData.ApplyModifiedPropertiesWithoutUndo();
+
+        MonoBehaviour login = Resources.FindObjectsOfTypeAll<MonoBehaviour>()
+            .First(item => item != null && item.gameObject.scene == scene && item.GetType().Name == "DataInput_Fields");
+        SerializedObject loginData = new SerializedObject(login);
+        loginData.FindProperty("whiteTestIntroPanel").objectReferenceValue = RequireTransform(transforms, "Begin Practice Panel After Practice").gameObject;
+        loginData.FindProperty("testingPanel").objectReferenceValue = RequireTransform(transforms, "White Practice Test Panel").gameObject;
+        loginData.ApplyModifiedPropertiesWithoutUndo();
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+    }
+
     public static void EnsureTestingVideoOverlayCanvas()
     {
         Scene scene = EditorSceneManager.OpenScene("Assets/Scenes/ChimneyScene.unity", OpenSceneMode.Single);

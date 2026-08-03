@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 public class ManagerTesting : MonoBehaviour
 {
     public static int testRunNumber = 1;
+    public static bool restartAtWhiteTestIntro;
 
     public enum TestType { whitePractice, whiteTest, blackPractice, blackTest, TestComplete };
     public TestType currenttype;
@@ -107,6 +108,7 @@ public class ManagerTesting : MonoBehaviour
 
     [Header("Current Text")]
     public TMP_Text Txt_currentCompleteTest;
+    public TMP_Text completionReviewMessage;
     public TMP_Text questionNmbr_text;
     public TMP_Text CurrentTest_txt;
 
@@ -271,6 +273,17 @@ public class ManagerTesting : MonoBehaviour
         {
             CurrentTest_txt.transform.parent.gameObject.SetActive(isVisible);
         }
+    }
+
+    private void SetCompletionReviewMessage(string message)
+    {
+        if (completionReviewMessage == null)
+        {
+            return;
+        }
+
+        completionReviewMessage.text = message;
+        completionReviewMessage.gameObject.SetActive(!string.IsNullOrEmpty(message));
     }
 
     private void ConfigureQuestionVideoPlayer(VideoPlayer player)
@@ -444,16 +457,15 @@ public class ManagerTesting : MonoBehaviour
     {
         if (btn_SkipPracticeTest != null)
         {
-            btn_SkipPracticeTest.gameObject.SetActive(isActive);
-            if (isActive)
+            bool showSkip = isActive && (currenttype == TestType.whitePractice || currenttype == TestType.blackPractice);
+            btn_SkipPracticeTest.gameObject.SetActive(showSkip);
+            if (showSkip)
             {
                 TMP_Text label = btn_SkipPracticeTest.GetComponentInChildren<TMP_Text>(true);
                 if (label != null)
                 {
                     if (currenttype == TestType.whitePractice) label.text = "Skip to White Smoke Test";
-                    else if (currenttype == TestType.whiteTest) label.text = "Skip to Black Smoke Practice";
                     else if (currenttype == TestType.blackPractice) label.text = "Skip to Black Smoke Test";
-                    else if (currenttype == TestType.blackTest) label.text = "Skip to Signature";
                 }
             }
         }
@@ -1192,19 +1204,9 @@ public class ManagerTesting : MonoBehaviour
         {
             manageWhitePracticeTest.GoToWhiteTutorial();
         }
-        else if (currenttype == TestType.whiteTest)
-        {
-            SkipToTest(TestType.blackPractice);
-        }
         else if (currenttype == TestType.blackPractice)
         {
             mangerBlackPractice.GoToblackTutorial();
-        }
-        else if (currenttype == TestType.blackTest)
-        {
-            currenttype = TestType.TestComplete;
-            ShowingFinalResult();
-            OpenSignaturePanel();
         }
     }
 
@@ -2000,6 +2002,13 @@ public class ManagerTesting : MonoBehaviour
         loadingImage.SetActive(false);
         SetVideoIndicatorsVisible(false);
         TestingCompletePannel.SetActive(true);
+        SetSkipButtonActive(false);
+        WhiteTestButton.SetActive(false);
+        BlackPracticeButton.SetActive(false);
+        BlackTestButton.SetActive(false);
+        SubmissionButton.SetActive(false);
+        openresultPannelButton.gameObject.SetActive(false);
+        SetCompletionReviewMessage(string.Empty);
 
         if (currenttype == TestType.whitePractice)
         {
@@ -2014,7 +2023,7 @@ public class ManagerTesting : MonoBehaviour
         {
             Txt_ContinueText.text = "Continue to Black Smoke Practice";
             Txt_currentCompleteTest.text = "White Smoke Test Complete";
-            openresultPannelButton.gameObject.SetActive(true);
+            SetCompletionReviewMessage("Feel free to review and change any answer before proceeding to Black Smoke Test.");
             BlackPracticeButton.SetActive(true);
         }
         else if (currenttype == TestType.blackPractice)
@@ -2032,6 +2041,7 @@ public class ManagerTesting : MonoBehaviour
             Btn_Submission.gameObject.SetActive(false);
             openresultPannelButton.gameObject.SetActive(false);
             Txt_currentCompleteTest.text = "Black Smoke Test Complete";
+            SetCompletionReviewMessage("Feel free to review and change any answer before continuing to the results page.");
             currenttype = TestType.TestComplete;
             // ShowingFinalResult();
         }
@@ -2590,6 +2600,7 @@ public class ManagerTesting : MonoBehaviour
 
         if (ScreenshotSender.didPass)
         {
+            restartAtWhiteTestIntro = false;
             Debug.Log($"OnEndTestButtonClicked: passed on run #{completedRunNumber}. Resetting test run counter to 1 before scene reload.");
             testRunNumber = 1;
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -2597,9 +2608,9 @@ public class ManagerTesting : MonoBehaviour
         else
         {
             testRunNumber++;
-            Debug.Log($"OnEndTestButtonClicked: retake triggered from run #{completedRunNumber}. Next run will be #{testRunNumber}. Reloading scene.");
+            restartAtWhiteTestIntro = true;
+            Debug.Log($"OnEndTestButtonClicked: retake triggered from run #{completedRunNumber}. Next run will be #{testRunNumber}. Reloading at the White Smoke Test intro.");
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            Debug.Log($"Home Screen Open! Current test run after increment: #{testRunNumber}");
         }
     }
 }

@@ -71,5 +71,13 @@ namespace SmokeSchool.Tests
             Assert.That(method, Is.Not.Null, $"Required method was not found: {target.GetType().FullName}.{methodName}");
             return method.Invoke(target, arguments);
         }
+
+        public static void SetField(object target, string fieldName, object value)
+        {
+            Assert.That(target, Is.Not.Null);
+            FieldInfo field = target.GetType().GetField(fieldName, AllMembers);
+            Assert.That(field, Is.Not.Null, $"Required field was not found: {target.GetType().FullName}.{fieldName}");
+            field.SetValue(target, value);
+        }
     }
 }
