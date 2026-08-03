@@ -57249,7 +57249,7 @@ MonoBehaviour:
   goButton: {fileID: 1569138432}
   LoginPannel: {fileID: 1314506619}
   welcomePannel: {fileID: 633342534}
-  whiteTestIntroPanel: {fileID: 802954604}
+  whitePracticeIntroPanel: {fileID: 807464812}
   testingPanel: {fileID: 55496161}
   warningText: {fileID: 1871270899}
   Emailsent: {fileID: 1971740617}
@@ -65105,8 +65105,8 @@ RectTransform:
   - {fileID: 1959925583}
   m_Father: {fileID: 1116176846}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.42430055, y: 0.021441802}
-  m_AnchorMax: {x: 0.6648531, y: 0.07582342}
+  m_AnchorMin: {x: 0.37972373, y: 0.021441802}
+  m_AnchorMax: {x: 0.6202763, y: 0.07582342}
   m_AnchoredPosition: {x: 0, y: -265}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}

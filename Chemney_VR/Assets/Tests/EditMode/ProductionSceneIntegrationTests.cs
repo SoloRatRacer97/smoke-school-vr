@@ -106,6 +106,7 @@ namespace SmokeSchool.Tests
             GameObject blackPracticeButton = (GameObject)managerData.FindProperty("BlackPracticeButton").objectReferenceValue;
             GameObject blackTestButton = (GameObject)managerData.FindProperty("BlackTestButton").objectReferenceValue;
             GameObject submissionButton = (GameObject)managerData.FindProperty("SubmissionButton").objectReferenceValue;
+            RectTransform returnHome = (RectTransform)FindSceneObject("Shared Return to Home Button").transform;
             Button openResultsButton = (Button)managerData.FindProperty("openresultPannelButton").objectReferenceValue;
             Button skipButton = (Button)managerData.FindProperty("btn_SkipPracticeTest").objectReferenceValue;
             Button scratchButton = (Button)managerData.FindProperty("btn_Scratch").objectReferenceValue;
@@ -158,7 +159,10 @@ namespace SmokeSchool.Tests
             AssertTransitionButton(whiteTestButton, 0.07944743f, 0.32f, 300f, -265f);
             AssertTransitionButton(blackPracticeButton, 0.07944743f, 0.32f, 300f, -265f);
             AssertTransitionButton(blackTestButton, 0.07944743f, 0.32f, 300f, -265f);
-            AssertTransitionButton(submissionButton, 0.42430055f, 0.66485312f, 300f, -265f);
+            AssertTransitionButton(submissionButton, 0.37972373f, 0.6202763f, 300f, -265f);
+            Assert.That((((RectTransform)submissionButton.transform).anchorMin.x +
+                         ((RectTransform)submissionButton.transform).anchorMax.x) * 0.5f,
+                Is.EqualTo(0.5f).Within(0.0001f));
             AssertTransitionButton(openResultsButton.gameObject, 0.35f, 0.49501812f, 200f);
             Assert.That(skipButton.gameObject.activeSelf, Is.True);
             AssertSameVerticalPlacement(skipButton, scratchButton);
@@ -166,7 +170,9 @@ namespace SmokeSchool.Tests
             manager.gameObject.SetActive(true);
             testingCompletePanel.SetActive(true);
             whiteTestButton.SetActive(true);
+            submissionButton.SetActive(true);
             skipButton.gameObject.SetActive(true);
+            returnHome.gameObject.SetActive(true);
             Canvas.ForceUpdateCanvases();
             Vector3 skipCenter = manager.InverseTransformPoint(GetRectCenter((RectTransform)skipButton.transform));
             Vector3 continueCenter = manager.InverseTransformPoint(GetRectCenter((RectTransform)whiteTestButton.transform));
@@ -178,6 +184,9 @@ namespace SmokeSchool.Tests
                 Assert.That(center.y, Is.EqualTo(continueCenter.y).Within(0.01f), continuation.name);
                 Assert.That(center.z, Is.EqualTo(continueCenter.z).Within(0.01f), continuation.name);
             }
+            Vector3 signatureCenter = manager.InverseTransformPoint(GetRectCenter((RectTransform)submissionButton.transform));
+            Vector3 returnHomeCenter = manager.InverseTransformPoint(GetRectCenter(returnHome));
+            Assert.That(signatureCenter.x, Is.EqualTo(returnHomeCenter.x).Within(0.01f));
         }
 
         [Test]
@@ -378,30 +387,31 @@ namespace SmokeSchool.Tests
         }
 
         [Test]
-        public void ResultsRetakeRoutesToTheWhiteTestIntro()
+        public void ResultsRetakeRoutesToTheWhitePracticeIntro()
         {
             MonoBehaviour manager = SceneBehaviours().Single(component => component.GetType().Name == "ManagerTesting");
             MonoBehaviour login = SceneBehaviours().Single(component => component.GetType().Name == "DataInput_Fields");
             SerializedObject loginData = new SerializedObject(login);
-            GameObject intro = (GameObject)loginData.FindProperty("whiteTestIntroPanel").objectReferenceValue;
+            GameObject intro = (GameObject)loginData.FindProperty("whitePracticeIntroPanel").objectReferenceValue;
             GameObject testing = (GameObject)loginData.FindProperty("testingPanel").objectReferenceValue;
             GameObject welcome = (GameObject)loginData.FindProperty("welcomePannel").objectReferenceValue;
+            Assert.That(intro.name, Is.EqualTo("Begin Practice Panel"));
 
             intro.SetActive(false);
             testing.SetActive(true);
             welcome.SetActive(true);
             TestReflection.SetStaticField("ManagerTesting", "testRunNumber", 1);
-            TestReflection.SetStaticField("ManagerTesting", "restartAtWhiteTestIntro", false);
+            TestReflection.SetStaticField("ManagerTesting", "restartAtWhitePracticeIntro", false);
             TestReflection.SetStaticField("DataInput_Fields", "checkSceneReload", 0);
-            TestReflection.Invoke(manager, "StartWhiteTestRetake", 1, false);
+            TestReflection.Invoke(manager, "StartWhitePracticeRetake", 1, false);
             Assert.That(TestReflection.GetStaticField("ManagerTesting", "testRunNumber"), Is.EqualTo(2));
-            Assert.That(TestReflection.GetStaticField("ManagerTesting", "restartAtWhiteTestIntro"), Is.True);
+            Assert.That(TestReflection.GetStaticField("ManagerTesting", "restartAtWhitePracticeIntro"), Is.True);
             Assert.That(TestReflection.GetStaticField("DataInput_Fields", "checkSceneReload"), Is.EqualTo(1));
             Assert.That(TestReflection.Invoke(login, "ApplyPostReloadPanelRoute"), Is.True);
             Assert.That(intro.activeSelf, Is.True);
             Assert.That(testing.activeSelf, Is.False);
             Assert.That(welcome.activeSelf, Is.False);
-            Assert.That(TestReflection.GetStaticField("ManagerTesting", "restartAtWhiteTestIntro"), Is.False);
+            Assert.That(TestReflection.GetStaticField("ManagerTesting", "restartAtWhitePracticeIntro"), Is.False);
 
             Button endTest = FindSceneObject("End Test Button").GetComponent<Button>();
             SerializedProperty calls = GetPersistentCalls(endTest);
@@ -413,12 +423,17 @@ namespace SmokeSchool.Tests
 
             string managerSource = File.ReadAllText("Assets/ManagerTesting.cs");
             Assert.That(managerSource, Does.Match(
-                @"private IEnumerator CompleteEndTest[\s\S]{0,180}if \(!ScreenshotSender\.didPass\)[\s\S]{0,180}StartWhiteTestRetake\(completedRunNumber, true\);[\s\S]{0,80}yield break;"));
-            Assert.That(managerSource.IndexOf("StartWhiteTestRetake(completedRunNumber, true);", System.StringComparison.Ordinal),
+                @"private IEnumerator CompleteEndTest[\s\S]{0,180}if \(!ScreenshotSender\.didPass\)[\s\S]{0,180}StartWhitePracticeRetake\(completedRunNumber, true\);[\s\S]{0,80}yield break;"));
+            Assert.That(managerSource.IndexOf("StartWhitePracticeRetake(completedRunNumber, true);", System.StringComparison.Ordinal),
                 Is.LessThan(managerSource.IndexOf("CertificationResultReporter.Submit(completedRunNumber)", System.StringComparison.Ordinal)));
 
+            string loginSource = File.ReadAllText("Assets/Scripts/DataInput_Fields.cs");
+            Assert.That(loginSource, Does.Contain("whitePracticeIntroPanel.SetActive(true);"));
+            Assert.That(loginSource, Does.Match(
+                @"whitePracticeIntroPanel\.GetComponent<SimpleVideoPlayer>\(\)[\s\S]{0,180}introPlayer\.playVideoURL\(0\)"));
+
             TestReflection.SetStaticField("ManagerTesting", "testRunNumber", 1);
-            TestReflection.SetStaticField("ManagerTesting", "restartAtWhiteTestIntro", false);
+            TestReflection.SetStaticField("ManagerTesting", "restartAtWhitePracticeIntro", false);
             TestReflection.SetStaticField("DataInput_Fields", "checkSceneReload", 0);
         }
 

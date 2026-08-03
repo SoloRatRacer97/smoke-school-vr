@@ -54,7 +54,7 @@ public class DataInput_Fields : MonoBehaviour
     [Header("Screens")]
     public GameObject LoginPannel;
     public GameObject welcomePannel;
-    [SerializeField] private GameObject whiteTestIntroPanel;
+    [SerializeField] private GameObject whitePracticeIntroPanel;
     [SerializeField] private GameObject testingPanel;
 
     [Header("Warning Text")]
@@ -125,7 +125,7 @@ public class DataInput_Fields : MonoBehaviour
             return;
         }
 
-        SimpleVideoPlayer introPlayer = whiteTestIntroPanel.GetComponent<SimpleVideoPlayer>();
+        SimpleVideoPlayer introPlayer = whitePracticeIntroPanel.GetComponent<SimpleVideoPlayer>();
         if (introPlayer != null)
         {
             introPlayer.playVideoURL(0);
@@ -134,16 +134,16 @@ public class DataInput_Fields : MonoBehaviour
 
     private bool ApplyPostReloadPanelRoute()
     {
-        if (!ManagerTesting.restartAtWhiteTestIntro)
+        if (!ManagerTesting.restartAtWhitePracticeIntro)
         {
             return false;
         }
 
-        ManagerTesting.restartAtWhiteTestIntro = false;
+        ManagerTesting.restartAtWhitePracticeIntro = false;
         LoginPannel.SetActive(false);
         welcomePannel.SetActive(false);
         testingPanel.SetActive(false);
-        whiteTestIntroPanel.SetActive(true);
+        whitePracticeIntroPanel.SetActive(true);
         SetBrowserLoginVisible(false);
         return true;
     }

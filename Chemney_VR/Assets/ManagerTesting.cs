@@ -16,7 +16,7 @@ using System.Text.RegularExpressions;
 public class ManagerTesting : MonoBehaviour
 {
     public static int testRunNumber = 1;
-    public static bool restartAtWhiteTestIntro;
+    public static bool restartAtWhitePracticeIntro;
 
     public enum TestType { whitePractice, whiteTest, blackPractice, blackTest, TestComplete };
     public TestType currenttype;
@@ -2584,7 +2584,7 @@ public class ManagerTesting : MonoBehaviour
 
         if (!ScreenshotSender.didPass)
         {
-            StartWhiteTestRetake(completedRunNumber, true);
+            StartWhitePracticeRetake(completedRunNumber, true);
             yield break;
         }
 
@@ -2604,18 +2604,18 @@ public class ManagerTesting : MonoBehaviour
             }
         }
 
-        restartAtWhiteTestIntro = false;
+        restartAtWhitePracticeIntro = false;
         Debug.Log($"OnEndTestButtonClicked: passed on run #{completedRunNumber}. Resetting test run counter to 1 before scene reload.");
         testRunNumber = 1;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    private void StartWhiteTestRetake(int completedRunNumber, bool reloadScene)
+    private void StartWhitePracticeRetake(int completedRunNumber, bool reloadScene)
     {
         testRunNumber++;
-        restartAtWhiteTestIntro = true;
+        restartAtWhitePracticeIntro = true;
         DataInput_Fields.checkSceneReload = 1;
-        Debug.Log($"OnEndTestButtonClicked: retake triggered from run #{completedRunNumber}. Next run will be #{testRunNumber}. Reloading at the White Smoke Test intro.");
+        Debug.Log($"OnEndTestButtonClicked: retake triggered from run #{completedRunNumber}. Next run will be #{testRunNumber}. Reloading at the White Smoke Practice intro.");
         if (reloadScene)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);

@@ -51,7 +51,7 @@ public static class SmokeSchoolVisualCapture
         MonoBehaviour login = Resources.FindObjectsOfTypeAll<MonoBehaviour>()
             .First(item => item != null && item.gameObject.scene == scene && item.GetType().Name == "DataInput_Fields");
         SerializedObject loginData = new SerializedObject(login);
-        loginData.FindProperty("whiteTestIntroPanel").objectReferenceValue = RequireTransform(transforms, "Begin Practice Panel After Practice").gameObject;
+        loginData.FindProperty("whitePracticeIntroPanel").objectReferenceValue = RequireTransform(transforms, "Begin Practice Panel").gameObject;
         loginData.FindProperty("testingPanel").objectReferenceValue = RequireTransform(transforms, "White Practice Test Panel").gameObject;
         loginData.ApplyModifiedPropertiesWithoutUndo();
         EditorSceneManager.MarkSceneDirty(scene);
