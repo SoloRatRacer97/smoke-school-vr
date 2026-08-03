@@ -16,8 +16,8 @@ const output = outputArgument
   : path.join(project, "VR Smoke School Stock WebXR");
 
 const lockedSourceHashes = new Map([
-  ["Assets/ManagerTesting.cs", "f862c08f26434c22ca7d1a0cc1f7e8224e2aa5a6a75301bc44ba74be9a2b6e68"],
-  ["Assets/Scenes/ChimneyScene.unity", "d18198d516046b690b761e3dffab5789af035ebbaff9a825a8a7b337856f4415"],
+  ["Assets/ManagerTesting.cs", "1ee0604302113f9cff4b057fa1ea1badd015c10f9ea22fc4a418df5f47f5f285"],
+  ["Assets/Scenes/ChimneyScene.unity", "6877ff20e4d174a037f2907b09846c8fb82b7c110dfaa40fe0eb1a5c0e2d0283"],
   ["Assets/Scripts/DataInput_Fields.cs", "4f80ca0346316b38f5d3b14cbcea3ff6fd60d92ccfc60bf509c3430e854c6c1a"],
   ["Assets/Scripts/SmokeVideoDirectDisplay.cs", "dcff79f489dd5d9cbf0051dc1f92950700eff563ecfd75012189b1a13b0dc2a3"],
   ["Assets/Scripts/SmokeSchoolReturnHome.cs", "bb4e7bd268a5c961185ff9d87f38535725c4bf3fbffe0c28e9514438d89cb24a"],
@@ -148,6 +148,9 @@ assert.match(scene, /m_text: Return to Home/);
 assert.match(scene, /m_text: Open Results/);
 assert.match(scene, /m_text: Continue to Signature/);
 assert.match(scene, /m_Name: Testing Video Indicators Overlay[\s\S]{0,2500}m_OverrideSorting: 1[\s\S]{0,300}m_SortingOrder: 10/);
+assert.match(scene, /--- !u!224 &835856472[\s\S]{0,700}m_AnchoredPosition: \{x: 0, y: -265\}/);
+assert.match(scene, /--- !u!224 &1480371168[\s\S]{0,700}m_AnchoredPosition: \{x: 0, y: -265\}/);
+assert.match(scene, /--- !u!224 &1958279382[\s\S]{0,700}m_AnchoredPosition: \{x: 0, y: -265\}/);
 assert.doesNotMatch(scene, /\\x03/);
 assert.doesNotMatch(scene, /m_MethodName:\s*\n/);
 assert.doesNotMatch(scene, /m_Target: \{fileID: 0\}/);
@@ -225,7 +228,13 @@ assert.match(managerSource, /private void ShowTestCompletePanel\(\)[\s\S]{0,500}
 assert.doesNotMatch(managerSource, /else if \(currenttype == TestType\.whiteTest\)[\s\S]{0,400}openresultPannelButton\.gameObject\.SetActive\(true\)/);
 assert.match(managerSource, /else if \(currenttype == TestType\.whiteTest\)[\s\S]{0,600}Feel free to review and change any answer before proceeding to Black Smoke Test\./);
 assert.match(managerSource, /else if \(currenttype == TestType\.blackTest\)[\s\S]{0,500}Feel free to review and change any answer before continuing to the results page\./);
-assert.match(managerSource, /testRunNumber\+\+;[\s\S]{0,180}restartAtWhiteTestIntro = true;[\s\S]{0,260}SceneManager\.LoadScene/);
+assert.match(managerSource, /private void StartWhiteTestRetake[\s\S]{0,220}testRunNumber\+\+;[\s\S]{0,180}restartAtWhiteTestIntro = true;[\s\S]{0,500}SceneManager\.LoadScene/);
+assert.match(managerSource, /private IEnumerator CompleteEndTest[\s\S]{0,180}if \(!ScreenshotSender\.didPass\)[\s\S]{0,180}StartWhiteTestRetake\(completedRunNumber, true\);[\s\S]{0,80}yield break;/);
+assert.ok(
+  managerSource.indexOf("StartWhiteTestRetake(completedRunNumber, true);") <
+    managerSource.indexOf("CertificationResultReporter.Submit(completedRunNumber)"),
+  "Retake must route before result persistence can block it",
+);
 
 assert.match(authSource, /private bool ApplyPostReloadPanelRoute\(\)/);
 assert.match(authSource, /ManagerTesting\.restartAtWhiteTestIntro = false;[\s\S]{0,260}whiteTestIntroPanel\.SetActive\(true\)/);

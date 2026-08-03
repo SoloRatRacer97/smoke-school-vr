@@ -2582,6 +2582,12 @@ public class ManagerTesting : MonoBehaviour
     {
         endTestFlowStarted = true;
 
+        if (!ScreenshotSender.didPass)
+        {
+            StartWhiteTestRetake(completedRunNumber, true);
+            yield break;
+        }
+
         if (CertificationResultReporter.HasCompleteReadings)
         {
             yield return CertificationResultReporter.Submit(completedRunNumber);
@@ -2598,18 +2604,20 @@ public class ManagerTesting : MonoBehaviour
             }
         }
 
-        if (ScreenshotSender.didPass)
+        restartAtWhiteTestIntro = false;
+        Debug.Log($"OnEndTestButtonClicked: passed on run #{completedRunNumber}. Resetting test run counter to 1 before scene reload.");
+        testRunNumber = 1;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    private void StartWhiteTestRetake(int completedRunNumber, bool reloadScene)
+    {
+        testRunNumber++;
+        restartAtWhiteTestIntro = true;
+        DataInput_Fields.checkSceneReload = 1;
+        Debug.Log($"OnEndTestButtonClicked: retake triggered from run #{completedRunNumber}. Next run will be #{testRunNumber}. Reloading at the White Smoke Test intro.");
+        if (reloadScene)
         {
-            restartAtWhiteTestIntro = false;
-            Debug.Log($"OnEndTestButtonClicked: passed on run #{completedRunNumber}. Resetting test run counter to 1 before scene reload.");
-            testRunNumber = 1;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        }
-        else
-        {
-            testRunNumber++;
-            restartAtWhiteTestIntro = true;
-            Debug.Log($"OnEndTestButtonClicked: retake triggered from run #{completedRunNumber}. Next run will be #{testRunNumber}. Reloading at the White Smoke Test intro.");
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }

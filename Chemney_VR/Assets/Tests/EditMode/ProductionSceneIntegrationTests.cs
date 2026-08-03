@@ -156,9 +156,9 @@ namespace SmokeSchool.Tests
             Assert.That(((RectTransform)remarksPanel.transform).anchoredPosition.y, Is.EqualTo(165f).Within(0.001f));
             Assert.That(((RectTransform)testingCompletePanel.transform).anchoredPosition.y, Is.EqualTo(165f).Within(0.001f));
             AssertTransitionButton(whiteTestButton, 0.07944743f, 0.32f, 300f, -265f);
-            AssertTransitionButton(blackPracticeButton, 0.07944743f, 0.32f, 300f);
-            AssertTransitionButton(blackTestButton, 0.07944743f, 0.32f, 300f);
-            AssertTransitionButton(submissionButton, 0.42430055f, 0.66485312f, 300f);
+            AssertTransitionButton(blackPracticeButton, 0.07944743f, 0.32f, 300f, -265f);
+            AssertTransitionButton(blackTestButton, 0.07944743f, 0.32f, 300f, -265f);
+            AssertTransitionButton(submissionButton, 0.42430055f, 0.66485312f, 300f, -265f);
             AssertTransitionButton(openResultsButton.gameObject, 0.35f, 0.49501812f, 200f);
             Assert.That(skipButton.gameObject.activeSelf, Is.True);
             AssertSameVerticalPlacement(skipButton, scratchButton);
@@ -172,6 +172,12 @@ namespace SmokeSchool.Tests
             Vector3 continueCenter = manager.InverseTransformPoint(GetRectCenter((RectTransform)whiteTestButton.transform));
             Assert.That(continueCenter.y, Is.EqualTo(skipCenter.y).Within(0.01f));
             Assert.That(continueCenter.z, Is.EqualTo(skipCenter.z).Within(0.01f));
+            foreach (GameObject continuation in new[] { blackPracticeButton, blackTestButton, submissionButton })
+            {
+                Vector3 center = manager.InverseTransformPoint(GetRectCenter((RectTransform)continuation.transform));
+                Assert.That(center.y, Is.EqualTo(continueCenter.y).Within(0.01f), continuation.name);
+                Assert.That(center.z, Is.EqualTo(continueCenter.z).Within(0.01f), continuation.name);
+            }
         }
 
         [Test]
@@ -384,7 +390,13 @@ namespace SmokeSchool.Tests
             intro.SetActive(false);
             testing.SetActive(true);
             welcome.SetActive(true);
-            TestReflection.SetStaticField("ManagerTesting", "restartAtWhiteTestIntro", true);
+            TestReflection.SetStaticField("ManagerTesting", "testRunNumber", 1);
+            TestReflection.SetStaticField("ManagerTesting", "restartAtWhiteTestIntro", false);
+            TestReflection.SetStaticField("DataInput_Fields", "checkSceneReload", 0);
+            TestReflection.Invoke(manager, "StartWhiteTestRetake", 1, false);
+            Assert.That(TestReflection.GetStaticField("ManagerTesting", "testRunNumber"), Is.EqualTo(2));
+            Assert.That(TestReflection.GetStaticField("ManagerTesting", "restartAtWhiteTestIntro"), Is.True);
+            Assert.That(TestReflection.GetStaticField("DataInput_Fields", "checkSceneReload"), Is.EqualTo(1));
             Assert.That(TestReflection.Invoke(login, "ApplyPostReloadPanelRoute"), Is.True);
             Assert.That(intro.activeSelf, Is.True);
             Assert.That(testing.activeSelf, Is.False);
@@ -401,7 +413,13 @@ namespace SmokeSchool.Tests
 
             string managerSource = File.ReadAllText("Assets/ManagerTesting.cs");
             Assert.That(managerSource, Does.Match(
-                @"else[\s\S]{0,180}testRunNumber\+\+;[\s\S]{0,180}restartAtWhiteTestIntro = true;[\s\S]{0,260}SceneManager\.LoadScene"));
+                @"private IEnumerator CompleteEndTest[\s\S]{0,180}if \(!ScreenshotSender\.didPass\)[\s\S]{0,180}StartWhiteTestRetake\(completedRunNumber, true\);[\s\S]{0,80}yield break;"));
+            Assert.That(managerSource.IndexOf("StartWhiteTestRetake(completedRunNumber, true);", System.StringComparison.Ordinal),
+                Is.LessThan(managerSource.IndexOf("CertificationResultReporter.Submit(completedRunNumber)", System.StringComparison.Ordinal)));
+
+            TestReflection.SetStaticField("ManagerTesting", "testRunNumber", 1);
+            TestReflection.SetStaticField("ManagerTesting", "restartAtWhiteTestIntro", false);
+            TestReflection.SetStaticField("DataInput_Fields", "checkSceneReload", 0);
         }
 
         [Test]
