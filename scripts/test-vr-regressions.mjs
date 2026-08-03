@@ -16,9 +16,11 @@ const output = outputArgument
   : path.join(project, "VR Smoke School Stock WebXR");
 
 const lockedSourceHashes = new Map([
-  ["Assets/ManagerTesting.cs", "8da0d406517985d318f1d44bf4e03e324e08d8c037d0a6b70855bec8d9444b86"],
-  ["Assets/Scenes/ChimneyScene.unity", "5f954017db18d09a6121770b6cdc5a27256d2c860de911497b2ba498277f8163"],
+  ["Assets/ManagerTesting.cs", "dcc487896eb6c2385609bdfdaa57ea958f595e16232403b62e2da7ba5ce1d711"],
+  ["Assets/Scenes/ChimneyScene.unity", "06419bcaf782fd711549096c20e73402b0c179fbe55d763f44cf88349e6a9859"],
   ["Assets/Scripts/DataInput_Fields.cs", "ef8e72b2da3e544d6b1fc6b33d665088680751b73b84ad56e44a918e3a79dd15"],
+  ["Assets/Scripts/SignatureRequired.cs", "343afdb6f6163b0f97321a5e2cee036b590939adef215244695e3063772be99b"],
+  ["Assets/Scripts/SmokeSchoolEndTestButton.cs", "2d6dbccf161f6e812d83a27a5ec8880d6dbdc5b20997d1c962efb10d0a4fc9c1"],
   ["Assets/Scripts/SmokeVideoDirectDisplay.cs", "dcff79f489dd5d9cbf0051dc1f92950700eff563ecfd75012189b1a13b0dc2a3"],
   ["Assets/Scripts/SmokeSchoolReturnHome.cs", "bb4e7bd268a5c961185ff9d87f38535725c4bf3fbffe0c28e9514438d89cb24a"],
   ["Assets/Scripts/SmokeVideoURLData.asset", "48b68c7a5835a2374ade71fce0b7d1f5036bef4ed33566a5cd27fe6c716aa8a3"],
@@ -194,7 +196,6 @@ const managerSource = read("Assets/ManagerTesting.cs").toString("utf8");
 assert.doesNotMatch(managerSource, /SmokeSchoolTestLayout\.Apply/);
 assert.match(managerSource, /Initialize\(videoPlayer, videoPlayer\.transform as RectTransform\)/);
 assert.match(managerSource, /CertificationResultReporter\.BeginNewRun\(\)/);
-assert.match(managerSource, /ScreenshotSender\.didPass = didPass;[\s\S]{0,120}CertificationResultReporter\.Submit\(testRunNumber\)/);
 assert.match(managerSource, /bool hasCompleteCertification = CertificationResultReporter\.HasCompleteReadings/);
 assert.match(managerSource, /if \(!answeredAny \|\| !hasCompleteCertification\)/);
 assert.match(managerSource, /ScreenshotSender\.didPass = hasCompleteCertification && !hasIndividualFail && whitePassed && blackPassed/);
@@ -230,16 +231,25 @@ assert.doesNotMatch(managerSource, /else if \(currenttype == TestType\.whiteTest
 assert.match(managerSource, /else if \(currenttype == TestType\.whiteTest\)[\s\S]{0,600}Feel free to review and change any answer before proceeding to Black Smoke Test\./);
 assert.match(managerSource, /else if \(currenttype == TestType\.blackTest\)[\s\S]{0,500}Feel free to review and change any answer before continuing to the results page\./);
 assert.match(managerSource, /private void StartWhitePracticeRetake[\s\S]{0,220}testRunNumber\+\+;[\s\S]{0,180}restartAtWhitePracticeIntro = true;[\s\S]{0,500}SceneManager\.LoadScene/);
-assert.match(managerSource, /private IEnumerator CompleteEndTest[\s\S]{0,180}if \(!ScreenshotSender\.didPass\)[\s\S]{0,180}StartWhitePracticeRetake\(completedRunNumber, true\);[\s\S]{0,80}yield break;/);
+assert.match(managerSource, /OnEndTestButtonClicked\(\)[\s\S]{0,1800}StartEndTestFlow\(completedRunNumber, true\);/);
+assert.match(managerSource, /private void StartEndTestFlow[\s\S]{0,180}if \(!ScreenshotSender\.didPass\)[\s\S]{0,220}StartWhitePracticeRetake\(completedRunNumber, reloadScene\);[\s\S]{0,100}return;/);
 assert.ok(
-  managerSource.indexOf("StartWhitePracticeRetake(completedRunNumber, true);") <
-    managerSource.indexOf("CertificationResultReporter.Submit(completedRunNumber)"),
-  "Retake must route before result persistence can block it",
+  managerSource.indexOf("StartWhitePracticeRetake(completedRunNumber, reloadScene);") <
+    managerSource.indexOf("StartCoroutine(CompleteEndTest(completedRunNumber))"),
+  "Retake must route synchronously before the inactive manager starts a coroutine",
 );
 
 assert.match(authSource, /private bool ApplyPostReloadPanelRoute\(\)/);
 assert.match(authSource, /ManagerTesting\.restartAtWhitePracticeIntro = false;[\s\S]{0,260}whitePracticeIntroPanel\.SetActive\(true\)/);
 assert.match(authSource, /whitePracticeIntroPanel\.GetComponent<SimpleVideoPlayer>\(\)[\s\S]{0,180}introPlayer\.playVideoURL\(0\)/);
+
+const signatureSource = read("Assets/Scripts/SignatureRequired.cs").toString("utf8");
+assert.match(signatureSource, /public void SetSignatureText\(string signature\)/);
+assert.match(signatureSource, /public void SubmitSignature\(string signature\)[\s\S]{0,500}submitButton\.onClick\.Invoke\(\)/);
+
+const endTestBridgeSource = read("Assets/Scripts/SmokeSchoolEndTestButton.cs").toString("utf8");
+assert.match(endTestBridgeSource, /button\.onClick\.AddListener\(HandleClick\)/);
+assert.match(endTestBridgeSource, /manager\.OnEndTestButtonClicked\(\)/);
 
 const returnHomeSource = read("Assets/Scripts/SmokeSchoolReturnHome.cs").toString("utf8");
 assert.match(returnHomeSource, /SmokeSchoolAppState\.ResetCertificationState\(\)/);

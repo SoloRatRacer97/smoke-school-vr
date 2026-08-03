@@ -403,7 +403,11 @@ namespace SmokeSchool.Tests
             TestReflection.SetStaticField("ManagerTesting", "testRunNumber", 1);
             TestReflection.SetStaticField("ManagerTesting", "restartAtWhitePracticeIntro", false);
             TestReflection.SetStaticField("DataInput_Fields", "checkSceneReload", 0);
-            TestReflection.Invoke(manager, "StartWhitePracticeRetake", 1, false);
+            TestReflection.SetStaticField("ScreenshotSender", "didPass", false);
+            TestReflection.SetField(manager, "endTestFlowStarted", false);
+            manager.gameObject.SetActive(false);
+            TestReflection.Invoke(manager, "StartEndTestFlow", 1, false);
+            Assert.That(TestReflection.GetField(manager, "endTestFlowStarted"), Is.True);
             Assert.That(TestReflection.GetStaticField("ManagerTesting", "testRunNumber"), Is.EqualTo(2));
             Assert.That(TestReflection.GetStaticField("ManagerTesting", "restartAtWhitePracticeIntro"), Is.True);
             Assert.That(TestReflection.GetStaticField("DataInput_Fields", "checkSceneReload"), Is.EqualTo(1));
@@ -415,17 +419,24 @@ namespace SmokeSchool.Tests
 
             Button endTest = FindSceneObject("End Test Button").GetComponent<Button>();
             SerializedProperty calls = GetPersistentCalls(endTest);
-            Assert.That(calls.arraySize, Is.EqualTo(1));
-            Assert.That(calls.GetArrayElementAtIndex(0).FindPropertyRelative("m_Target").objectReferenceValue,
+            Assert.That(calls.arraySize, Is.Zero,
+                "Retake must not target the inactive testing manager through a persistent UnityEvent.");
+            MonoBehaviour endTestBridge = endTest.GetComponents<MonoBehaviour>()
+                .Single(component => component.GetType().Name == "SmokeSchoolEndTestButton");
+            Assert.That(new SerializedObject(endTestBridge).FindProperty("manager").objectReferenceValue,
                 Is.EqualTo(manager));
-            Assert.That(calls.GetArrayElementAtIndex(0).FindPropertyRelative("m_MethodName").stringValue,
-                Is.EqualTo("OnEndTestButtonClicked"));
+
+            string bridgeSource = File.ReadAllText("Assets/Scripts/SmokeSchoolEndTestButton.cs");
+            Assert.That(bridgeSource, Does.Match(
+                @"button\.onClick\.AddListener\(HandleClick\)[\s\S]{0,500}manager\.OnEndTestButtonClicked\(\)"));
 
             string managerSource = File.ReadAllText("Assets/ManagerTesting.cs");
             Assert.That(managerSource, Does.Match(
-                @"private IEnumerator CompleteEndTest[\s\S]{0,180}if \(!ScreenshotSender\.didPass\)[\s\S]{0,180}StartWhitePracticeRetake\(completedRunNumber, true\);[\s\S]{0,80}yield break;"));
-            Assert.That(managerSource.IndexOf("StartWhitePracticeRetake(completedRunNumber, true);", System.StringComparison.Ordinal),
-                Is.LessThan(managerSource.IndexOf("CertificationResultReporter.Submit(completedRunNumber)", System.StringComparison.Ordinal)));
+                @"OnEndTestButtonClicked\(\)[\s\S]{0,1800}StartEndTestFlow\(completedRunNumber, true\);"));
+            Assert.That(managerSource, Does.Match(
+                @"private void StartEndTestFlow[\s\S]{0,180}if \(!ScreenshotSender\.didPass\)[\s\S]{0,220}StartWhitePracticeRetake\(completedRunNumber, reloadScene\);[\s\S]{0,100}return;"));
+            Assert.That(managerSource.IndexOf("StartWhitePracticeRetake(completedRunNumber, reloadScene);", System.StringComparison.Ordinal),
+                Is.LessThan(managerSource.IndexOf("StartCoroutine(CompleteEndTest(completedRunNumber))", System.StringComparison.Ordinal)));
 
             string loginSource = File.ReadAllText("Assets/Scripts/DataInput_Fields.cs");
             Assert.That(loginSource, Does.Contain("whitePracticeIntroPanel.SetActive(true);"));
@@ -435,6 +446,7 @@ namespace SmokeSchool.Tests
             TestReflection.SetStaticField("ManagerTesting", "testRunNumber", 1);
             TestReflection.SetStaticField("ManagerTesting", "restartAtWhitePracticeIntro", false);
             TestReflection.SetStaticField("DataInput_Fields", "checkSceneReload", 0);
+            TestReflection.SetStaticField("ScreenshotSender", "didPass", false);
         }
 
         [Test]

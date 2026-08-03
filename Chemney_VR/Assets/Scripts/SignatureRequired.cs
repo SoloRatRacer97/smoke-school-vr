@@ -44,6 +44,33 @@ public class SignatureRequired : MonoBehaviour
             fakeNextButton.SetActive(isEmpty);
     }
 
+    public void SetSignatureText(string signature)
+    {
+        if (inputField == null)
+        {
+            return;
+        }
+
+        inputField.text = signature ?? string.Empty;
+        UpdateFakeButton();
+    }
+
+    public void SubmitSignature(string signature)
+    {
+        SetSignatureText(signature);
+        if (string.IsNullOrWhiteSpace(inputField != null ? inputField.text : string.Empty))
+        {
+            OnFakeNextClicked();
+            return;
+        }
+
+        Button submitButton = nextPanel != null ? nextPanel.GetComponent<Button>() : null;
+        if (submitButton != null)
+        {
+            submitButton.onClick.Invoke();
+        }
+    }
+
     private void OnFakeNextClicked()
     {
         // Show "required" message when fake button is clicked

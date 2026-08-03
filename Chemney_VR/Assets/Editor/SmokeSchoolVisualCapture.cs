@@ -10,6 +10,31 @@ using UnityEngine.UI;
 
 public static class SmokeSchoolVisualCapture
 {
+    public static void EnsureEndTestButtonBridge()
+    {
+        Scene scene = EditorSceneManager.OpenScene("Assets/Scenes/ChimneyScene.unity", OpenSceneMode.Single);
+        Transform[] transforms = Resources.FindObjectsOfTypeAll<Transform>()
+            .Where(item => item != null && item.gameObject.scene == scene)
+            .ToArray();
+        MonoBehaviour manager = Resources.FindObjectsOfTypeAll<MonoBehaviour>()
+            .First(item => item != null && item.gameObject.scene == scene && item.GetType().Name == "ManagerTesting");
+        GameObject endTestButton = RequireTransform(transforms, "End Test Button").gameObject;
+        Button button = endTestButton.GetComponent<Button>();
+        button.onClick = new Button.ButtonClickedEvent();
+
+        SmokeSchoolEndTestButton bridge = endTestButton.GetComponent<SmokeSchoolEndTestButton>();
+        if (bridge == null)
+        {
+            bridge = endTestButton.AddComponent<SmokeSchoolEndTestButton>();
+        }
+
+        SerializedObject bridgeData = new SerializedObject(bridge);
+        bridgeData.FindProperty("manager").objectReferenceValue = manager;
+        bridgeData.ApplyModifiedPropertiesWithoutUndo();
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+    }
+
     public static void EnsureTestingCompletionReviewMessage()
     {
         Scene scene = EditorSceneManager.OpenScene("Assets/Scenes/ChimneyScene.unity", OpenSceneMode.Single);

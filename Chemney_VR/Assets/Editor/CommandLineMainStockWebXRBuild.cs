@@ -226,7 +226,8 @@ public static class CommandLineMainStockWebXRBuild
             !resultReporter.Contains("public string resultToken") ||
             !resultReporter.Contains("public string attemptId") ||
             !resultReporter.Contains("public List<CertificationReading> readings") ||
-            !testManager.Contains("CertificationResultReporter.Submit(testRunNumber)") ||
+            !testManager.Contains("StartWhitePracticeRetake(completedRunNumber, reloadScene)") ||
+            !testManager.Contains("CertificationResultReporter.Submit(completedRunNumber)") ||
             !plugin.Contains("SMOKE_SCHOOL_AUTH"))
         {
             throw new System.Exception("Unity-native dashboard authentication is not configured correctly.");

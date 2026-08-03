@@ -2401,7 +2401,6 @@ public class ManagerTesting : MonoBehaviour
 
         YourTotalScore.text = BuildTotalScoreText(hasIndividualFail);
         ScreenshotSender.didPass = didPass;
-        StartCoroutine(CertificationResultReporter.Submit(testRunNumber));
 
         LogIndividualFailingReadings(individualFailingReadings, "ShowingFinalResult");
 
@@ -2575,18 +2574,24 @@ public class ManagerTesting : MonoBehaviour
         YourTotalScore.text = BuildTotalScoreText(hasIndividualFail);
         LogIndividualFailingReadings(individualFailingReadings, "OnEndTestButtonClicked");
         HideSmokeVideoDirectDisplay();
+        StartEndTestFlow(completedRunNumber, true);
+    }
+
+    private void StartEndTestFlow(int completedRunNumber, bool reloadScene)
+    {
+        if (!ScreenshotSender.didPass)
+        {
+            endTestFlowStarted = true;
+            StartWhitePracticeRetake(completedRunNumber, reloadScene);
+            return;
+        }
+
         StartCoroutine(CompleteEndTest(completedRunNumber));
     }
 
     private IEnumerator CompleteEndTest(int completedRunNumber)
     {
         endTestFlowStarted = true;
-
-        if (!ScreenshotSender.didPass)
-        {
-            StartWhitePracticeRetake(completedRunNumber, true);
-            yield break;
-        }
 
         if (CertificationResultReporter.HasCompleteReadings)
         {

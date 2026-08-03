@@ -67,8 +67,9 @@ requireText(resultReporterPath, [
 ]);
 requireText(testManagerPath, [
   [/CertificationResultReporter\.BeginNewRun\(\)/, "new-run attempt reset"],
-  [/ScreenshotSender\.didPass = didPass;[\s\S]{0,120}CertificationResultReporter\.Submit\(testRunNumber\)/, "result submission after final pass/fail calculation"],
   [/ScreenshotSender\.didPass = hasCompleteCertification && !hasIndividualFail && whitePassed && blackPassed/, "complete-reading end-test pass guard"],
+  [/private void StartEndTestFlow[\s\S]{0,180}if \(!ScreenshotSender\.didPass\)[\s\S]{0,220}StartWhitePracticeRetake\(completedRunNumber, reloadScene\);[\s\S]{0,100}return;/, "synchronous failed-attempt Retake routing"],
+  [/private IEnumerator CompleteEndTest[\s\S]{0,240}CertificationResultReporter\.Submit\(completedRunNumber\)/, "passed result submission before reload"],
   [/while \(CertificationResultReporter\.IsSubmitting\)/, "reload persistence wait"],
 ]);
 requireText(authPluginPath, [
