@@ -44,6 +44,37 @@ namespace SmokeSchool.Tests
         }
 
         [Test]
+        public void Scene_HasComingSoonAnnouncementInVrHome()
+        {
+            GameObject announcement = FindSceneObject("Coming Soon VR Announcement");
+            RectTransform rect = (RectTransform)announcement.transform;
+            Image background = announcement.GetComponent<Image>();
+            MonoBehaviour[] labels = announcement.GetComponentsInChildren<MonoBehaviour>(true)
+                .Where(component => component.GetType().Name == "TextMeshProUGUI")
+                .ToArray();
+            MonoBehaviour title = labels.Single(component => component.name == "Title");
+            MonoBehaviour body = labels.Single(component => component.name == "Body");
+
+            Assert.That(announcement.activeSelf, Is.True);
+            Assert.That(announcement.transform.parent.name, Is.EqualTo("WelcomePanel"));
+            Assert.That(rect.anchorMin.x, Is.EqualTo(0.25f).Within(0.001f));
+            Assert.That(rect.anchorMin.y, Is.EqualTo(0f).Within(0.001f));
+            Assert.That(rect.anchorMax.x, Is.EqualTo(0.75f).Within(0.001f));
+            Assert.That(rect.anchorMax.y, Is.EqualTo(0.22f).Within(0.001f));
+            Assert.That(background.color.a, Is.EqualTo(0.7f).Within(0.001f));
+            Assert.That(background.raycastTarget, Is.False);
+            Assert.That(new SerializedObject(title).FindProperty("m_text").stringValue, Is.EqualTo("Coming Soon"));
+            Assert.That(new SerializedObject(body).FindProperty("m_text").stringValue,
+                Is.EqualTo("Our VR testing environment will be live soon. Return back here shortly."));
+            MonoBehaviour footer = SceneBehaviours().Single(component =>
+            {
+                SerializedProperty text = new SerializedObject(component).FindProperty("m_text");
+                return text != null && text.stringValue.Contains("smokeschoolvr.com");
+            });
+            Assert.That(footer.gameObject.activeSelf, Is.False);
+        }
+
+        [Test]
         public void Scene_HasOneFullyWiredManagerUsingTheProductionCatalog()
         {
             MonoBehaviour[] managers = SceneBehaviours().Where(component => component.GetType().Name == "ManagerTesting").ToArray();

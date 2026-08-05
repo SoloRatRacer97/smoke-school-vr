@@ -91,7 +91,11 @@ try {
   await page.locator("#unity-loading-bar").waitFor({ state: "hidden", timeout: 180_000 });
   await page.locator("#unity-login-overlay").waitFor({ state: "visible", timeout: 180_000 });
   await page.locator("#unity-coming-soon-banner").waitFor({ state: "visible", timeout: 30_000 });
-  assert.equal(await page.locator("#unity-coming-soon-banner").textContent(), "Coming Soon");
+  assert.equal(await page.locator("#unity-coming-soon-banner h2").textContent(), "Coming Soon");
+  assert.equal(
+    await page.locator("#unity-coming-soon-banner p").textContent(),
+    "Our VR testing environment will be live soon. Return back here shortly.",
+  );
   if (process.argv[4]) await page.screenshot({ path: path.resolve(process.argv[4]), fullPage: true });
   await page.getByLabel("User Email").fill("dev@testing.com");
   await page.getByLabel("Password").fill("testing123");

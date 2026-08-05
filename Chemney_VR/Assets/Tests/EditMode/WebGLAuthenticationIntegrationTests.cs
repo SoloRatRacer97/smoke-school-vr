@@ -19,7 +19,8 @@ namespace SmokeSchool.Tests
             Assert.That(template, Does.Contain("ReceiveBrowserLogin"));
             Assert.That(template, Does.Contain("email: emailInput.value.trim()"));
             Assert.That(template, Does.Contain("password: passwordInput.value"));
-            Assert.That(template, Does.Contain("<div id=\"unity-coming-soon-banner\">Coming Soon</div>"));
+            Assert.That(template, Does.Contain("<h2>Coming Soon</h2>"));
+            Assert.That(template, Does.Contain("Our VR testing environment will be live soon. Return back here shortly."));
             Assert.That(template, Does.Not.Contain("id=\"auth-form\""));
             Assert.That(config, Does.Contain(ProductionLoginUrl));
             Assert.That(plugin, Does.Contain("authApi"));

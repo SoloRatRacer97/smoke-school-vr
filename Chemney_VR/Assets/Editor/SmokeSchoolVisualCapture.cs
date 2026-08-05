@@ -10,6 +10,98 @@ using UnityEngine.UI;
 
 public static class SmokeSchoolVisualCapture
 {
+    public static void EnsureComingSoonVrAnnouncement()
+    {
+        Scene scene = EditorSceneManager.OpenScene("Assets/Scenes/ChimneyScene.unity", OpenSceneMode.Single);
+        Transform[] transforms = Resources.FindObjectsOfTypeAll<Transform>()
+            .Where(item => item != null && item.gameObject.scene == scene)
+            .ToArray();
+        Transform root = RequireTransform(transforms, "WelcomePanel");
+        Transform existing = root.Find("Coming Soon VR Announcement");
+        GameObject announcement;
+        if (existing == null)
+        {
+            announcement = new GameObject(
+                "Coming Soon VR Announcement",
+                typeof(RectTransform),
+                typeof(Image));
+            announcement.layer = root.gameObject.layer;
+            announcement.transform.SetParent(root, false);
+        }
+        else
+        {
+            announcement = existing.gameObject;
+        }
+        announcement.transform.SetAsLastSibling();
+
+        RectTransform announcementRect = (RectTransform)announcement.transform;
+        announcementRect.anchorMin = new Vector2(0.25f, 0f);
+        announcementRect.anchorMax = new Vector2(0.75f, 0.22f);
+        announcementRect.anchoredPosition = Vector2.zero;
+        announcementRect.sizeDelta = Vector2.zero;
+        announcementRect.localPosition = new Vector3(
+            announcementRect.localPosition.x,
+            announcementRect.localPosition.y,
+            0f);
+
+        TMP_Text visibleButtonLabel = Resources.FindObjectsOfTypeAll<TMP_Text>()
+            .First(item => item != null && item.gameObject.scene == scene && item.text == "Begin Test");
+        Image visibleButtonBackground = visibleButtonLabel.transform.parent.GetComponent<Image>();
+        Image background = announcement.GetComponent<Image>();
+        background.sprite = visibleButtonBackground.sprite;
+        background.type = visibleButtonBackground.type;
+        background.pixelsPerUnitMultiplier = visibleButtonBackground.pixelsPerUnitMultiplier;
+        background.color = new Color(0.95686275f, 0.7254902f, 0.25882354f, 0.7f);
+        background.raycastTarget = false;
+
+        TMP_Text reference = Resources.FindObjectsOfTypeAll<TMP_Text>()
+            .First(item => item != null && item.gameObject.scene == scene && item.text == "Coming soon");
+        Transform titleTransform = announcement.transform.Find("Title");
+        TMP_Text title = titleTransform != null
+            ? titleTransform.GetComponent<TMP_Text>()
+            : UnityEngine.Object.Instantiate(reference, announcement.transform);
+        title.gameObject.name = "Title";
+        RectTransform titleRect = (RectTransform)title.transform;
+        titleRect.anchorMin = new Vector2(0.08f, 0.64f);
+        titleRect.anchorMax = new Vector2(0.92f, 0.92f);
+        titleRect.anchoredPosition = Vector2.zero;
+        titleRect.sizeDelta = Vector2.zero;
+        title.text = "Coming Soon";
+        title.fontSize = 40f;
+        title.fontStyle = FontStyles.Bold;
+        title.color = new Color(0.16078432f, 0.13725491f, 0.16078432f, 1f);
+        title.alignment = TextAlignmentOptions.Center;
+        title.raycastTarget = false;
+        title.gameObject.SetActive(true);
+
+        Transform bodyTransform = announcement.transform.Find("Body");
+        TMP_Text body = bodyTransform != null
+            ? bodyTransform.GetComponent<TMP_Text>()
+            : UnityEngine.Object.Instantiate(reference, announcement.transform);
+        body.gameObject.name = "Body";
+        RectTransform bodyRect = (RectTransform)body.transform;
+        bodyRect.anchorMin = new Vector2(0.10f, 0.30f);
+        bodyRect.anchorMax = new Vector2(0.90f, 0.62f);
+        bodyRect.anchoredPosition = Vector2.zero;
+        bodyRect.sizeDelta = Vector2.zero;
+        body.text = "Our VR testing environment will be live soon. Return back here shortly.";
+        body.fontSize = 26f;
+        body.fontStyle = FontStyles.Normal;
+        body.color = title.color;
+        body.alignment = TextAlignmentOptions.Center;
+        body.enableWordWrapping = true;
+        body.raycastTarget = false;
+        body.gameObject.SetActive(true);
+        announcement.SetActive(true);
+
+        TMP_Text footer = Resources.FindObjectsOfTypeAll<TMP_Text>()
+            .First(item => item != null && item.gameObject.scene == scene && item.text.Contains("smokeschoolvr.com"));
+        footer.gameObject.SetActive(false);
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+    }
+
     public static void EnsureEndTestButtonBridge()
     {
         Scene scene = EditorSceneManager.OpenScene("Assets/Scenes/ChimneyScene.unity", OpenSceneMode.Single);

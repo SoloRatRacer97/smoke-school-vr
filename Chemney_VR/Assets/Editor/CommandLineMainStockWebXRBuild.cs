@@ -212,7 +212,8 @@ public static class CommandLineMainStockWebXRBuild
         string plugin = File.ReadAllText(AuthPluginPath);
         if (!template.Contains("auth-config.js") ||
             !template.Contains("createUnityInstance") ||
-            !template.Contains("id=\"unity-coming-soon-banner\">Coming Soon") ||
+            !template.Contains("id=\"unity-coming-soon-banner\"") ||
+            !template.Contains("Our VR testing environment will be live soon.") ||
             template.Contains("id=\"auth-form\"") ||
             !script.Contains("UnityWebRequest") ||
             !script.Contains("SmokeSchoolGetAuthApi") ||
