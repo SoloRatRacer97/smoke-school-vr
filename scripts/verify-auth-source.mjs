@@ -26,6 +26,7 @@ requireText(templatePath, [
   [/auth-config\.js/, "the auth configuration"],
   [/createUnityInstance/, "immediate Unity startup"],
   [/id="unity-login-overlay"/, "the Unity-aligned WebGL input bridge"],
+  [/id="unity-coming-soon-banner">Coming Soon</, "the login Coming Soon banner"],
   [/id="unity-login-spinner"/, "the password authentication spinner"],
   [/ReceiveBrowserLogin/, "the Unity browser-input callback"],
 ]);
@@ -99,6 +100,7 @@ if (outputPath) {
     [/createUnityInstance/, "the built Unity application startup"],
     [/auth-config\.js/, "the built auth configuration"],
     [/id="unity-login-overlay"/, "the built Unity-aligned input bridge"],
+    [/id="unity-coming-soon-banner">Coming Soon</, "the built login Coming Soon banner"],
     [/id="unity-login-spinner"/, "the built password spinner"],
   ]);
   const builtIndex = readFileSync(path.join(outputPath, "index.html"), "utf8");
