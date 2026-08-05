@@ -10,6 +10,81 @@ using UnityEngine.UI;
 
 public static class SmokeSchoolVisualCapture
 {
+    public static void EnsureComingSoonBanner()
+    {
+        Scene scene = EditorSceneManager.OpenScene("Assets/Scenes/ChimneyScene.unity", OpenSceneMode.Single);
+        Transform[] transforms = Resources.FindObjectsOfTypeAll<Transform>()
+            .Where(item => item != null && item.gameObject.scene == scene)
+            .ToArray();
+        Transform bannerRoot = RequireTransform(transforms, "WelcomePanel");
+        Transform existingBanner = transforms.FirstOrDefault(item => item.name == "Coming Soon Banner");
+        GameObject banner;
+        if (existingBanner == null)
+        {
+            banner = new GameObject(
+                "Coming Soon Banner",
+                typeof(RectTransform),
+                typeof(Image));
+            banner.layer = bannerRoot.gameObject.layer;
+        }
+        else
+        {
+            banner = existingBanner.gameObject;
+        }
+        banner.transform.SetParent(bannerRoot, false);
+        banner.transform.SetAsLastSibling();
+
+        RectTransform bannerRect = (RectTransform)banner.transform;
+        bannerRect.anchorMin = new Vector2(0.41f, 0.60f);
+        bannerRect.anchorMax = new Vector2(0.59f, 0.65f);
+        bannerRect.anchoredPosition = Vector2.zero;
+        bannerRect.sizeDelta = Vector2.zero;
+        bannerRect.localPosition = new Vector3(bannerRect.localPosition.x, bannerRect.localPosition.y, 0f);
+
+        Canvas bannerCanvas = banner.GetComponent<Canvas>();
+        if (bannerCanvas != null)
+        {
+            UnityEngine.Object.DestroyImmediate(bannerCanvas);
+        }
+
+        Image background = banner.GetComponent<Image>();
+        TMP_Text visibleButtonLabel = Resources.FindObjectsOfTypeAll<TMP_Text>()
+            .First(item => item != null && item.gameObject.scene == scene && item.text == "Begin Test");
+        Image visibleButtonBackground = visibleButtonLabel.transform.parent.GetComponent<Image>();
+        background.sprite = visibleButtonBackground.sprite;
+        background.type = visibleButtonBackground.type;
+        background.pixelsPerUnitMultiplier = visibleButtonBackground.pixelsPerUnitMultiplier;
+        background.color = new Color(0.95686275f, 0.7254902f, 0.25882354f, 1f);
+        background.raycastTarget = false;
+
+        TMP_Text label = banner.GetComponentInChildren<TMP_Text>(true);
+        if (label == null)
+        {
+            TMP_Text reference = Resources.FindObjectsOfTypeAll<TMP_Text>()
+                .First(item => item != null && item.gameObject.scene == scene && item.text == "Coming soon");
+            label = UnityEngine.Object.Instantiate(reference, banner.transform);
+            label.gameObject.name = "Label";
+        }
+
+        RectTransform labelRect = (RectTransform)label.transform;
+        labelRect.anchorMin = Vector2.zero;
+        labelRect.anchorMax = Vector2.one;
+        labelRect.anchoredPosition = Vector2.zero;
+        labelRect.sizeDelta = new Vector2(-12f, 0f);
+        labelRect.localPosition = new Vector3(labelRect.localPosition.x, labelRect.localPosition.y, 0f);
+        label.text = "Coming Soon";
+        label.fontSize = 20f;
+        label.fontStyle = FontStyles.Bold;
+        label.color = new Color(0.16078432f, 0.13725491f, 0.16078432f, 1f);
+        label.alignment = TextAlignmentOptions.Center;
+        label.raycastTarget = false;
+        label.gameObject.SetActive(true);
+        banner.SetActive(true);
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+    }
+
     public static void EnsureEndTestButtonBridge()
     {
         Scene scene = EditorSceneManager.OpenScene("Assets/Scenes/ChimneyScene.unity", OpenSceneMode.Single);

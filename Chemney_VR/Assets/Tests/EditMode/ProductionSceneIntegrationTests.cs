@@ -44,6 +44,28 @@ namespace SmokeSchool.Tests
         }
 
         [Test]
+        public void Scene_HasComingSoonBannerAtTopOfHome()
+        {
+            GameObject banner = FindSceneObject("Coming Soon Banner");
+            RectTransform rect = (RectTransform)banner.transform;
+            MonoBehaviour label = banner.GetComponentsInChildren<MonoBehaviour>(true)
+                .Single(component => component.GetType().Name == "TextMeshProUGUI");
+            SerializedObject labelData = new SerializedObject(label);
+
+            Assert.That(banner.activeSelf, Is.True);
+            Assert.That(banner.transform.parent.name, Is.EqualTo("WelcomePanel"));
+            Assert.That(rect.anchorMin.x, Is.EqualTo(0.41f).Within(0.001f));
+            Assert.That(rect.anchorMin.y, Is.EqualTo(0.60f).Within(0.001f));
+            Assert.That(rect.anchorMax.x, Is.EqualTo(0.59f).Within(0.001f));
+            Assert.That(rect.anchorMax.y, Is.EqualTo(0.65f).Within(0.001f));
+            Assert.That(banner.transform.GetSiblingIndex(), Is.EqualTo(banner.transform.parent.childCount - 1));
+            Assert.That(banner.GetComponent<Canvas>(), Is.Null);
+            Assert.That(banner.GetComponent<Image>().raycastTarget, Is.False);
+            Assert.That(labelData.FindProperty("m_text").stringValue, Is.EqualTo("Coming Soon"));
+            Assert.That(labelData.FindProperty("m_RaycastTarget").boolValue, Is.False);
+        }
+
+        [Test]
         public void Scene_HasOneFullyWiredManagerUsingTheProductionCatalog()
         {
             MonoBehaviour[] managers = SceneBehaviours().Where(component => component.GetType().Name == "ManagerTesting").ToArray();
