@@ -29248,7 +29248,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1339834710781379199, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Text
-      value: User ID..
+      value: Password
       objectReference: {fileID: 0}
     - target: {fileID: 1339834710781379199, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Color.b
@@ -29368,7 +29368,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4727522418468997121, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Name
-      value: Username Input
+      value: Password Input
       objectReference: {fileID: 0}
     - target: {fileID: 4727522418468997121, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_IsActive
@@ -32638,7 +32638,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1339834710781379199, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Text
-      value: Email ID..
+      value: Email
       objectReference: {fileID: 0}
     - target: {fileID: 1339834710781379199, guid: de09b951e5995e44a933444d7bc99f4b, type: 3}
       propertyPath: m_Color.b
@@ -66781,9 +66781,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Watch our training video to learn the EPA Method 9 smoke reading technique.
-    It covers observation methods, reference chart use, and tips for accurate
-    opacity readings.
+  m_text: Complete the EPA Method 9 certification test. You will evaluate 25
+    white smoke and 25 black smoke readings, and each reading must be within
+    15% of actual opacity to pass.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -68763,19 +68763,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1569138433}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1314506622}
-        m_TargetAssemblyTypeName: DataInput_Fields, Assembly-CSharp
-        m_MethodName: OnGoButtonClicked
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1569138433
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77380,9 +77368,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Complete the EPA Method 9 certification test. You will evaluate 25
-    white smoke and 25 black smoke readings, and each reading must be within
-    15% of actual opacity to pass.
+  m_text: Watch our training video to learn the EPA Method 9 smoke reading technique.
+    It covers observation methods, reference chart use, and tips for accurate
+    opacity readings.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
