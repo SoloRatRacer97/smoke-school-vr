@@ -65,6 +65,25 @@ public static class CertificationResultReporter
     public static bool HasSucceeded => hasSucceeded;
     public static bool HasCompleteReadings => ValidateReadings(SmokeSchoolAppState.GetOrderedCertificationResults());
 
+    // Hosts submissions so a scene reload (e.g. Retake) cannot abort a request in flight.
+    private class SubmissionRunner : MonoBehaviour
+    {
+    }
+
+    private static SubmissionRunner runner;
+
+    public static void StartSubmission(int runNumber)
+    {
+        if (runner == null)
+        {
+            GameObject host = new GameObject("CertificationResultSubmission");
+            UnityEngine.Object.DontDestroyOnLoad(host);
+            runner = host.AddComponent<SubmissionRunner>();
+        }
+
+        runner.StartCoroutine(Submit(runNumber));
+    }
+
     public static void BeginNewRun()
     {
         attemptId = Guid.NewGuid().ToString();
@@ -99,11 +118,12 @@ public static class CertificationResultReporter
             BeginNewRun();
         }
 
+        string runAttemptId = attemptId;
         isSubmitting = true;
         CertificationAttemptRequest payload = new CertificationAttemptRequest
         {
             resultToken = DataInput_Fields.approvedResultToken,
-            attemptId = attemptId,
+            attemptId = runAttemptId,
             runNumber = runNumber,
             startedAt = startedAt,
             completedAt = DateTime.UtcNow.ToString("o"),
@@ -140,31 +160,40 @@ public static class CertificationResultReporter
             {
                 mismatch = "ok was false or missing";
             }
-            else if (response.attemptId != attemptId)
+            else if (response.attemptId != runAttemptId)
             {
-                mismatch = $"attempt ID was {response.attemptId ?? "missing"}; expected {attemptId}";
+                mismatch = $"attempt ID was {response.attemptId ?? "missing"}; expected {runAttemptId}";
             }
             else
             {
                 responseMatches = ValidateAuthoritativeResult(response.result, request.downloadHandler.text, results, out mismatch);
             }
 
-            hasSucceeded = request.responseCode >= 200 && request.responseCode < 300 && responseMatches;
-            if (hasSucceeded)
+            bool succeeded = request.responseCode >= 200 && request.responseCode < 300 && responseMatches;
+            if (runAttemptId == attemptId)
             {
-                Debug.Log($"Certification result persisted for attempt {attemptId} (duplicate: {response.duplicate}).");
+                hasSucceeded = succeeded;
+            }
+
+            if (succeeded)
+            {
+                Debug.Log($"Certification result persisted for attempt {runAttemptId} (duplicate: {response.duplicate}).");
             }
             else
             {
                 if (!string.IsNullOrEmpty(mismatch))
                 {
-                    Debug.LogError($"Certification result response mismatch for attempt {attemptId}: {mismatch}");
+                    Debug.LogError($"Certification result response mismatch for attempt {runAttemptId}: {mismatch}");
                 }
-                Debug.LogError($"Certification result persistence failed for attempt {attemptId} (HTTP {request.responseCode}). The same attempt ID will be reused on retry.");
+                Debug.LogError($"Certification result persistence failed for attempt {runAttemptId} (HTTP {request.responseCode}). The same attempt ID will be reused on retry.");
             }
         }
 
-        isSubmitting = false;
+        // A retake may have started a new run while this request was in flight; leave its state alone.
+        if (runAttemptId == attemptId)
+        {
+            isSubmitting = false;
+        }
     }
 
     private static List<CertificationReading> BuildReadings(List<SmokeSchoolAppState.QuestionResult> results)

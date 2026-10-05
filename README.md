@@ -44,6 +44,19 @@ See `ACTIVE_RUNTIME_PATH.md` for the current active scene/script path, legacy cl
 | `UnityWebRequest.cs` | Email pipeline — builds HTML audit table with all 50 readings, sends to student + CC |
 | `DataInput_Fields.cs` | Player email/name management, WebGL identity persistence across retries |
 | `SmokeVideoURLData.cs` | ScriptableObject for smoke video URLs by color/opacity |
+| `CertificationResultReporter.cs` | Sends each completed attempt (50 readings) to the dashboard API and checks the dashboard's score |
+
+## Dashboard Results
+
+Each completed certification attempt is saved to the Smoke School dashboard (`SoloRatRacer97/smokeschool-dashboard`) when the student **submits their signature**, for both passed and failed runs.
+
+- **Trigger:** the signature Submit button calls `ManagerTesting.ShowingFinalResult()`, which calls `CertificationResultReporter.StartSubmission(testRunNumber)` once all 25 White and 25 Black readings are complete.
+- **Endpoint:** `POST /api/vr/certification-attempts` on the dashboard host configured in `auth-config.js`, authenticated with the `resultToken` returned at login.
+- **Dashboard:** the attempt appears in the user's Attempt History, and Certification Status changes from "Not Attempted" to "Passed" or "Not Passed".
+- **Retry:** if the save fails, End Test resends it with the same `attemptId`; the dashboard records it once.
+- **Retake:** the save runs on a `DontDestroyOnLoad` object, so pressing Retake immediately does not abort it.
+
+See `CERTIFICATION_RESULT_SAVE_2026-10-05.md` for the root cause, design and validation, and `AUTH_TESTING.md` for end-to-end test cases.
 
 ## EPA Method 9 Compliance
 
@@ -211,6 +224,8 @@ print(json.dumps({
 
 ## Recent Changes
 
+- 2026-10-05 — Save certification results to the dashboard on signature submit, pass or fail (`CERTIFICATION_RESULT_SAVE_2026-10-05.md`)
+- `fa5bd82f` — Tutorial playback fix: replay the video when Start Tutorial activates the player (`TUTORIAL_UPDATE_2026-09-14.md`)
 - `02ca2e07` — Fix scratch/refresh state management and button layout
 - `e3b864b5` — Re-enable scratch/refresh + fix slide counter on rereads
 - `469e2ae` — EPA 15% individual fail gate, Q#1 label fix, identity persistence

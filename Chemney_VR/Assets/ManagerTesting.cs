@@ -2402,6 +2402,9 @@ public class ManagerTesting : MonoBehaviour
         YourTotalScore.text = BuildTotalScoreText(hasIndividualFail);
         ScreenshotSender.didPass = didPass;
 
+        // Persist pass or fail as soon as the signature is submitted; End Test retries if this fails.
+        CertificationResultReporter.StartSubmission(testRunNumber);
+
         LogIndividualFailingReadings(individualFailingReadings, "ShowingFinalResult");
 
         if (!didPass)

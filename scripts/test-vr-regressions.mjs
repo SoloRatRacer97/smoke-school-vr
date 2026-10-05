@@ -16,7 +16,7 @@ const output = outputArgument
   : path.join(project, "VR Smoke School Stock WebXR");
 
 const lockedSourceHashes = new Map([
-  ["Assets/ManagerTesting.cs", "dcc487896eb6c2385609bdfdaa57ea958f595e16232403b62e2da7ba5ce1d711"],
+  ["Assets/ManagerTesting.cs", "317ee1332ac62ab5f3591b98c304ae0a4f63cb5621932da3a1a5fe30455517fb"],
   ["Assets/Scenes/ChimneyScene.unity", "5cf791c2b0e59392b19fdd6c41b7ff6d8a0d5bc8086439b7c3ebe7605e89e8a4"],
   ["Assets/Scripts/DataInput_Fields.cs", "ef8e72b2da3e544d6b1fc6b33d665088680751b73b84ad56e44a918e3a79dd15"],
   ["Assets/Scripts/SignatureRequired.cs", "343afdb6f6163b0f97321a5e2cee036b590939adef215244695e3063772be99b"],
