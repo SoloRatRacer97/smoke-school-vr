@@ -17,7 +17,7 @@ const output = outputArgument
 
 const lockedSourceHashes = new Map([
   ["Assets/ManagerTesting.cs", "dcc487896eb6c2385609bdfdaa57ea958f595e16232403b62e2da7ba5ce1d711"],
-  ["Assets/Scenes/ChimneyScene.unity", "1f690797818a3bece79af83ce4b98246d49f132ad53c33c45d60cae80e722d71"],
+  ["Assets/Scenes/ChimneyScene.unity", "5cf791c2b0e59392b19fdd6c41b7ff6d8a0d5bc8086439b7c3ebe7605e89e8a4"],
   ["Assets/Scripts/DataInput_Fields.cs", "ef8e72b2da3e544d6b1fc6b33d665088680751b73b84ad56e44a918e3a79dd15"],
   ["Assets/Scripts/SignatureRequired.cs", "343afdb6f6163b0f97321a5e2cee036b590939adef215244695e3063772be99b"],
   ["Assets/Scripts/SmokeSchoolEndTestButton.cs", "2d6dbccf161f6e812d83a27a5ec8880d6dbdc5b20997d1c962efb10d0a4fc9c1"],
@@ -158,7 +158,7 @@ assert.doesNotMatch(scene, /\\x03/);
 assert.doesNotMatch(scene, /m_MethodName:\s*\n/);
 assert.doesNotMatch(scene, /m_Target: \{fileID: 0\}/);
 assert.doesNotMatch(scene, /Open Result Pannel|Signature are required|Continue To|Smoke Testing|User ID|User Email/);
-assert.match(scene, /https:\/\/res\.cloudinary\.com\/dkzd0f0tu\/video\/upload\/v1774123829\/Smoke_School_Intro2_lzx9e4\.mov/);
+assert.match(scene, /https:\/\/res\.cloudinary\.com\/dkzd0f0tu\/video\/upload\/v1789398963\/Smoke_School_Intro_copy_ndfg6o\.mov/);
 
 const authSource = read("Assets/Scripts/DataInput_Fields.cs").toString("utf8");
 assert.match(authSource, /UnityWebRequest/);

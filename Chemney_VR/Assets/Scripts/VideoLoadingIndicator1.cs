@@ -23,8 +23,11 @@ public class VideoLoadingIndicator1 : MonoBehaviour
         }
 
         RegisterVideoEvents();
-        videoPlayer.url = videoURL;
-        videoPlayer.Prepare();
+        // The tutorial panel is inactive until Start Tutorial is clicked.
+        if (videoPlayer != null && videoPlayer.isActiveAndEnabled)
+        {
+            ReplayVideo();
+        }
     }
 
     void Update()

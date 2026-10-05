@@ -63072,6 +63072,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 1503826432}
+        m_TargetAssemblyTypeName: VideoLoadingIndicator1, Assembly-CSharp
+        m_MethodName: ReplayVideo
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument:
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 1314506619}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
@@ -66492,7 +66504,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   videoPlayer: {fileID: 1892072956}
-  videoURL: https://res.cloudinary.com/dkzd0f0tu/video/upload/v1774123829/Smoke_School_Intro2_lzx9e4.mov
+  videoURL: https://res.cloudinary.com/dkzd0f0tu/video/upload/v1789398963/Smoke_School_Intro_copy_ndfg6o.mov
   loadingImage: {fileID: 112549311}
 --- !u!1 &1506307287
 GameObject:

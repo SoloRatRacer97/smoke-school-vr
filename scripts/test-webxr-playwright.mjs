@@ -43,6 +43,19 @@ const address = server.address();
 const origin = `http://127.0.0.1:${address.port}`;
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
+const checkTutorial = process.argv.includes("--tutorial");
+let tutorialPlayback = null;
+if (checkTutorial) {
+  await page.addInitScript(() => {
+    window.__tutorialVideos = [];
+    const createElement = document.createElement;
+    document.createElement = function (...args) {
+      const element = createElement.apply(this, args);
+      if (String(args[0]).toLowerCase() === "video") window.__tutorialVideos.push(element);
+      return element;
+    };
+  });
+}
 const pageErrors = [];
 const consoleErrors = [];
 page.on("pageerror", (error) => pageErrors.push(error.message));
@@ -109,6 +122,32 @@ try {
   assert.ok(bounds && bounds.width >= 900 && bounds.height >= 550, `Unity canvas has unexpected dimensions: ${JSON.stringify(bounds)}`);
   await page.screenshot({ path: screenshotPath, fullPage: true });
 
+  if (checkTutorial) {
+    const expectedVideo = "https://res.cloudinary.com/dkzd0f0tu/video/upload/v1789398963/Smoke_School_Intro_copy_ndfg6o.mov";
+    const tutorialScreenshot = screenshotPath.replace(/\.png$/, "-tutorial.png");
+    // The tutorial button is rendered inside the Unity canvas.
+    await page.mouse.click(bounds.x + bounds.width * (368 / 960), bounds.y + bounds.height * (181.5 / 600), { delay: 150 });
+    try {
+      await page.waitForFunction((expected) => window.__tutorialVideos.some((v) =>
+        (v.currentSrc || v.src) === expected && v.readyState >= 2 && !v.paused && v.currentTime >= 1 && v.videoWidth > 0 && !v.error
+      ), expectedVideo, { timeout: 45_000 });
+      const firstTime = await page.evaluate((expected) => window.__tutorialVideos.find((v) => (v.currentSrc || v.src) === expected).currentTime, expectedVideo);
+      await page.waitForFunction(({ expected, firstTime }) => window.__tutorialVideos.find((v) => (v.currentSrc || v.src) === expected).currentTime > firstTime + 1,
+        { expected: expectedVideo, firstTime }, { timeout: 15_000 });
+      tutorialPlayback = await page.evaluate((expected) => {
+        const video = window.__tutorialVideos.find((v) => (v.currentSrc || v.src) === expected);
+        return { url: video.currentSrc, currentTime: video.currentTime, width: video.videoWidth, height: video.videoHeight,
+          duration: video.duration, paused: video.paused, muted: video.muted, volume: video.volume, error: video.error?.code || null };
+      }, expectedVideo);
+      assert.equal(tutorialPlayback.width, 1920);
+      assert.equal(tutorialPlayback.height, 1080);
+      assert.ok(tutorialPlayback.duration > 680 && tutorialPlayback.duration < 684);
+    } finally {
+      await page.screenshot({ path: tutorialScreenshot, fullPage: true });
+      console.log(JSON.stringify({ tutorialPlayback, tutorialScreenshot, pageErrors, consoleErrors }, null, 2));
+    }
+  }
+
   assert.deepEqual(pageErrors, [], `browser page errors:\n${pageErrors.join("\n")}`);
   const unexpectedConsoleErrors = consoleErrors.filter((message) => !message.startsWith("DllNotFoundException: Unable to load DLL 'UnityOpenXR'"));
   assert.deepEqual(unexpectedConsoleErrors, [], `browser console errors:\n${unexpectedConsoleErrors.join("\n")}`);
@@ -116,6 +155,7 @@ try {
     ok: true,
     buildPath: path.relative(root, buildPath),
     authenticated: true,
+    tutorialPlayback,
     canvas: bounds,
     screenshotPath,
     expectedUnityOpenXrWarning: consoleErrors.length - unexpectedConsoleErrors.length,
