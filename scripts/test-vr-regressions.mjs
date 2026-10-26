@@ -17,7 +17,7 @@ const output = outputArgument
 
 const lockedSourceHashes = new Map([
   ["Assets/ManagerTesting.cs", "317ee1332ac62ab5f3591b98c304ae0a4f63cb5621932da3a1a5fe30455517fb"],
-  ["Assets/Scenes/ChimneyScene.unity", "5cf791c2b0e59392b19fdd6c41b7ff6d8a0d5bc8086439b7c3ebe7605e89e8a4"],
+  ["Assets/Scenes/ChimneyScene.unity", "4bcc500d30e0a71090dd0d04f94106be2b413f065233cf834abf4dfec2b1c33e"],
   ["Assets/Scripts/DataInput_Fields.cs", "ef8e72b2da3e544d6b1fc6b33d665088680751b73b84ad56e44a918e3a79dd15"],
   ["Assets/Scripts/SignatureRequired.cs", "343afdb6f6163b0f97321a5e2cee036b590939adef215244695e3063772be99b"],
   ["Assets/Scripts/SmokeSchoolEndTestButton.cs", "2d6dbccf161f6e812d83a27a5ec8880d6dbdc5b20997d1c962efb10d0a4fc9c1"],
@@ -266,7 +266,7 @@ const templateSource = read("Assets/WebGLTemplates/WebXR2020/index.html").toStri
 assert.match(templateSource, /<button id="entervr" value="Enter VR" disabled>VR<\/button>/);
 assert.match(templateSource, /ReceiveBrowserLogin/);
 assert.match(templateSource, /#unity-login-overlay \{ display: none;/);
-assert.match(templateSource, /id="unity-coming-soon-banner"[\s\S]{0,200}<h2>Coming Soon<\/h2>[\s\S]{0,200}Our VR testing environment will be live soon\./);
+assert.doesNotMatch(templateSource, /unity-coming-soon-banner/);
 
 if (sourceOnly) {
   console.log(JSON.stringify({
@@ -293,7 +293,7 @@ for (const filePath of [indexPath, authConfigPath, headersPath]) {
 const index = readFileSync(indexPath, "utf8");
 assert.match(index, /id="unity-canvas"/);
 assert.match(index, /id="unity-login-overlay"/);
-assert.match(index, /id="unity-coming-soon-banner"[\s\S]{0,200}<h2>Coming Soon<\/h2>[\s\S]{0,200}Our VR testing environment will be live soon\./);
+assert.doesNotMatch(index, /unity-coming-soon-banner/);
 assert.match(index, /id="unity-login-spinner"/);
 assert.match(index, /createUnityInstance/);
 assert.match(index, /ReceiveBrowserLogin/);

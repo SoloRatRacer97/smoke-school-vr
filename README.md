@@ -224,6 +224,7 @@ print(json.dumps({
 
 ## Recent Changes
 
+- 2026-10-26 — Removed the Coming Soon banner from the login screen and the VR home screen; release zip `~/Desktop/UPLOAD-THIS-Smoke-School-VR-Netlify-NO-BANNER-20261026.zip` (includes the Oct 5 signature-save fix), deploy to the Netlify site behind vr.smoke.school (`iridescent-entremet-6f4926`)
 - 2026-10-05 — Save certification results to the dashboard on signature submit, pass or fail (`CERTIFICATION_RESULT_SAVE_2026-10-05.md`)
 - `fa5bd82f` — Tutorial playback fix: replay the video when Start Tutorial activates the player (`TUTORIAL_UPDATE_2026-09-14.md`)
 - `02ca2e07` — Fix scratch/refresh state management and button layout

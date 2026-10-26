@@ -26,12 +26,12 @@ requireText(templatePath, [
   [/auth-config\.js/, "the auth configuration"],
   [/createUnityInstance/, "immediate Unity startup"],
   [/id="unity-login-overlay"/, "the Unity-aligned WebGL input bridge"],
-  [/id="unity-coming-soon-banner"[\s\S]{0,200}<h2>Coming Soon<\/h2>[\s\S]{0,200}Our VR testing environment will be live soon\./, "the login Coming Soon announcement"],
   [/id="unity-login-spinner"/, "the password authentication spinner"],
   [/ReceiveBrowserLogin/, "the Unity browser-input callback"],
 ]);
 const template = readFileSync(templatePath, "utf8");
 if (/id="auth-form"/.test(template)) throw new Error("WebXR template still contains the HTML login gate.");
+if (/unity-coming-soon-banner/.test(template)) throw new Error("WebXR template still contains the Coming Soon banner.");
 requireText(configPath, [[/api\/vr\/login/, "the VR login endpoint"]]);
 requireText(dataInputPath, [
   [/UnityWebRequest/, "the Unity-native dashboard request"],
@@ -100,11 +100,11 @@ if (outputPath) {
     [/createUnityInstance/, "the built Unity application startup"],
     [/auth-config\.js/, "the built auth configuration"],
     [/id="unity-login-overlay"/, "the built Unity-aligned input bridge"],
-    [/id="unity-coming-soon-banner"[\s\S]{0,200}<h2>Coming Soon<\/h2>[\s\S]{0,200}Our VR testing environment will be live soon\./, "the built login Coming Soon announcement"],
     [/id="unity-login-spinner"/, "the built password spinner"],
   ]);
   const builtIndex = readFileSync(path.join(outputPath, "index.html"), "utf8");
   if (/id="auth-form"/.test(builtIndex)) throw new Error("Built output still contains the HTML login gate.");
+  if (/unity-coming-soon-banner/.test(builtIndex)) throw new Error("Built output still contains the Coming Soon banner.");
   requireText(path.join(outputPath, "auth-config.js"), [[/api\/vr\/login/, "the built login endpoint"]]);
   requireText(path.join(outputPath, "_headers"), [[/Content-Encoding: br/, "Netlify Brotli headers"]]);
 }
